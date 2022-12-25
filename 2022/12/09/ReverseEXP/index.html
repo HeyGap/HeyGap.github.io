@@ -28,7 +28,7 @@
 <meta property="og:description" content="0x00 Overview在这里放一些做re题目的步骤，典型例题，和实用工具">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-12-09T15:30:00.000Z">
-<meta property="article:modified_time" content="2022-12-10T15:54:10.907Z">
+<meta property="article:modified_time" content="2022-12-13T06:34:06.396Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="WP">
 <meta name="twitter:card" content="summary">
@@ -181,7 +181,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-12-10 23:12:90" itemprop="dateModified" datetime="2022-12-10T23:54:10+08:00">2022-12-10</time>
+                <time title="Modified: 2022-12-13 14:12:39" itemprop="dateModified" datetime="2022-12-13T14:34:06+08:00">2022-12-13</time>
               </span>
 
           
@@ -200,7 +200,7 @@
 
 <h1 id="0x01-方法论"><a href="#0x01-方法论" class="headerlink" title="0x01 方法论"></a>0x01 方法论</h1><ol>
 <li>三分逆向七分猜<br><code>先猜这是一个什么样的题，去尝试一下，尝试不通再走常规流程</code></li>
-<li>耐心<br><code>知道这是什么流程以后，耐心分析即可</code></li>
+<li>耐心<br><code>这个程序一定会被人破解的，不存在破解不了的程序，因此只需耐心分析</code></li>
 </ol>
 <h1 id="0x02-流程"><a href="#0x02-流程" class="headerlink" title="0x02 流程"></a>0x02 流程</h1><ol>
 <li>观察题目提示</li>
@@ -224,6 +224,9 @@
 <li>Shift+F12 审查 字符串，看看有无可疑的字符串</li>
 <li>结合第一步以及左栏函数部分，跟进可疑函数，在汇编代码页观察可疑数组<ol>
 <li>未开辟但存在的数组是不会出现在伪代码中的</li>
+<li>对于混淆名字的函数将其恢复</li>
+<li>结合上文对参数的变换，下文对参数的调用，分析中间函数的用处</li>
+<li>相同函数不同形参，对比形参分析两个形参有何不同</li>
 </ol>
 </li>
 <li>F5进入伪代码，了解基函数的大致逻辑<ol>
@@ -257,21 +260,19 @@
 <li>转化为可执行的C风格代码的能力</li>
 </ol>
 </li>
-<li>大小端序</li>
-<li>数组取值逻辑</li>
-<li>base64解码</li>
+<li>内存结构（大小端序、数组寻址）</li>
+<li>编码格式（字符串、ascii、hex、binary之间的转换）</li>
+<li>常用加解密算法</li>
 <li>基础py、c、java脚本的阅读能力和编写能力</li>
 </ol>
-<h1 id="0x04-待解决的问题"><a href="#0x04-待解决的问题" class="headerlink" title="0x04 待解决的问题"></a>0x04 待解决的问题</h1><ol>
-<li>拿到一个加密程序以后，如果猜不到，只能慢慢分析，那么分析到底是头脑风暴还是要另开一个文件写出对应的c风格代码会好一点？</li>
-</ol>
+<h1 id="0x04-待解决的问题"><a href="#0x04-待解决的问题" class="headerlink" title="0x04 待解决的问题"></a>0x04 待解决的问题</h1><p>1. </p>
 <h1 id="0x05-题型"><a href="#0x05-题型" class="headerlink" title="0x05 题型"></a>0x05 题型</h1><ol>
 <li>Maze<blockquote>
 <p>有明显的“上下左右”的提示，有可以表示墙、路、人和出口的数据，基函数出口为两个判断语句（出口和撞墙）</p>
 </blockquote>
 </li>
-<li>Base64解码</li>
-<li>Hash函数(SHA、MD5)</li>
+<li>加解密（base、hash、rsa、）</li>
+<li></li>
 <li></li>
 </ol>
 
@@ -292,8 +293,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/12/09/WP_New/" rel="prev" title="WP_New">
-      <i class="fa fa-chevron-left"></i> WP_New
+    <a href="/2022/12/08/Blog/" rel="prev" title="Blog">
+      <i class="fa fa-chevron-left"></i> Blog
     </a></div>
       <div class="post-nav-item">
     <a href="/2022/12/10/WP_Sum/" rel="next" title="WP_Sum">
@@ -371,7 +372,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

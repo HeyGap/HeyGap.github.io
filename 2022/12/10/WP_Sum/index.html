@@ -28,7 +28,7 @@
 <meta property="og:description" content="0x00 Overview每一题都写WP实在是太麻烦了，但是写WP雀食有利于提升re逻辑能力，分析了一下，写WP只是push我自己去复盘，去串一串涉及到的知识点。因此结合一下，把每一题的重点写在WP里~~">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-12-10T15:50:00.000Z">
-<meta property="article:modified_time" content="2022-12-12T06:59:30.569Z">
+<meta property="article:modified_time" content="2022-12-24T13:20:45.865Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="WP">
 <meta name="twitter:card" content="summary">
@@ -181,7 +181,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-12-12 14:12:56" itemprop="dateModified" datetime="2022-12-12T14:59:30+08:00">2022-12-12</time>
+                <time title="Modified: 2022-12-24 21:12:86" itemprop="dateModified" datetime="2022-12-24T21:20:45+08:00">2022-12-24</time>
               </span>
 
           
@@ -198,16 +198,52 @@
         <h1 id="0x00-Overview"><a href="#0x00-Overview" class="headerlink" title="0x00 Overview"></a>0x00 Overview</h1><p>每一题都写WP实在是太麻烦了，但是写WP雀食有利于<em>提升re逻辑能力</em>，分析了一下，写WP只是push我自己去复盘，去串一串涉及到的知识点。<br>因此结合一下，把每一题的重点写在WP里~~</p>
 <span id="more"></span>
 
-<h2 id="0x01-ACTF新生赛2020-easyre"><a href="#0x01-ACTF新生赛2020-easyre" class="headerlink" title="0x01 [ACTF新生赛2020]easyre"></a>0x01 [ACTF新生赛2020]easyre</h2><p>upx脱壳、反编译C代码逻辑问题、数组取址、伪代码中字符串（混杂字母、十六进制、换行）的表示方式、单表替换加密</p>
+<h1 id="不懂但抄出来了：相册"><a href="#不懂但抄出来了：相册" class="headerlink" title="不懂但抄出来了：相册"></a>不懂但抄出来了：相册</h1><h2 id="0x01-ACTF新生赛2020-easyre"><a href="#0x01-ACTF新生赛2020-easyre" class="headerlink" title="0x01 [ACTF新生赛2020]easyre"></a>0x01 [ACTF新生赛2020]easyre</h2><p>upx脱壳、反编译C代码逻辑问题、数组取址、伪代码中字符串（混杂字母、十六进制、换行）的表示方式、单表替换加密</p>
 <h2 id="0x02-findit"><a href="#0x02-findit" class="headerlink" title="0x02 findit"></a>0x02 findit</h2><p>apk文件逆向(android)、java代码阅读、凯撒密码</p>
-<h2 id="0x03-rsa"><a href="#0x03-rsa" class="headerlink" title="0x03 rsa"></a>0x03 rsa</h2><p>rsa加密、rsa公钥文件信息提取在线工具<a target="_blank" rel="noopener" href="http://tool.chacuo.net/cryptrsakeyparse">Here)</a>、py$^{[1]}$、分步处理$^{[2]}$<br>[1] 文件读取，bytes&amp;long，<br>[2] 当文件读取出来的东西不能直接进一步利用时，可以在终端先输出数据，再将数据复制下来进一步利用</p>
+<h2 id="0x03-rsa"><a href="#0x03-rsa" class="headerlink" title="0x03 rsa"></a>0x03 rsa</h2><h2 id="0x10-SUCTF2019-SignIn"><a href="#0x10-SUCTF2019-SignIn" class="headerlink" title="0x10 [SUCTF2019]SignIn"></a>0x10 [SUCTF2019]SignIn</h2><p>①rsa加密、rsa公钥文件信息提取在线工具<a target="_blank" rel="noopener" href="http://tool.chacuo.net/cryptrsakeyparse">Here)</a>、py$^{[1]}$、分步处理$^{[2]}$<br>[1] 文件读取，bytes&amp;long，<br>[2] 当文件读取出来的东西不能直接进一步利用时，可以在终端先输出数据，再将数据复制下来进一步利用<br>②rsa加密、编码</p>
 <h2 id="0x04-ACTF新生赛2020-rome"><a href="#0x04-ACTF新生赛2020-rome" class="headerlink" title="0x04 [ACTF新生赛2020]rome"></a>0x04 [ACTF新生赛2020]rome</h2><p>变异凯撒，有点像0x01与0x02的结合<br>*tips:*凯撒加密的解密脚本分:大小写字母、非字母三部分来写，if判断可以与0比较也可以与a和A作比较，%26不满26可以while然后++</p>
 <h2 id="0x05-FlareOn4-login"><a href="#0x05-FlareOn4-login" class="headerlink" title="0x05 [FlareOn4]login"></a>0x05 [FlareOn4]login</h2><p>html逆向、rot13解密</p>
 <h2 id="0x06-CrackRTF"><a href="#0x06-CrackRTF" class="headerlink" title="0x06 CrackRTF"></a>0x06 CrackRTF</h2><ol>
-<li>WindowsAPI(HASH)—&gt;微软上去查</li>
+<li>WindowsAPI(HASH)—&gt;查微软man</li>
 <li>Hash加密(SHA1, MD5)<br>SHA1:40位特征值    MD5:32位特征值<br>限定范围可以爆破</li>
+<li>resourcehacker</li>
 </ol>
-<p>把WP1的一些知识链接放到这里来啦~，我觉得等我啥时候不需要了就删掉XD<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a0338256610b">数组寻址</a></p>
+<h2 id="0x07-GUET-CTF2019-re"><a href="#0x07-GUET-CTF2019-re" class="headerlink" title="0x07 [GUET-CTF2019]re"></a>0x07 [GUET-CTF2019]re</h2><h2 id="0x08-WUSTCTF2020-level1"><a href="#0x08-WUSTCTF2020-level1" class="headerlink" title="0x08 [WUSTCTF2020]level1"></a>0x08 [WUSTCTF2020]level1</h2><ol>
+<li>数据四则运算逆向解密</li>
+</ol>
+<h2 id="0x09-MRCTF2020-Transform"><a href="#0x09-MRCTF2020-Transform" class="headerlink" title="0x09 [MRCTF2020]Transform"></a>0x09 [MRCTF2020]Transform</h2><ol>
+<li>乱序逆向</li>
+<li><code>x dup(0)</code>的意思是后面跟着x个0，为了数据对齐</li>
+</ol>
+<h2 id="0x0A-ACTF新生赛2020-usualCrypt"><a href="#0x0A-ACTF新生赛2020-usualCrypt" class="headerlink" title="0x0A [ACTF新生赛2020]usualCrypt"></a>0x0A [ACTF新生赛2020]usualCrypt</h2><ol>
+<li>换表base</li>
+<li>同内存 数组自变换</li>
+</ol>
+<h2 id="0x0B-HDCTF2019-Maze"><a href="#0x0B-HDCTF2019-Maze" class="headerlink" title="0x0B [HDCTF2019]Maze"></a>0x0B [HDCTF2019]Maze</h2><ol>
+<li>去壳去花指令</li>
+<li>迷宫</li>
+</ol>
+<h2 id="0x0C-MRCTF2020-Xor"><a href="#0x0C-MRCTF2020-Xor" class="headerlink" title="0x0C [MRCTF2020]Xor"></a>0x0C [MRCTF2020]Xor</h2><ol>
+<li>F5反汇编失败——函数调用失败</li>
+<li>函数调用失败原因——压栈变量与形参列表形参数目不符[?]</li>
+</ol>
+<h2 id="0x0D-WUSTCTF2020-level3"><a href="#0x0D-WUSTCTF2020-level3" class="headerlink" title="0x0D [WUSTCTF2020]level3"></a>0x0D [WUSTCTF2020]level3</h2><ol>
+<li>换表base(遇到任何有表的函数一定要先看看表的交叉引用，防止换表)</li>
+<li>写了一个base64编解码工具</li>
+</ol>
+<h2 id="0x0E-GWCTF-2019-xxor"><a href="#0x0E-GWCTF-2019-xxor" class="headerlink" title="0x0E [GWCTF 2019]xxor"></a>0x0E [GWCTF 2019]xxor</h2><ol>
+<li>DWORD为32位，64位直接赋值给32位时，32位变量将接收64位变量低地址的32位</li>
+<li>循环加密只需要逆序循环解密即可</li>
+<li>jle</li>
+<li>汇编语言转c代码时，数组、循环等部分代码会被混淆</li>
+<li>对内存进行操作时，最好像<a href="%5B(9%E6%9D%A1%E6%B6%88%E6%81%AF">这篇博客</a> [BUUCTF]REVERSE - [GWCTF 2019]xxor_firfis的博客-CSDN博客](<a target="_blank" rel="noopener" href="https://blog.csdn.net/firfis/article/details/125578200?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166995134716782425199556%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=166995134716782425199556&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-125578200-null-null.142%5Ev67%5Econtrol,201%5Ev3%5Eadd_ask,213%5Ev2%5Et3_esquery_v2&utm_term=%5BGWCTF%202019%5Dxxor&spm=1018.2226.3001.4187))%E9%87%8C%E5%A4%A7%E5%B0%8F%E7%AB%AF%E5%BA%8F%E5%88%86%E6%9E%90%E6%97%B6%E5%86%99%E7%9A%84%E4%B8%80%E6%A0%B7%EF%BC%8C%E4%BE%BF%E4%BA%8E%E5%90%8E%E7%BB%AD%E5%88%86%E6%9E%90">https://blog.csdn.net/firfis/article/details/125578200?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166995134716782425199556%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=166995134716782425199556&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-125578200-null-null.142%5Ev67%5Econtrol,201%5Ev3%5Eadd_ask,213%5Ev2%5Et3_esquery_v2&amp;utm_term=%5BGWCTF%202019%5Dxxor&amp;spm=1018.2226.3001.4187))里大小端序分析时写的一样，便于后续分析</a></li>
+</ol>
+<h2 id="0x0F-特殊的-BASE64"><a href="#0x0F-特殊的-BASE64" class="headerlink" title="0x0F 特殊的 BASE64"></a>0x0F 特殊的 BASE64</h2><ol>
+<li>嘿嘿证明了我在0x0d里写的工具是万能的XDDDD，字符串里一搜复制粘贴两串字符马上解决~</li>
+</ol>
+<h2 id="0x10-第十六篇WP"><a href="#0x10-第十六篇WP" class="headerlink" title="0x10 第十六篇WP~"></a>0x10 第十六篇WP~</h2><p>把WP1的一些知识链接放到这里来啦~，我觉得等我啥时候不需要了就删掉XD<br><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-271942.htm">函数调用错误</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/ookami6497/article/details/118992574">android逆向初步</a></p>
+<p>cout按从低地址到高地址的顺序输出字符串<br>我写的<br><code>cout&lt;&lt;(char*)a&lt;&lt;endl;</code><br>终端输出alf<br>说明低地址存a，高地址存f</p>
+<p>cout是怎么输出字符串的，是按照从高地址到低地址，还是低地址到高地址？字符串在内存里是按照大端序还是小端序储存？</p>
 
     </div>
 
@@ -229,7 +265,10 @@
     <a href="/2022/12/09/ReverseEXP/" rel="prev" title="ReverseEXP">
       <i class="fa fa-chevron-left"></i> ReverseEXP
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/12/23/README/" rel="next" title="">
+       <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -288,7 +327,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-Overview"><span class="nav-number">1.</span> <span class="nav-text">0x00 Overview</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-easyre"><span class="nav-number">1.1.</span> <span class="nav-text">0x01 [ACTF新生赛2020]easyre</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-findit"><span class="nav-number">1.2.</span> <span class="nav-text">0x02 findit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-rsa"><span class="nav-number">1.3.</span> <span class="nav-text">0x03 rsa</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-rome"><span class="nav-number">1.4.</span> <span class="nav-text">0x04 [ACTF新生赛2020]rome</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-FlareOn4-login"><span class="nav-number">1.5.</span> <span class="nav-text">0x05 [FlareOn4]login</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-CrackRTF"><span class="nav-number">1.6.</span> <span class="nav-text">0x06 CrackRTF</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-Overview"><span class="nav-number">1.</span> <span class="nav-text">0x00 Overview</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8D%E6%87%82%E4%BD%86%E6%8A%84%E5%87%BA%E6%9D%A5%E4%BA%86%EF%BC%9A%E7%9B%B8%E5%86%8C"><span class="nav-number">2.</span> <span class="nav-text">不懂但抄出来了：相册</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-easyre"><span class="nav-number">2.1.</span> <span class="nav-text">0x01 [ACTF新生赛2020]easyre</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-findit"><span class="nav-number">2.2.</span> <span class="nav-text">0x02 findit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-rsa"><span class="nav-number">2.3.</span> <span class="nav-text">0x03 rsa</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x10-SUCTF2019-SignIn"><span class="nav-number">2.4.</span> <span class="nav-text">0x10 [SUCTF2019]SignIn</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-rome"><span class="nav-number">2.5.</span> <span class="nav-text">0x04 [ACTF新生赛2020]rome</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-FlareOn4-login"><span class="nav-number">2.6.</span> <span class="nav-text">0x05 [FlareOn4]login</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-CrackRTF"><span class="nav-number">2.7.</span> <span class="nav-text">0x06 CrackRTF</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-GUET-CTF2019-re"><span class="nav-number">2.8.</span> <span class="nav-text">0x07 [GUET-CTF2019]re</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-WUSTCTF2020-level1"><span class="nav-number">2.9.</span> <span class="nav-text">0x08 [WUSTCTF2020]level1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-MRCTF2020-Transform"><span class="nav-number">2.10.</span> <span class="nav-text">0x09 [MRCTF2020]Transform</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-usualCrypt"><span class="nav-number">2.11.</span> <span class="nav-text">0x0A [ACTF新生赛2020]usualCrypt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0B-HDCTF2019-Maze"><span class="nav-number">2.12.</span> <span class="nav-text">0x0B [HDCTF2019]Maze</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0C-MRCTF2020-Xor"><span class="nav-number">2.13.</span> <span class="nav-text">0x0C [MRCTF2020]Xor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-WUSTCTF2020-level3"><span class="nav-number">2.14.</span> <span class="nav-text">0x0D [WUSTCTF2020]level3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0E-GWCTF-2019-xxor"><span class="nav-number">2.15.</span> <span class="nav-text">0x0E [GWCTF 2019]xxor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0F-%E7%89%B9%E6%AE%8A%E7%9A%84-BASE64"><span class="nav-number">2.16.</span> <span class="nav-text">0x0F 特殊的 BASE64</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x10-%E7%AC%AC%E5%8D%81%E5%85%AD%E7%AF%87WP"><span class="nav-number">2.17.</span> <span class="nav-text">0x10 第十六篇WP~</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -302,7 +341,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
