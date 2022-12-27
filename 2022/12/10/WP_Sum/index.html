@@ -28,7 +28,7 @@
 <meta property="og:description" content="0x00 Overview每一题都写WP实在是太麻烦了，但是写WP雀食有利于提升re逻辑能力，分析了一下，写WP只是push我自己去复盘，去串一串涉及到的知识点。因此结合一下，把每一题的重点写在WP里~~">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-12-10T15:50:00.000Z">
-<meta property="article:modified_time" content="2022-12-25T06:41:52.530Z">
+<meta property="article:modified_time" content="2022-12-27T16:10:03.457Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="WP">
 <meta name="twitter:card" content="summary">
@@ -188,7 +188,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-12-25 14:12:53" itemprop="dateModified" datetime="2022-12-25T14:41:52+08:00">2022-12-25</time>
+                <time title="Modified: 2022-12-28 00:12:45" itemprop="dateModified" datetime="2022-12-28T00:10:03+08:00">2022-12-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -221,7 +221,7 @@
 <h2 id="0x05-FlareOn4-login"><a href="#0x05-FlareOn4-login" class="headerlink" title="0x05 [FlareOn4]login"></a>0x05 [FlareOn4]login</h2><p>html逆向、rot13解密</p>
 <h2 id="0x06-CrackRTF"><a href="#0x06-CrackRTF" class="headerlink" title="0x06 CrackRTF"></a>0x06 CrackRTF</h2><ol>
 <li>WindowsAPI(HASH)—&gt;查微软man</li>
-<li>Hash加密(SHA1, MD5)<br>SHA1:40位特征值    MD5:32位特征值<br>限定范围可以爆破</li>
+<li>Hash加密(SHA1, MD5)<br>SHA1:40字节特征值    MD5:32字节特征值<br>限定范围可以爆破</li>
 <li>resourcehacker</li>
 </ol>
 <h2 id="0x07-GUET-CTF2019-re"><a href="#0x07-GUET-CTF2019-re" class="headerlink" title="0x07 [GUET-CTF2019]re"></a>0x07 [GUET-CTF2019]re</h2><h2 id="0x08-WUSTCTF2020-level1"><a href="#0x08-WUSTCTF2020-level1" class="headerlink" title="0x08 [WUSTCTF2020]level1"></a>0x08 [WUSTCTF2020]level1</h2><ol>
@@ -250,16 +250,99 @@
 <h2 id="0x0E-GWCTF-2019-xxor"><a href="#0x0E-GWCTF-2019-xxor" class="headerlink" title="0x0E [GWCTF 2019]xxor"></a>0x0E [GWCTF 2019]xxor</h2><ol>
 <li>DWORD为32位，64位直接赋值给32位时，32位变量将接收64位变量低地址的32位</li>
 <li>循环加密只需要逆序循环解密即可</li>
-<li>jle</li>
+<li>jle: jump if less than or equals to</li>
 <li>汇编语言转c代码时，数组、循环等部分代码会被混淆</li>
 <li>对内存进行操作时，最好像<a href="%5B(9%E6%9D%A1%E6%B6%88%E6%81%AF">这篇博客</a> [BUUCTF]REVERSE - [GWCTF 2019]xxor_firfis的博客-CSDN博客](<a target="_blank" rel="noopener" href="https://blog.csdn.net/firfis/article/details/125578200?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166995134716782425199556%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=166995134716782425199556&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-125578200-null-null.142%5Ev67%5Econtrol,201%5Ev3%5Eadd_ask,213%5Ev2%5Et3_esquery_v2&utm_term=%5BGWCTF%202019%5Dxxor&spm=1018.2226.3001.4187))%E9%87%8C%E5%A4%A7%E5%B0%8F%E7%AB%AF%E5%BA%8F%E5%88%86%E6%9E%90%E6%97%B6%E5%86%99%E7%9A%84%E4%B8%80%E6%A0%B7%EF%BC%8C%E4%BE%BF%E4%BA%8E%E5%90%8E%E7%BB%AD%E5%88%86%E6%9E%90">https://blog.csdn.net/firfis/article/details/125578200?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166995134716782425199556%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=166995134716782425199556&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-125578200-null-null.142%5Ev67%5Econtrol,201%5Ev3%5Eadd_ask,213%5Ev2%5Et3_esquery_v2&amp;utm_term=%5BGWCTF%202019%5Dxxor&amp;spm=1018.2226.3001.4187))里大小端序分析时写的一样，便于后续分析</a></li>
 </ol>
-<h2 id="0x0F-特殊的-BASE64"><a href="#0x0F-特殊的-BASE64" class="headerlink" title="0x0F 特殊的 BASE64"></a>0x0F 特殊的 BASE64</h2><ol>
-<li>嘿嘿证明了我在0x0d里写的工具是万能的XDDDD，字符串里一搜复制粘贴两串字符马上解决~</li>
+<h2 id="0x0F-特殊的-BASE64"><a href="#0x0F-特殊的-BASE64" class="headerlink" title="0x0F 特殊的 BASE64"></a>0x0F 特殊的 BASE64</h2><h2 id="0x11-FlareOn3-Challenge1"><a href="#0x11-FlareOn3-Challenge1" class="headerlink" title="0x11 [FlareOn3]Challenge1"></a>0x11 [FlareOn3]Challenge1</h2><ol>
+<li>嘿嘿证明了我在0x0D里写的工具是万能的XDDDD，字符串里一搜复制粘贴两串字符马上解决~</li>
 </ol>
-<h2 id="0x10-第十六篇WP"><a href="#0x10-第十六篇WP" class="headerlink" title="0x10 第十六篇WP~"></a>0x10 第十六篇WP~</h2><p>把WP1的一些知识链接放到这里来啦~，我觉得等我啥时候不需要了就删掉XD<br><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-271942.htm">函数调用错误</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/ookami6497/article/details/118992574">android逆向初步</a></p>
-<p>cout按从低地址到高地址的顺序输出字符串<br>我写的<br><code>cout&lt;&lt;(char*)a&lt;&lt;endl;</code><br>终端输出alf<br>说明低地址存a，高地址存f</p>
-<p>cout是怎么输出字符串的，是按照从高地址到低地址，还是低地址到高地址？字符串在内存里是按照大端序还是小端序储存？</p>
+<h2 id="0x10-第十六篇WP-ACTF新生赛2020-Oruga"><a href="#0x10-第十六篇WP-ACTF新生赛2020-Oruga" class="headerlink" title="0x10 第十六篇WP~ [ACTF新生赛2020]Oruga"></a>0x10 第十六篇WP~ [ACTF新生赛2020]Oruga</h2><ol>
+<li>迷宫特征：四个if循环+两个while，其中左右移动步数加减1，上下移动步数加减’列数‘</li>
+</ol>
+<h2 id="0x12-FlareOn6-Overlong"><a href="#0x12-FlareOn6-Overlong" class="headerlink" title="0x12 [FlareOn6]Overlong"></a>0x12 [FlareOn6]Overlong</h2><ol>
+<li>解法一：OD修改指令（要防止nop，或者要动态修改，没学会）</li>
+<li>解法二：对照机器指令修改Winhex并重运行</li>
+<li>解法三：找出底层逻辑（这里不太一样，别的题目都是直接加密flag，这里是隐藏flag，本质上都是对flag做操作，找出这个操作就是找出加密的底层逻辑）</li>
+</ol>
+<h2 id="0x13-BJDCTF2020-BJD-hamburger-competition"><a href="#0x13-BJDCTF2020-BJD-hamburger-competition" class="headerlink" title="0x13 [BJDCTF2020]BJD hamburger competition"></a>0x13 [BJDCTF2020]BJD hamburger competition</h2><ol>
+<li>逆天题目，我愿称之为最搞笑，不过也是我第一次接触游戏逆向</li>
+<li>unity3D游戏开发&lt;—C# &amp; .net，这里没太搞懂，看了好多WP也说得不明不白，直接对C#和net的RTFM有点小题大做，所以暂且搁置</li>
+<li>积累到工具ILSpy<a target="_blank" rel="noopener" href="https://blog.csdn.net/ZUFE_ZXh/article/details/106112664">这里是下载说明XD</a></li>
+<li>HASH(MD5 SHA-1)</li>
+</ol>
+<h2 id="0x14-Zer0pts2020-easy-strcmp"><a href="#0x14-Zer0pts2020-easy-strcmp" class="headerlink" title="0x14 [Zer0pts2020]easy strcmp"></a>0x14 [Zer0pts2020]easy strcmp</h2><ol>
+<li>很涨姿势，这是我遇到的第一个明显&#x3D;&#x3D;代码混淆&#x3D;&#x3D;的题目</li>
+<li>代码混淆：让程序在运行过程中才确定调用函数的地址</li>
+<li>混淆目的：不允许调试者静态调试下跟进函数</li>
+<li>本题代码混淆：某个函数中进行函数地址赋值操作</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Tokameine/article/details/118148770">具体讲解</a></li>
+<li>for循环的（）中可能也对全局变量进行了操作</li>
+</ol>
+<h2 id="0x15-ACTF新生赛2020-Universe-final-answer"><a href="#0x15-ACTF新生赛2020-Universe-final-answer" class="headerlink" title="0x15 [ACTF新生赛2020]Universe_final_answer"></a>0x15 [ACTF新生赛2020]Universe_final_answer</h2><ol>
+<li>z3库不得不安装了。。有点费劲</li>
+<li>不过这个题就是解非齐次线性方程组，唤醒了我古老的线代记忆XD</li>
+</ol>
+<h2 id="0x16-WUSTCTF2020-level4"><a href="#0x16-WUSTCTF2020-level4" class="headerlink" title="0x16 [WUSTCTF2020]level4"></a>0x16 [WUSTCTF2020]level4</h2><ol>
+<li>内功来力XDDD，数据结构二叉树遍历，不会，先放着</li>
+</ol>
+<h2 id="0x17-网鼎杯-2020-青龙组-singal"><a href="#0x17-网鼎杯-2020-青龙组-singal" class="headerlink" title="0x17 [网鼎杯 2020 青龙组]singal"></a>0x17 [网鼎杯 2020 青龙组]singal</h2><ol>
+<li>虚拟机指令逆向（WP都这么说，但我也没看出有啥跟虚拟机相关的东西来）</li>
+<li>变成数组以后shift+e提取c风格数组XD，做了这么多题才学会</li>
+<li>switch流程加密，先放着</li>
+</ol>
+<h2 id="0x18-crackMe"><a href="#0x18-crackMe" class="headerlink" title="0x18 crackMe"></a>0x18 crackMe</h2><ol>
+<li>动态调试：<ul>
+<li>jnz EA，jmp EB，jz 74，jnz 75</li>
+</ul>
+</li>
+<li>OD和IDA代码段的偏移地址相同，可以通过后三位定位OD汇编代码</li>
+<li>OD ctrl+b修改hex</li>
+<li>IDA可以直接右键看hex视图修改<br>疑惑：为啥IDA就看不了ecx的正确结果而od可以？是因为ida修改不了源文件所以运行时一定会被反编译器检查到？</li>
+</ol>
+<h2 id="0x19-GUET-CTF2019-number-game"><a href="#0x19-GUET-CTF2019-number-game" class="headerlink" title="0x19 [GUET-CTF2019]number_game"></a>0x19 [GUET-CTF2019]number_game</h2><ol>
+<li>数独：三个for两个if嵌套构建一个矩阵，if中&#x3D;&#x3D;不允许&#x3D;&#x3D;数字相等</li>
+<li>二叉树中序遍历（没懂）</li>
+<li>解法二：分析可知flag构成为5^10&lt;10^7(这里不知道为什么)，单词判断复杂度也很小，于是可以爆破flag求解</li>
+</ol>
+<h2 id="0x1A-findKey"><a href="#0x1A-findKey" class="headerlink" title="0x1A findKey"></a>0x1A findKey</h2><ol>
+<li>终于做到一个相对简单的题了（QAQ）前几题要么就是虚拟机指令逆向，要么就是数据结构，要么就是动调，还有齐次线性方程组</li>
+<li>花指令模式一：两个一样的代码</li>
+<li>修改方式：①鼠标挪到汇编指令上②hex视图修改③nop 90④按p键重新反编译</li>
+<li>一个MD5两个XOR解决战斗</li>
+</ol>
+<h2 id="0x1B-羊城杯-2020-easyre"><a href="#0x1B-羊城杯-2020-easyre" class="headerlink" title="0x1B[羊城杯 2020]easyre"></a>0x1B[羊城杯 2020]easyre</h2><ol>
+<li>恺撒密码</li>
+<li>分块换位</li>
+<li>base64</li>
+</ol>
+<h2 id="0x1C-网鼎杯-2020-青龙组-jocker"><a href="#0x1C-网鼎杯-2020-青龙组-jocker" class="headerlink" title="0x1C[网鼎杯 2020 青龙组]jocker"></a>0x1C[网鼎杯 2020 青龙组]jocker</h2><ol>
+<li>代码混淆：主函数中对代码段的代码异或</li>
+<li>上个代码混淆只改了地址，这个题直接把要跟进的函数给扭曲了，看都没法看只能动态调试再打补丁修改，见<a target="_blank" rel="noopener" href="https://blog.csdn.net/mcmuyanga/article/details/115428976">详解</a></li>
+<li>ida操作：下断点、强转指令（快捷键C）</li>
+<li>栈指针不平衡：Alt+K修改（原理没懂）</li>
+</ol>
+<h2 id="0x1D-FlareOn5-Minesweeper-Championship-Registration"><a href="#0x1D-FlareOn5-Minesweeper-Championship-Registration" class="headerlink" title="0x1D[FlareOn5]Minesweeper Championship Registration"></a>0x1D[FlareOn5]Minesweeper Championship Registration</h2><ol>
+<li>好吧，我承认我刚才说话声音大了点，这才是最简单的题目</li>
+<li>java逆向，jd-gui一把梭</li>
+</ol>
+<h2 id="0x1E-firmware"><a href="#0x1E-firmware" class="headerlink" title="0x1E firmware"></a>0x1E firmware</h2><ol>
+<li>固件安全，好像是路由器固件dump，居然可以看后门程序使用的远程服务器和端口，涨姿势了</li>
+<li>binwalk -e *.bin</li>
+<li>用到了firmware-mod-kit，配环境配了一晚上…</li>
+<li>upx壳</li>
+</ol>
+<p>把WP1的一些知识链接放到这里来啦~，我觉得等我啥时候不需要了就删掉XD<br><a target="_blank" rel="noopener" href="https://bbs.pediy.com/thread-271942.htm">函数调用错误</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/ookami6497/article/details/118992574">android逆向初步</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_51713041/article/details/112414254">IDA快捷键</a></p>
+<p>尚未解决本质的一些问题：<br>开发语言逆向：java、python、C#、.net，对应工具（jadx、dnSpy、ILSpy）的学名、原理<br>OD修改汇编指令的原理、dbg的一些基本操作<br>花指令、堆栈平衡<br>文件格式（pe、elf、apk）&lt;-我甚至不知道这样分类正不正确</p>
+<p>ida汇编风格中字符串的显示问题：<br>Key point:非字符串都是按数据类型大小从高地址开始读，字符串是按字符串长从低地址开始读</p>
+<ol>
+<li>我们在IDE中写下“hello world\n”</li>
+<li>编译器将字符串转换为16进制表示(假设为ABCDEFABCDEF)</li>
+<li>接下来按照小端序储存在二进制文件当中(假设每个地址存放8b数据)：<br>0x0000  -&gt;  EF<br>0x0001  -&gt;  CD<br>0x0002  -&gt;  AB<br>0x0003  -&gt;  EF<br>0x0004  -&gt;  CD<br>0x0005  -&gt;  AB</li>
+<li>所以我们在cout&lt;&lt;(char *)a&lt;&lt;ednl;时会直接打印出以a代表的字符串直到空白符（EFCDABEFCDAB正好是“\ndlrow olleh”）</li>
+<li>当我们把二进制文件拖入ida中时，原封不动的显示了二进制文件的16进制数据，变成了<code>byte_0x102030 EFh,CDh,ABh,EFh,CDh,ABh</code></li>
+<li>我们直接复制粘贴下来使用，相当于直接对“\ndlrow olleh”进行操作，所以我们需要逆序运算</li>
+</ol>
 
     </div>
 
@@ -343,7 +426,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-Overview"><span class="nav-number">1.</span> <span class="nav-text">0x00 Overview</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8D%E6%87%82%E4%BD%86%E6%8A%84%E5%87%BA%E6%9D%A5%E4%BA%86%EF%BC%9A%E7%9B%B8%E5%86%8C"><span class="nav-number">2.</span> <span class="nav-text">不懂但抄出来了：相册</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-easyre"><span class="nav-number">2.1.</span> <span class="nav-text">0x01 [ACTF新生赛2020]easyre</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-findit"><span class="nav-number">2.2.</span> <span class="nav-text">0x02 findit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-rsa"><span class="nav-number">2.3.</span> <span class="nav-text">0x03 rsa</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x10-SUCTF2019-SignIn"><span class="nav-number">2.4.</span> <span class="nav-text">0x10 [SUCTF2019]SignIn</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-rome"><span class="nav-number">2.5.</span> <span class="nav-text">0x04 [ACTF新生赛2020]rome</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-FlareOn4-login"><span class="nav-number">2.6.</span> <span class="nav-text">0x05 [FlareOn4]login</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-CrackRTF"><span class="nav-number">2.7.</span> <span class="nav-text">0x06 CrackRTF</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-GUET-CTF2019-re"><span class="nav-number">2.8.</span> <span class="nav-text">0x07 [GUET-CTF2019]re</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-WUSTCTF2020-level1"><span class="nav-number">2.9.</span> <span class="nav-text">0x08 [WUSTCTF2020]level1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-MRCTF2020-Transform"><span class="nav-number">2.10.</span> <span class="nav-text">0x09 [MRCTF2020]Transform</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-usualCrypt"><span class="nav-number">2.11.</span> <span class="nav-text">0x0A [ACTF新生赛2020]usualCrypt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0B-HDCTF2019-Maze"><span class="nav-number">2.12.</span> <span class="nav-text">0x0B [HDCTF2019]Maze</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0C-MRCTF2020-Xor"><span class="nav-number">2.13.</span> <span class="nav-text">0x0C [MRCTF2020]Xor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-WUSTCTF2020-level3"><span class="nav-number">2.14.</span> <span class="nav-text">0x0D [WUSTCTF2020]level3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0E-GWCTF-2019-xxor"><span class="nav-number">2.15.</span> <span class="nav-text">0x0E [GWCTF 2019]xxor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0F-%E7%89%B9%E6%AE%8A%E7%9A%84-BASE64"><span class="nav-number">2.16.</span> <span class="nav-text">0x0F 特殊的 BASE64</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x10-%E7%AC%AC%E5%8D%81%E5%85%AD%E7%AF%87WP"><span class="nav-number">2.17.</span> <span class="nav-text">0x10 第十六篇WP~</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-Overview"><span class="nav-number">1.</span> <span class="nav-text">0x00 Overview</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8D%E6%87%82%E4%BD%86%E6%8A%84%E5%87%BA%E6%9D%A5%E4%BA%86%EF%BC%9A%E7%9B%B8%E5%86%8C"><span class="nav-number">2.</span> <span class="nav-text">不懂但抄出来了：相册</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-easyre"><span class="nav-number">2.1.</span> <span class="nav-text">0x01 [ACTF新生赛2020]easyre</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-findit"><span class="nav-number">2.2.</span> <span class="nav-text">0x02 findit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-rsa"><span class="nav-number">2.3.</span> <span class="nav-text">0x03 rsa</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x10-SUCTF2019-SignIn"><span class="nav-number">2.4.</span> <span class="nav-text">0x10 [SUCTF2019]SignIn</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-rome"><span class="nav-number">2.5.</span> <span class="nav-text">0x04 [ACTF新生赛2020]rome</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-FlareOn4-login"><span class="nav-number">2.6.</span> <span class="nav-text">0x05 [FlareOn4]login</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-CrackRTF"><span class="nav-number">2.7.</span> <span class="nav-text">0x06 CrackRTF</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x07-GUET-CTF2019-re"><span class="nav-number">2.8.</span> <span class="nav-text">0x07 [GUET-CTF2019]re</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x08-WUSTCTF2020-level1"><span class="nav-number">2.9.</span> <span class="nav-text">0x08 [WUSTCTF2020]level1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x09-MRCTF2020-Transform"><span class="nav-number">2.10.</span> <span class="nav-text">0x09 [MRCTF2020]Transform</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0A-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-usualCrypt"><span class="nav-number">2.11.</span> <span class="nav-text">0x0A [ACTF新生赛2020]usualCrypt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0B-HDCTF2019-Maze"><span class="nav-number">2.12.</span> <span class="nav-text">0x0B [HDCTF2019]Maze</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0C-MRCTF2020-Xor"><span class="nav-number">2.13.</span> <span class="nav-text">0x0C [MRCTF2020]Xor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0D-WUSTCTF2020-level3"><span class="nav-number">2.14.</span> <span class="nav-text">0x0D [WUSTCTF2020]level3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0E-GWCTF-2019-xxor"><span class="nav-number">2.15.</span> <span class="nav-text">0x0E [GWCTF 2019]xxor</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x0F-%E7%89%B9%E6%AE%8A%E7%9A%84-BASE64"><span class="nav-number">2.16.</span> <span class="nav-text">0x0F 特殊的 BASE64</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x11-FlareOn3-Challenge1"><span class="nav-number">2.17.</span> <span class="nav-text">0x11 [FlareOn3]Challenge1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x10-%E7%AC%AC%E5%8D%81%E5%85%AD%E7%AF%87WP-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-Oruga"><span class="nav-number">2.18.</span> <span class="nav-text">0x10 第十六篇WP~ [ACTF新生赛2020]Oruga</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x12-FlareOn6-Overlong"><span class="nav-number">2.19.</span> <span class="nav-text">0x12 [FlareOn6]Overlong</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x13-BJDCTF2020-BJD-hamburger-competition"><span class="nav-number">2.20.</span> <span class="nav-text">0x13 [BJDCTF2020]BJD hamburger competition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x14-Zer0pts2020-easy-strcmp"><span class="nav-number">2.21.</span> <span class="nav-text">0x14 [Zer0pts2020]easy strcmp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x15-ACTF%E6%96%B0%E7%94%9F%E8%B5%9B2020-Universe-final-answer"><span class="nav-number">2.22.</span> <span class="nav-text">0x15 [ACTF新生赛2020]Universe_final_answer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x16-WUSTCTF2020-level4"><span class="nav-number">2.23.</span> <span class="nav-text">0x16 [WUSTCTF2020]level4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x17-%E7%BD%91%E9%BC%8E%E6%9D%AF-2020-%E9%9D%92%E9%BE%99%E7%BB%84-singal"><span class="nav-number">2.24.</span> <span class="nav-text">0x17 [网鼎杯 2020 青龙组]singal</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x18-crackMe"><span class="nav-number">2.25.</span> <span class="nav-text">0x18 crackMe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x19-GUET-CTF2019-number-game"><span class="nav-number">2.26.</span> <span class="nav-text">0x19 [GUET-CTF2019]number_game</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1A-findKey"><span class="nav-number">2.27.</span> <span class="nav-text">0x1A findKey</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1B-%E7%BE%8A%E5%9F%8E%E6%9D%AF-2020-easyre"><span class="nav-number">2.28.</span> <span class="nav-text">0x1B[羊城杯 2020]easyre</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1C-%E7%BD%91%E9%BC%8E%E6%9D%AF-2020-%E9%9D%92%E9%BE%99%E7%BB%84-jocker"><span class="nav-number">2.29.</span> <span class="nav-text">0x1C[网鼎杯 2020 青龙组]jocker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1D-FlareOn5-Minesweeper-Championship-Registration"><span class="nav-number">2.30.</span> <span class="nav-text">0x1D[FlareOn5]Minesweeper Championship Registration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x1E-firmware"><span class="nav-number">2.31.</span> <span class="nav-text">0x1E firmware</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -359,7 +442,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
