@@ -1,10 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>博客配置</title>
+    <title>Latex公式汇总</title>
+    <url>/2023/03/29/Latex%E5%85%AC%E5%BC%8F%E6%B1%87%E6%80%BB/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+Latex公式太多太杂了，汇总一下
+</blockquote>
+<span id="more"></span>
+<h1 id="x00-公式标识符">0x00 公式标识符</h1>
+<ul>
+<li><p>行内公式$f(x) = a+b$ 空格符or </p></li>
+<li><p>行内公式 -&gt;<span class="math inline">\(f(x) = a +
+b\)</span></p></li>
+<li><p>行间公式$$f(x) = a+b$$ <span class="math display">\[f(x) = a +
+b\]</span></p></li>
+<li><p>编号\tag{1.1.1} <span class="math display">\[f(x) = a+b
+\tag{1.1.1}\]</span></p></li>
+</ul>
+<h1 id="x01-简单运算">0x01 简单运算</h1>
+<ul>
+<li><p>不等号 \neq 恒等号\equiv 取模\bmod <span class="math display">\[0
+\neq 1 \quad 3 \equiv 9 \bmod 6\]</span></p></li>
+<li><p>加减号 \pm 点乘 \cdot <span class="math display">\[ a = (b \pm c)
+\cdot e\]</span></p></li>
+</ul>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>Latex， tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hexo &amp; Next 博客配置与美化</title>
     <url>/2023/01/10/Hexo%20&amp;%20Next%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
-鉴于我自己的创作欲，准备正式好好地经营我的博客XD
+鉴于我自己的创作欲，准备正式地经营我的博客XD
 </blockquote>
 <span id="more"></span>
 <h1 id="x0-说在前面">0x0 说在前面:</h1>
@@ -171,10 +203,130 @@ href="https://blog.csdn.net/maosidiaoxian/article/details/85220394">如何在Hex
 管理你的博客 - 知乎 (zhihu.com)</a></p>
 ]]></content>
       <categories>
-        <category>environment</category>
+        <category>Environment</category>
       </categories>
       <tags>
-        <tag>BLOG</tag>
+        <tag>Blog</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在移动硬盘中用VirtualBox安装用于Pwn的Kali_linux</title>
+    <url>/2023/07/17/%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85%E7%94%A8%E4%BA%8EPwn%E7%9A%84Kali_linux/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+之前安装过好多次linuxVM，感觉都不满意，这次记录一下
+</blockquote>
+<span id="more"></span>
+<h1 id="xff-说在前面">0xFF 说在前面</h1>
+<p>安装过程中体验了一下清华源的.7z包，点击即送kalilinux，比笔者下面讲的方法方便太多啦，如果读者嫌麻烦的话可以用着清华源的包</p>
+<h1 id="x00-安装过程">0x00 安装过程</h1>
+<ol type="1">
+<li>打开virtualbox(VB去<a href="https://www.virtualbox.org/">Oracle VM
+VirtualBox</a>下载即可)，点击新建，选择合适的文件存放位置和版本信息，点击下一步（<strong><em>如果是安装kali的话记得把[版本]改为Debian(64-bit)</em></strong>）
+<img
+src="https://img-blog.csdnimg.cn/e28359fa94284482ae966f97139c19e8.png" />
+[内存大小]32位一般1024，64位一般2048就够了。我怕我虚拟机内存不够，所以开了4096</li>
+<li>创建虚拟硬盘，[文件大小]一般20G够用，我因为后面可能要用好长时间，于是开了64GB
+<img
+src="https://img-blog.csdnimg.cn/9c438007144143a09ca2ef7a570d16e2.png" /></li>
+<li>选中刚才创建的虚拟机，进行一些设置的更改
+①设置--&gt;常规--&gt;高级--&gt;共享粘贴板、拖放--&gt;双向 <img
+src="https://img-blog.csdnimg.cn/e08450560b8f46eb8f032b5ab3f8eb4b.png" />
+②系统--&gt;处理器--&gt;CPU=2 || 扩展特性勾选 <img
+src="https://img-blog.csdnimg.cn/398b52c80978403b9cee1c960a90e9ef.png" /></li>
+<li><a
+href="https://mirrors.tuna.tsinghua.edu.cn/kali-images/current/">下载kali
+linux镜像</a>我这里用的是清华源，国内下载速度快一些。当然也可以去kali官网进行下载</li>
+<li>选择你刚才下载的盘片 <img
+src="https://img-blog.csdnimg.cn/69a86bac0a49414b914ef6351dd7f7b9.png" /></li>
+<li>更改桥接网卡 <img
+src="https://img-blog.csdnimg.cn/deedc115c961451c943413b01a10c5de.png" /></li>
+<li>双击启动虚拟机，选择'Graphical
+Install'进行图形化界面安装，然后一路按自己需求配置就好啦。 <img
+src="https://img-blog.csdnimg.cn/dc2c84818c384c80a86e860358cecf8d.png" />
+<img
+src="https://img-blog.csdnimg.cn/20265284db2b432496fe2f8553a9518a.png" />
+选择语言--&gt;地区--&gt;键盘配置--&gt;等待安装就好，后续要求“配置网络”的话，只需要按照他显示的内容点击continue就好，不需要修改
+<img
+src="https://img-blog.csdnimg.cn/eeb320ae1544444faf9d90f1436e29f1.png" />
+这里使用整个磁盘，就是你之前分配的磁盘大小，然后就按照他的默认配置一路走下去就可以进入安装了，安装过程可能有些慢
+<img
+src="https://img-blog.csdnimg.cn/8dfe3cdbf206427193203609694496c5.png" />
+这里选择下面这一行即可</li>
+</ol>
+<p>如果出现了下面这种情况，说明你下载的镜像源不适配，需要换一个 <img
+src="https://img-blog.csdnimg.cn/1001376cd0cf40978ca2d2aa1629ed1c.png" /></p>
+<h1 id="x01-kali配置">0x01 kali配置</h1>
+]]></content>
+      <categories>
+        <category>Tools</category>
+      </categories>
+      <tags>
+        <tag>VM</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>手搓ShellCode技巧</title>
+    <url>/2023/07/06/%E6%89%8B%E6%90%93ShellCode%E6%8A%80%E5%B7%A7/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+记录一些手搓exploit的奇妙姿势
+</blockquote>
+<span id="more"></span>
+<h1 id="x01-字节流转换">0x01 字节流转换</h1>
+<h3 id="代码">· 代码</h3>
+<pre><code>import struct</code></pre>
+<h3 id="使用方式">· 使用方式</h3>
+<ol type="1">
+<li>Binary =
+struct.pack('<strong><em>mode</em></strong>',original_string) ### ·
+mode</li>
+<li>f: 将float数据类型转化为二进制字节流</li>
+</ol>
+<h1 id="x02-常用函数源码与使用方式">0x02 常用函数源码与使用方式</h1>
+<h3 id="一write">一、write</h3>
+<h5 id="源码">· 源码</h5>
+<pre><code>ssize_t write(int handle, void *buf, int nbyte)
+ssize_t write(const char* str,int n)</code></pre>
+<h5 id="使用方式-1">· 使用方式</h5>
+<ol type="1">
+<li>如果想要用write函数输出到终端中，则用第一种，handle处传1 ###
+二、puts ##### · 源码 int puts(const char *string) ##### · 使用方式</li>
+<li></li>
+</ol>
+]]></content>
+      <categories>
+        <category>WP_Pwn</category>
+      </categories>
+      <tags>
+        <tag>Wp,Pwn</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>逆向工具使用手册</title>
+    <url>/2023/01/24/%E9%80%86%E5%90%91%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+逆向工具有点小多...为了提升工作效率，建立以下手册便于查找
+</blockquote>
+<span id="more"></span>
+<h1 id="x00-ida">0x00 IDA</h1>
+<ol type="1">
+<li>Shift+E：提取数组</li>
+<li>Shift+F12：字符串界面</li>
+<li>F5：伪代码界面</li>
+<li>Tab：在汇编与伪代码界面之间切换</li>
+<li>P：将指定区域定义为<strong><em>函数</em></strong></li>
+<li>N：修改指定变量的名称</li>
+<li>X：查看指定变量或指定函数的调用者</li>
+<li>C：将数据转换为代码/将代码转换为数据</li>
+<li>Shift+F2：打开IDA自带的内置脚本工具</li>
+</ol>
+<h1 id="x01-以ollydbg为代表的动态调试工具">0x01
+以Ollydbg为代表的动态调试工具</h1>
+]]></content>
+      <categories>
+        <category>tools</category>
+      </categories>
+      <tags>
+        <tag>Re，tools</tag>
       </tags>
   </entry>
 </search>
