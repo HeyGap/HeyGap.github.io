@@ -1,38 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Latex公式汇总</title>
-    <url>/2023/03/29/Latex%E5%85%AC%E5%BC%8F%E6%B1%87%E6%80%BB/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-Latex公式太多太杂了，汇总一下
-</blockquote>
-<span id="more"></span>
-<h1 id="x00-公式标识符">0x00 公式标识符</h1>
-<ul>
-<li><p>行内公式$f(x) = a+b$ 空格符or </p></li>
-<li><p>行内公式 -&gt;<span class="math inline">\(f(x) = a +
-b\)</span></p></li>
-<li><p>行间公式$$f(x) = a+b$$ <span class="math display">\[f(x) = a +
-b\]</span></p></li>
-<li><p>编号\tag{1.1.1} <span class="math display">\[f(x) = a+b
-\tag{1.1.1}\]</span></p></li>
-</ul>
-<h1 id="x01-简单运算">0x01 简单运算</h1>
-<ul>
-<li><p>不等号 \neq 恒等号\equiv 取模\bmod <span class="math display">\[0
-\neq 1 \quad 3 \equiv 9 \bmod 6\]</span></p></li>
-<li><p>加减号 \pm 点乘 \cdot <span class="math display">\[ a = (b \pm c)
-\cdot e\]</span></p></li>
-</ul>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>Latex， tools</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hexo &amp; Next 博客配置与美化</title>
     <url>/2023/01/10/Hexo%20&amp;%20Next%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
@@ -262,71 +230,6 @@ src="https://img-blog.csdnimg.cn/1001376cd0cf40978ca2d2aa1629ed1c.png" /></p>
       </categories>
       <tags>
         <tag>VM</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>手搓ShellCode技巧</title>
-    <url>/2023/07/06/%E6%89%8B%E6%90%93ShellCode%E6%8A%80%E5%B7%A7/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-记录一些手搓exploit的奇妙姿势
-</blockquote>
-<span id="more"></span>
-<h1 id="x01-字节流转换">0x01 字节流转换</h1>
-<h3 id="代码">· 代码</h3>
-<pre><code>import struct</code></pre>
-<h3 id="使用方式">· 使用方式</h3>
-<ol type="1">
-<li>Binary =
-struct.pack('<strong><em>mode</em></strong>',original_string) ### ·
-mode</li>
-<li>f: 将float数据类型转化为二进制字节流</li>
-</ol>
-<h1 id="x02-常用函数源码与使用方式">0x02 常用函数源码与使用方式</h1>
-<h3 id="一write">一、write</h3>
-<h5 id="源码">· 源码</h5>
-<pre><code>ssize_t write(int handle, void *buf, int nbyte)
-ssize_t write(const char* str,int n)</code></pre>
-<h5 id="使用方式-1">· 使用方式</h5>
-<ol type="1">
-<li>如果想要用write函数输出到终端中，则用第一种，handle处传1 ###
-二、puts ##### · 源码 int puts(const char *string) ##### · 使用方式</li>
-<li></li>
-</ol>
-]]></content>
-      <categories>
-        <category>WP_Pwn</category>
-      </categories>
-      <tags>
-        <tag>Wp,Pwn</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>逆向工具使用手册</title>
-    <url>/2023/01/24/%E9%80%86%E5%90%91%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-逆向工具有点小多...为了提升工作效率，建立以下手册便于查找
-</blockquote>
-<span id="more"></span>
-<h1 id="x00-ida">0x00 IDA</h1>
-<ol type="1">
-<li>Shift+E：提取数组</li>
-<li>Shift+F12：字符串界面</li>
-<li>F5：伪代码界面</li>
-<li>Tab：在汇编与伪代码界面之间切换</li>
-<li>P：将指定区域定义为<strong><em>函数</em></strong></li>
-<li>N：修改指定变量的名称</li>
-<li>X：查看指定变量或指定函数的调用者</li>
-<li>C：将数据转换为代码/将代码转换为数据</li>
-<li>Shift+F2：打开IDA自带的内置脚本工具</li>
-</ol>
-<h1 id="x01-以ollydbg为代表的动态调试工具">0x01
-以Ollydbg为代表的动态调试工具</h1>
-]]></content>
-      <categories>
-        <category>tools</category>
-      </categories>
-      <tags>
-        <tag>Re，tools</tag>
       </tags>
   </entry>
 </search>
