@@ -20,20 +20,41 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="之前安装过好多次linuxVM，感觉都不满意，这次记录一下">
+  <meta name="description" content="之前安装过好多次linuxVM，感觉都不满意，这次记录一下   0xFF  说在前面 $\quad$ 安装过程中体验了一下清华源的.7z包，点击即送，比笔者下面讲的方法方便太多啦，如果读者嫌麻烦的话可以用着清华源的包 $\quad$ 不过我自己也是Pwn新手，之前一直再用WSL做题，但gdb不太好使，准备用虚拟机做题，所以后续可能考虑出一下Pwn环境搭建和ubuntu美化的教程XD  0x00">
 <meta property="og:type" content="article">
-<meta property="og:title" content="在移动硬盘中用VirtualBox安装用于Pwn的Kali_linux">
-<meta property="og:url" content="http://example.com/2023/07/17/%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85%E7%94%A8%E4%BA%8EPwn%E7%9A%84Kali_linux/index.html">
+<meta property="og:title" content="(在移动硬盘中)用VirtualBox安装ubuntu22.04">
+<meta property="og:url" content="http://example.com/2023/07/20/(%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD)%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85ubuntu22.04/index.html">
 <meta property="og:site_name" content="Gap&#39;s_Blog">
-<meta property="og:description" content="之前安装过好多次linuxVM，感觉都不满意，这次记录一下">
+<meta property="og:description" content="之前安装过好多次linuxVM，感觉都不满意，这次记录一下   0xFF  说在前面 $\quad$ 安装过程中体验了一下清华源的.7z包，点击即送，比笔者下面讲的方法方便太多啦，如果读者嫌麻烦的话可以用着清华源的包 $\quad$ 不过我自己也是Pwn新手，之前一直再用WSL做题，但gdb不太好使，准备用虚拟机做题，所以后续可能考虑出一下Pwn环境搭建和ubuntu美化的教程XD  0x00">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-07-17T05:03:00.000Z">
-<meta property="article:modified_time" content="2023-07-17T07:03:56.054Z">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1d2af3fa2fda490ea89b3ca2143fae2e.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/498d670e5c13426aa244bc40ee147f8e.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/36a527af3a09433cb8c4820b343c83c6.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/6d4bc127892f4aae8b86042d257f4ba4.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fc7b867c0e7d471fb3e82c2607d78cc0.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/957cb39bf27f4017813c30d32f565e9d.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/304151d914b2413788ec3be68047fc83.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d3dff3764cbf4c9ba4486840d3aab83e.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/42ca612a1b074af58a131237eafe33f8.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9b55565e643d4dc481e26796ca3f5300.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7a46a266c4114b50b281830e53ff9cb0.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/220afa0ad87a41618a399142dc109e67.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f49ae75a0779480bb7226684432a0a7b.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d39835dd46f242c696348ecb6552a751.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c799102b375843078110c0add2884e5d.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/54c6a3ab07f24e95ad1b7f83823b0b7f.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c44585cb9295497a97a51855d92da73c.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a92c0104a50749c89944dad72b5841b4.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/eb98f5dbe0d34b00864fc12250c1c09e.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d0046167b77f4df2b427496a544392f6.png#pic_center">
+<meta property="article:published_time" content="2023-07-20T08:41:00.000Z">
+<meta property="article:modified_time" content="2023-07-20T10:06:57.811Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="VM">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/1d2af3fa2fda490ea89b3ca2143fae2e.png#pic_center">
 
-<link rel="canonical" href="http://example.com/2023/07/17/%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85%E7%94%A8%E4%BA%8EPwn%E7%9A%84Kali_linux/">
+<link rel="canonical" href="http://example.com/2023/07/20/(%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD)%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85ubuntu22.04/">
 
 
 <script id="page-configurations">
@@ -46,7 +67,7 @@
   };
 </script>
 
-  <title>在移动硬盘中用VirtualBox安装用于Pwn的Kali_linux | Gap's_Blog</title>
+  <title>(在移动硬盘中)用VirtualBox安装ubuntu22.04 | Gap's_Blog</title>
   
 
 
@@ -188,7 +209,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/17/%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85%E7%94%A8%E4%BA%8EPwn%E7%9A%84Kali_linux/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/20/(%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD)%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85ubuntu22.04/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -201,7 +222,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          在移动硬盘中用VirtualBox安装用于Pwn的Kali_linux
+          (在移动硬盘中)用VirtualBox安装ubuntu22.04
         </h1>
 
         <div class="post-meta">
@@ -212,7 +233,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-07-17 13:07:00 / 修改时间：15:07:05" itemprop="dateCreated datePublished" datetime="2023-07-17T13:03:00+08:00">2023-07-17</time>
+              <time title="创建时间：2023-07-20 16:07:00 / 修改时间：18:07:81" itemprop="dateCreated datePublished" datetime="2023-07-20T16:41:00+08:00">2023-07-20</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -220,7 +241,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Tools/" itemprop="url" rel="index"><span itemprop="name">Tools</span></a>
+                  <a href="/categories/Environments/" itemprop="url" rel="index"><span itemprop="name">Environments</span></a>
                 </span>
             </span>
 
@@ -245,47 +266,38 @@
         <blockquote class="blockquote-center">
 之前安装过好多次linuxVM，感觉都不满意，这次记录一下
 </blockquote>
-<span id="more"></span>
-<h1 id="xff-说在前面">0xFF 说在前面</h1>
-<p>安装过程中体验了一下清华源的.7z包，点击即送kalilinux，比笔者下面讲的方法方便太多啦，如果读者嫌麻烦的话可以用着清华源的包</p>
-<h1 id="x00-安装过程">0x00 安装过程</h1>
-<ol type="1">
-<li>打开virtualbox(VB去<a target="_blank" rel="noopener" href="https://www.virtualbox.org/">Oracle VM
-VirtualBox</a>下载即可)，点击新建，选择合适的文件存放位置和版本信息，点击下一步（<strong><em>如果是安装kali的话记得把[版本]改为Debian(64-bit)</em></strong>）
-<img
-src="https://img-blog.csdnimg.cn/e28359fa94284482ae966f97139c19e8.png" />
-[内存大小]32位一般1024，64位一般2048就够了。我怕我虚拟机内存不够，所以开了4096</li>
-<li>创建虚拟硬盘，[文件大小]一般20G够用，我因为后面可能要用好长时间，于是开了64GB
-<img
-src="https://img-blog.csdnimg.cn/9c438007144143a09ca2ef7a570d16e2.png" /></li>
-<li>选中刚才创建的虚拟机，进行一些设置的更改
-①设置--&gt;常规--&gt;高级--&gt;共享粘贴板、拖放--&gt;双向 <img
-src="https://img-blog.csdnimg.cn/e08450560b8f46eb8f032b5ab3f8eb4b.png" />
-②系统--&gt;处理器--&gt;CPU=2 || 扩展特性勾选 <img
-src="https://img-blog.csdnimg.cn/398b52c80978403b9cee1c960a90e9ef.png" /></li>
-<li><a
-target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/kali-images/current/">下载kali
-linux镜像</a>我这里用的是清华源，国内下载速度快一些。当然也可以去kali官网进行下载</li>
-<li>选择你刚才下载的盘片 <img
-src="https://img-blog.csdnimg.cn/69a86bac0a49414b914ef6351dd7f7b9.png" /></li>
-<li>更改桥接网卡 <img
-src="https://img-blog.csdnimg.cn/deedc115c961451c943413b01a10c5de.png" /></li>
-<li>双击启动虚拟机，选择'Graphical
-Install'进行图形化界面安装，然后一路按自己需求配置就好啦。 <img
-src="https://img-blog.csdnimg.cn/dc2c84818c384c80a86e860358cecf8d.png" />
-<img
-src="https://img-blog.csdnimg.cn/20265284db2b432496fe2f8553a9518a.png" />
-选择语言--&gt;地区--&gt;键盘配置--&gt;等待安装就好，后续要求“配置网络”的话，只需要按照他显示的内容点击continue就好，不需要修改
-<img
-src="https://img-blog.csdnimg.cn/eeb320ae1544444faf9d90f1436e29f1.png" />
-这里使用整个磁盘，就是你之前分配的磁盘大小，然后就按照他的默认配置一路走下去就可以进入安装了，安装过程可能有些慢
-<img
-src="https://img-blog.csdnimg.cn/8dfe3cdbf206427193203609694496c5.png" />
-这里选择下面这一行即可</li>
+
+<h1 id="0xFF-说在前面"><a href="#0xFF-说在前面" class="headerlink" title="0xFF  说在前面"></a>0xFF  说在前面</h1><blockquote>
+<p>$\quad$ 安装过程中体验了一下清华源的.7z包，点击即送，比笔者下面讲的方法方便太多啦，如果读者嫌麻烦的话可以用着清华源的包</p>
+<p>$\quad$ 不过我自己也是Pwn新手，之前一直再用WSL做题，但gdb不太好使，准备用虚拟机做题，所以后续可能考虑出一下Pwn环境搭建和ubuntu美化的教程XD</p>
+</blockquote>
+<h1 id="0x00-VirtualBox-VB-安装"><a href="#0x00-VirtualBox-VB-安装" class="headerlink" title="0x00  VirtualBox(VB)安装"></a>0x00  VirtualBox(VB)安装</h1><ol>
+<li><p>首先，去<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">VB官网</a>下载合适平台的安装包</p>
+</li>
+<li><p>根据向导一路配置就好，注意选择安装位置（最好不要在C盘，<strong><em>路径一定不要含有中文</em></strong>）<br><img src="https://img-blog.csdnimg.cn/1d2af3fa2fda490ea89b3ca2143fae2e.png#pic_center" alt=""></p>
+</li>
+<li>安装好以后就可以在桌面看到啦<br><img src="https://img-blog.csdnimg.cn/498d670e5c13426aa244bc40ee147f8e.png#pic_center" alt=""></li>
 </ol>
-<p>如果出现了下面这种情况，说明你下载的镜像源不适配，需要换一个 <img
-src="https://img-blog.csdnimg.cn/1001376cd0cf40978ca2d2aa1629ed1c.png" /></p>
-<h1 id="x01-kali配置">0x01 kali配置</h1>
+<h1 id="0x01-ubuntu22-04-LTS下载与VB配置"><a href="#0x01-ubuntu22-04-LTS下载与VB配置" class="headerlink" title="0x01  ubuntu22.04 LTS下载与VB配置"></a>0x01  ubuntu22.04 LTS下载与VB配置</h1><ol>
+<li>去<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/22.04/">Index of /ubuntu-releases/22.04/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror</a>下载ubuntu22.04iso，可能下载时间会比较长<br><img src="https://img-blog.csdnimg.cn/36a527af3a09433cb8c4820b343c83c6.png" alt=""></li>
+<li>安装好以后，打开VB，点击“新建”，进行一些配置：①文件夹不要含有中文路径，不要安装在C盘（虚拟机要求的存储还是蛮大的，我这里是直接安装在固态硬盘的一个文件夹中了）②内存大小一般2048MB就够，我16G的内存给了4096M，看个人需求吧<br><img src="https://img-blog.csdnimg.cn/6d4bc127892f4aae8b86042d257f4ba4.png#pic_center" alt=""></li>
+<li>“文件大小”看你的盘有多大，最好给的空间大一点，我这里给了64GB，如果硬盘足够大的话，给128G肯定够用了<br><img src="https://img-blog.csdnimg.cn/fc7b867c0e7d471fb3e82c2607d78cc0.png#pic_center" alt=""></li>
+<li>选中你刚才创建的虚拟机，点击“设置”<br><img src="https://img-blog.csdnimg.cn/957cb39bf27f4017813c30d32f565e9d.png#pic_center" alt=""></li>
+<li>“系统”—-&gt;”处理器”—-&gt;2个（这个看你自己电脑配置，现在的电脑一般给2个就够了）<br><img src="https://img-blog.csdnimg.cn/304151d914b2413788ec3be68047fc83.png#pic_center" alt=""></li>
+<li>“存储”—-&gt;”没有盘片”—-&gt;选择你刚才在清华源安装的ubuntu22.04LTS文件<br><img src="https://img-blog.csdnimg.cn/d3dff3764cbf4c9ba4486840d3aab83e.png#pic_center" alt=""></li>
+<li>最后点击“OK”，双击运行即可</li>
+</ol>
+<h1 id="0x02-ubuntu安装"><a href="#0x02-ubuntu安装" class="headerlink" title="0x02 ubuntu安装"></a>0x02 ubuntu安装</h1><ol>
+<li>运行以后，界面会比较小，你可以在上方“视图”切换到“自动缩放模式”，如果后悔了，右Ctrl+C即可退出<br><img src="https://img-blog.csdnimg.cn/42ca612a1b074af58a131237eafe33f8.png#pic_center" alt=""></li>
+<li>安装语言用English（后面可以再换，不选这个的话会因为分辨率问题而导致看不见安装按钮），点击install ubuntu<br><img src="https://img-blog.csdnimg.cn/9b55565e643d4dc481e26796ca3f5300.png#pic_center" alt=""></li>
+<li>键盘选择汉语就行<br><img src="https://img-blog.csdnimg.cn/7a46a266c4114b50b281830e53ff9cb0.png#pic_center" alt=""></li>
+<li>最小化安装(Minimal Installation)，咱们不需要太多东西<br><img src="https://img-blog.csdnimg.cn/220afa0ad87a41618a399142dc109e67.png#pic_center" alt=""></li>
+<li>擦除磁盘，因为我们一开始配了64G存储空间，所以VB会直接在你选择的盘片里划分出64GB，用动态分配的模式分给这个虚拟机，所以不用担心会擦除整个硬盘的文件<br><img src="https://img-blog.csdnimg.cn/f49ae75a0779480bb7226684432a0a7b.png#pic_center" alt=""><br><img src="https://img-blog.csdnimg.cn/d39835dd46f242c696348ecb6552a751.png#pic_center" alt=""></li>
+<li>选择所在地区</li>
+<li>设置一下虚拟机用户，然后就是漫长的等待啦<br><img src="https://img-blog.csdnimg.cn/c799102b375843078110c0add2884e5d.png#pic_center" alt=""></li>
+<li>安装好以后，点击“Restart Now”将虚拟机重启，输入你刚才设置的密码，就可以进入啦<br><img src="https://img-blog.csdnimg.cn/54c6a3ab07f24e95ad1b7f83823b0b7f.png#pic_center" alt=""></li>
+<li>剩下的一些小配置基本都是一直跳过<br><img src="https://img-blog.csdnimg.cn/c44585cb9295497a97a51855d92da73c.png#pic_center" alt=""><br><img src="https://img-blog.csdnimg.cn/a92c0104a50749c89944dad72b5841b4.png#pic_center" alt=""><br><img src="https://img-blog.csdnimg.cn/eb98f5dbe0d34b00864fc12250c1c09e.png#pic_center" alt=""><br><img src="https://img-blog.csdnimg.cn/d0046167b77f4df2b427496a544392f6.png#pic_center" alt=""><br>最后出现的软件安装界面直接右上角“Done”即可</li>
+</ol>
 
     </div>
 
@@ -301,7 +313,7 @@ src="https://img-blog.csdnimg.cn/1001376cd0cf40978ca2d2aa1629ed1c.png" /></p>
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://example.com/2023/07/17/%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85%E7%94%A8%E4%BA%8EPwn%E7%9A%84Kali_linux/" title="在移动硬盘中用VirtualBox安装用于Pwn的Kali_linux">http://example.com/2023/07/17/在移动硬盘中用VirtualBox安装用于Pwn的Kali_linux/</a>
+    <a href="http://example.com/2023/07/20/(%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD)%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85ubuntu22.04/" title="(在移动硬盘中)用VirtualBox安装ubuntu22.04">http://example.com/2023/07/20/(在移动硬盘中)用VirtualBox安装ubuntu22.04/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -393,7 +405,7 @@ src="https://img-blog.csdnimg.cn/1001376cd0cf40978ca2d2aa1629ed1c.png" /></p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#xff-%E8%AF%B4%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">0xFF 说在前面</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">0x00 安装过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-kali%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">0x01 kali配置</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0xFF-%E8%AF%B4%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">0xFF  说在前面</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-VirtualBox-VB-%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">0x00  VirtualBox(VB)安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-ubuntu22-04-LTS%E4%B8%8B%E8%BD%BD%E4%B8%8EVB%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">0x01  ubuntu22.04 LTS下载与VB配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-ubuntu%E5%AE%89%E8%A3%85"><span class="nav-number">4.</span> <span class="nav-text">0x02 ubuntu安装</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

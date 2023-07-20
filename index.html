@@ -184,7 +184,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/17/%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85%E7%94%A8%E4%BA%8EPwn%E7%9A%84Kali_linux/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/20/(%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD)%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85ubuntu22.04/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -198,7 +198,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2023/07/17/%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85%E7%94%A8%E4%BA%8EPwn%E7%9A%84Kali_linux/" class="post-title-link" itemprop="url">在移动硬盘中用VirtualBox安装用于Pwn的Kali_linux</a>
+            <a href="/2023/07/20/(%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD)%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85ubuntu22.04/" class="post-title-link" itemprop="url">(在移动硬盘中)用VirtualBox安装ubuntu22.04</a>
         </h2>
 
         <div class="post-meta">
@@ -209,7 +209,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-07-17 13:07:00 / 修改时间：15:07:05" itemprop="dateCreated datePublished" datetime="2023-07-17T13:03:00+08:00">2023-07-17</time>
+              <time title="创建时间：2023-07-20 16:07:00 / 修改时间：18:07:81" itemprop="dateCreated datePublished" datetime="2023-07-20T16:41:00+08:00">2023-07-20</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -217,7 +217,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Tools/" itemprop="url" rel="index"><span itemprop="name">Tools</span></a>
+                  <a href="/categories/Environments/" itemprop="url" rel="index"><span itemprop="name">Environments</span></a>
                 </span>
             </span>
 
@@ -235,14 +235,39 @@
           <blockquote class="blockquote-center">
 之前安装过好多次linuxVM，感觉都不满意，这次记录一下
 </blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/07/17/%E5%9C%A8%E7%A7%BB%E5%8A%A8%E7%A1%AC%E7%9B%98%E4%B8%AD%E7%94%A8VirtualBox%E5%AE%89%E8%A3%85%E7%94%A8%E4%BA%8EPwn%E7%9A%84Kali_linux/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+
+<h1 id="0xFF-说在前面"><a href="#0xFF-说在前面" class="headerlink" title="0xFF  说在前面"></a>0xFF  说在前面</h1><blockquote>
+<p>$\quad$ 安装过程中体验了一下清华源的.7z包，点击即送，比笔者下面讲的方法方便太多啦，如果读者嫌麻烦的话可以用着清华源的包</p>
+<p>$\quad$ 不过我自己也是Pwn新手，之前一直再用WSL做题，但gdb不太好使，准备用虚拟机做题，所以后续可能考虑出一下Pwn环境搭建和ubuntu美化的教程XD</p>
+</blockquote>
+<h1 id="0x00-VirtualBox-VB-安装"><a href="#0x00-VirtualBox-VB-安装" class="headerlink" title="0x00  VirtualBox(VB)安装"></a>0x00  VirtualBox(VB)安装</h1><ol>
+<li><p>首先，去<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">VB官网</a>下载合适平台的安装包</p>
+</li>
+<li><p>根据向导一路配置就好，注意选择安装位置（最好不要在C盘，<strong><em>路径一定不要含有中文</em></strong>）<br><img src="https://img-blog.csdnimg.cn/1d2af3fa2fda490ea89b3ca2143fae2e.png#pic_center" alt=""></p>
+</li>
+<li>安装好以后就可以在桌面看到啦<br><img src="https://img-blog.csdnimg.cn/498d670e5c13426aa244bc40ee147f8e.png#pic_center" alt=""></li>
+</ol>
+<h1 id="0x01-ubuntu22-04-LTS下载与VB配置"><a href="#0x01-ubuntu22-04-LTS下载与VB配置" class="headerlink" title="0x01  ubuntu22.04 LTS下载与VB配置"></a>0x01  ubuntu22.04 LTS下载与VB配置</h1><ol>
+<li>去<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/22.04/">Index of /ubuntu-releases/22.04/ | 清华大学开源软件镜像站 | Tsinghua Open Source Mirror</a>下载ubuntu22.04iso，可能下载时间会比较长<br><img src="https://img-blog.csdnimg.cn/36a527af3a09433cb8c4820b343c83c6.png" alt=""></li>
+<li>安装好以后，打开VB，点击“新建”，进行一些配置：①文件夹不要含有中文路径，不要安装在C盘（虚拟机要求的存储还是蛮大的，我这里是直接安装在固态硬盘的一个文件夹中了）②内存大小一般2048MB就够，我16G的内存给了4096M，看个人需求吧<br><img src="https://img-blog.csdnimg.cn/6d4bc127892f4aae8b86042d257f4ba4.png#pic_center" alt=""></li>
+<li>“文件大小”看你的盘有多大，最好给的空间大一点，我这里给了64GB，如果硬盘足够大的话，给128G肯定够用了<br><img src="https://img-blog.csdnimg.cn/fc7b867c0e7d471fb3e82c2607d78cc0.png#pic_center" alt=""></li>
+<li>选中你刚才创建的虚拟机，点击“设置”<br><img src="https://img-blog.csdnimg.cn/957cb39bf27f4017813c30d32f565e9d.png#pic_center" alt=""></li>
+<li>“系统”—-&gt;”处理器”—-&gt;2个（这个看你自己电脑配置，现在的电脑一般给2个就够了）<br><img src="https://img-blog.csdnimg.cn/304151d914b2413788ec3be68047fc83.png#pic_center" alt=""></li>
+<li>“存储”—-&gt;”没有盘片”—-&gt;选择你刚才在清华源安装的ubuntu22.04LTS文件<br><img src="https://img-blog.csdnimg.cn/d3dff3764cbf4c9ba4486840d3aab83e.png#pic_center" alt=""></li>
+<li>最后点击“OK”，双击运行即可</li>
+</ol>
+<h1 id="0x02-ubuntu安装"><a href="#0x02-ubuntu安装" class="headerlink" title="0x02 ubuntu安装"></a>0x02 ubuntu安装</h1><ol>
+<li>运行以后，界面会比较小，你可以在上方“视图”切换到“自动缩放模式”，如果后悔了，右Ctrl+C即可退出<br><img src="https://img-blog.csdnimg.cn/42ca612a1b074af58a131237eafe33f8.png#pic_center" alt=""></li>
+<li>安装语言用English（后面可以再换，不选这个的话会因为分辨率问题而导致看不见安装按钮），点击install ubuntu<br><img src="https://img-blog.csdnimg.cn/9b55565e643d4dc481e26796ca3f5300.png#pic_center" alt=""></li>
+<li>键盘选择汉语就行<br><img src="https://img-blog.csdnimg.cn/7a46a266c4114b50b281830e53ff9cb0.png#pic_center" alt=""></li>
+<li>最小化安装(Minimal Installation)，咱们不需要太多东西<br><img src="https://img-blog.csdnimg.cn/220afa0ad87a41618a399142dc109e67.png#pic_center" alt=""></li>
+<li>擦除磁盘，因为我们一开始配了64G存储空间，所以VB会直接在你选择的盘片里划分出64GB，用动态分配的模式分给这个虚拟机，所以不用担心会擦除整个硬盘的文件<br><img src="https://img-blog.csdnimg.cn/f49ae75a0779480bb7226684432a0a7b.png#pic_center" alt=""><br><img src="https://img-blog.csdnimg.cn/d39835dd46f242c696348ecb6552a751.png#pic_center" alt=""></li>
+<li>选择所在地区</li>
+<li>设置一下虚拟机用户，然后就是漫长的等待啦<br><img src="https://img-blog.csdnimg.cn/c799102b375843078110c0add2884e5d.png#pic_center" alt=""></li>
+<li>安装好以后，点击“Restart Now”将虚拟机重启，输入你刚才设置的密码，就可以进入啦<br><img src="https://img-blog.csdnimg.cn/54c6a3ab07f24e95ad1b7f83823b0b7f.png#pic_center" alt=""></li>
+<li>剩下的一些小配置基本都是一直跳过<br><img src="https://img-blog.csdnimg.cn/c44585cb9295497a97a51855d92da73c.png#pic_center" alt=""><br><img src="https://img-blog.csdnimg.cn/a92c0104a50749c89944dad72b5841b4.png#pic_center" alt=""><br><img src="https://img-blog.csdnimg.cn/eb98f5dbe0d34b00864fc12250c1c09e.png#pic_center" alt=""><br><img src="https://img-blog.csdnimg.cn/d0046167b77f4df2b427496a544392f6.png#pic_center" alt=""><br>最后出现的软件安装界面直接右上角“Done”即可</li>
+</ol>
+
       
     </div>
 
