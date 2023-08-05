@@ -251,22 +251,26 @@
         <blockquote class="blockquote-center">
 脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧
 </blockquote>
-
 <span id="more"></span>
-<hr>
-<h1 id="0x01-雷区"><a href="#0x01-雷区" class="headerlink" title="0x01  雷区"></a>0x01  雷区</h1><h3 id="1-Some-bugs-in-IDA"><a href="#1-Some-bugs-in-IDA" class="headerlink" title="1.  Some bugs in IDA"></a>1.  Some bugs in IDA</h3><ol>
-<li>当点进StackView发现对应区域没有变量名时，动调看偏移。<ol>
+<hr />
+<h1 id="x01-雷区">0x01 雷区</h1>
+<h3 id="some-bugs-in-ida">1. Some bugs in IDA</h3>
+<ol type="1">
+<li>当点进StackView发现对应区域没有变量名时，动调看偏移。
+<ol type="1">
 <li>原因：IDA会分析错误</li>
 <li>例题：cmcc_simplerop</li>
-</ol>
-</li>
+</ol></li>
 <li>IDA显示的函数变量有可能与pwndbg显示的有区别</li>
 </ol>
-<hr>
-<h1 id="0x02-奇技淫巧"><a href="#0x02-奇技淫巧" class="headerlink" title="0x02  奇技淫巧"></a>0x02  奇技淫巧</h1><h3 id="1-ROPgadget-—binary-filename-—ropchain"><a href="#1-ROPgadget-—binary-filename-—ropchain" class="headerlink" title="1.  ROPgadget —binary filename —ropchain"></a>1.  ROPgadget —binary filename —ropchain</h3><ol>
+<hr />
+<h1 id="x02-奇技淫巧">0x02 奇技淫巧</h1>
+<h3 id="ropgadget---binary-filename---ropchain">1. ROPgadget --binary
+filename --ropchain</h3>
+<ol type="1">
 <li>作用：静态编译时，二进制文件会自带许多gadget，该命令用于提取</li>
 <li>trick：可以自己修改它生成的chain，缩短shellcode</li>
-<li>例题：cmcc_simplerop  |  inndy_rop</li>
+<li>例题：cmcc_simplerop | inndy_rop</li>
 </ol>
 
     </div>
@@ -378,7 +382,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-%E9%9B%B7%E5%8C%BA"><span class="nav-number">1.</span> <span class="nav-text">0x01  雷区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Some-bugs-in-IDA"><span class="nav-number">1.0.1.</span> <span class="nav-text">1.  Some bugs in IDA</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-%E5%A5%87%E6%8A%80%E6%B7%AB%E5%B7%A7"><span class="nav-number">2.</span> <span class="nav-text">0x02  奇技淫巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ROPgadget-%E2%80%94binary-filename-%E2%80%94ropchain"><span class="nav-number">2.0.1.</span> <span class="nav-text">1.  ROPgadget —binary filename —ropchain</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E9%9B%B7%E5%8C%BA"><span class="nav-number">1.</span> <span class="nav-text">0x01 雷区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#some-bugs-in-ida"><span class="nav-number">1.0.1.</span> <span class="nav-text">1. Some bugs in IDA</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x02-%E5%A5%87%E6%8A%80%E6%B7%AB%E5%B7%A7"><span class="nav-number">2.</span> <span class="nav-text">0x02 奇技淫巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ropgadget---binary-filename---ropchain"><span class="nav-number">2.0.1.</span> <span class="nav-text">1. ROPgadget --binary
+filename --ropchain</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
