@@ -1,86 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Some tricks in Pwn</title>
-    <url>/2023/08/04/Some%20tricks%20in%20Pwn/</url>
+    <title>异世界见闻录(1)</title>
+    <url>/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
-脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧
+我不想沉在无人问津的海底，只好把登顶作为我的理想
 </blockquote>
 <span id="more"></span>
-<hr />
-<h1 id="x01-雷区">0x01 雷区</h1>
-<h3 id="some-bugs-in-ida">1. Some bugs in IDA</h3>
-<ol type="1">
-<li>当点进StackView发现对应区域没有变量名时，动调看偏移。
-<ol type="1">
-<li>原因：IDA会分析错误</li>
-<li>例题：buuctf - cmcc_simplerop</li>
-</ol></li>
-<li>IDA显示的函数变量有可能与pwndbg显示的有区别</li>
-</ol>
-<h3 id="system参数">2. system参数</h3>
-<ol type="1">
-<li>system的参数应该是一个地址，这个地址指向字符串"/bin/sh"</li>
-</ol>
-<h3 id="位与64位格式化字符串漏洞">3. 32位与64位格式化字符串漏洞</h3>
-<ol type="1">
-<li>32位：%s不能放在地址前面，由于32位地址不存在，所以printf会打印一堆相邻的以f7开头的地址，此时获取的地址并不会是你想要的地址</li>
-<li>64位：%s不能放在地址后面，由于64位地址存在，所以printf会截断数据，并不会打印到%s的位置</li>
-</ol>
-<h3 id="send-recv">4. send &amp; recv</h3>
-<ol type="1">
-<li>send尽量after</li>
-</ol>
-<h3 id="本地与远程的关系">5. 本地与远程的关系</h3>
-<ol type="1">
-<li>本地环境如果不patchelf的话大概率与远程不同，如果本地跑不通可以直接跑远程</li>
-</ol>
-<h3 id="栈劫持">6. 栈劫持</h3>
-<ol type="1">
-<li>有的时候bss段上面是got表，如果栈没调整好则push多了以后会覆盖got表导致不能调用</li>
-</ol>
-<hr />
-<h1 id="x02-奇技淫巧">0x02 奇技淫巧</h1>
-<h3 id="ropgadget---binary-filename---ropchain">1. ROPgadget --binary
-filename --ropchain</h3>
-<ol type="1">
-<li>作用：静态编译时，二进制文件会自带许多gadget，该命令用于提取</li>
-<li>trick：可以自己修改它生成的chain，缩短shellcode</li>
-<li>例题：buuctf - cmcc_simplerop | inndy_rop</li>
-</ol>
-<h3 id="重复栈">2. 重复栈</h3>
-<ol type="1">
-<li>原理：已知main函数中先调用函数A，再调用函数B。则AB使用的栈空间重叠，在A中使用的栈并不会被擦除，所以可能会通过B再次利用</li>
-<li>例题：[ZJCTF 2019]Login</li>
-</ol>
-<h3 id="关闭标准输出">3. 关闭标准输出</h3>
-<ol type="1">
-<li>原理：看这篇<a
-href="https://blog.csdn.net/xirenwang/article/details/104139866">博客</a></li>
-</ol>
-<h3 id="int-0x80h">4. int 0x80h</h3>
-<ol type="1">
-<li>寄存器与数据的关系
-<ol type="1">
-<li>EAX/RAX：系统调用号</li>
-<li>EDX/RDX：输入长度</li>
-</ol></li>
-<li>系统调用号记录</li>
-<li>系统调用sys_read是直接从ESP开始向下写入，而不是常规的push
-<ol type="1">
-<li>例题：buuctf - pwnable_start</li>
-</ol></li>
-</ol>
-<hr />
-<h1 id="x03-工具使用">0x03 工具使用</h1>
-<h3 id="fmtstr_payload">1. fmtstr_payload</h3>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fmtstr_payload(offset, writes, numbwritten=0, write_size=&#x27;byte&#x27;)</span><br><span class="line"></span><br><span class="line">第一个参数表示格式化字符串的偏移</span><br><span class="line"></span><br><span class="line">第二个参数表示需要利用%n写入的数据，采用字典形式，我们要将printf的GOT数据改为system函数地址，就写成&#123;printfGOT:systemAddress&#125;；</span><br><span class="line"></span><br><span class="line">第三个参数表示已经输出的字符个数</span><br><span class="line"></span><br><span class="line">第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>  雨尚未停歇。<br />
+  派斯坦擦拭着手里白色的长刀，篝火噼啪的声音回响在山洞的深处。这里是海特山峰的林线，连绵不断的小雨让森林蔓延到极高的海拔，也让覆盖着土壤的地面化为泥沼。<br />
+  远处的乌云褪去了夜色，昭示着黎明的到来。<br />
+  “今天还要向上走吗？”我问道。<br />
+  派斯坦收起手中擦拭刀具的布，拿起一根架在篝火旁的粗树枝，上面还串着不明生物的肉，经过火焰的炙烤，让人分不出那黑色究竟是炭还是肉本来的颜色。<br />
+  他自顾自地吃了起来，并没有回答我的问题。看着派斯坦吃得津津有味，我也拿起一串，轻轻撕下一块放在嘴里。<br />
+  苦涩瞬间在嘴里爆开。炙烤后的肉几乎没有水分，让咀嚼变得十分困难，而且还散发着令人抗拒的味道，我实在难以吃下第二口，便把肉放回了篝火旁。<br />
+  派斯坦也不在乎，他只是向外走，将覆盖在洞口的枝条掀开一个小角，侧身站在洞穴边缘，小心翼翼地用眼睛观察外面的情况。稍许，他走了回来，开始收拾自己的包裹。<br />
+  天还只是蒙蒙亮，厚厚的黑云让光线变得更加黯淡。看到派斯坦要离开，我也开始收拾行囊。<br />
+  “山顶上究竟有什么东西，这么值得你探寻？”我看着派斯坦将煮开的热水倒进杯中，忍不住开口问道。<br />
+  “不知道。”派斯坦的回答十分简短。<br />
+  话音刚落，他带上避水斗笠，用长刀挑开枝条向外走去，我没来得及追问，只能快步跟着他走出洞穴。可刚走到泥土上我就迅速陷了下去，就好像这被雨水浸透的泥土要囫囵将我吞噬。我吃力地将脚拔出，却看到派斯坦也正十分困难地前进，我不禁感到担忧，何时才能到达这直耸入云的山巅？<br />
+  “轰——”一只紫黑色的手臂扬起一大片泥土，从离我们不远的地底伸了出来。这手臂近一人高，手掌能将我的头颅轻易抓起。恐惧填满了我的大脑，让我迅速向洞口跑去，可粘性极强的土壤死死的吸附住我的双腿，让我难以动弹。<br />
+  突然，那怪物手掌向派斯坦拍去，巨大的响声在我耳旁炸起，随后是溅起的泥水。一击不成，这手臂又开始蠕动，想要脱离泥沼的吸附，向派斯坦横扫过去。<br />
+  “铮——”长刀出鞘，白色的刀光迅速劈在紫黑色的手掌上，使得黑色的血管瞬间张开一个狰狞的裂缝，血液与碎肉迸溅在派斯坦的斗笠与披风上，而后被渐大的雨势冲洗干净。<br />
+  那手臂没了动静。<br />
+  我长舒一口气，却看到派斯坦切下怪物手臂的一块肌肉，在雨水中洗涤干净后装进包里。不愉快的早餐经历迅速涌上脑海，我感到胃中一阵翻涌。<br />
+  “这山这么危险，为什么还要坚持爬到山顶啊？”为了转移注意力，我又搬出今早的问题。<br />
+  ”不知道，“派斯坦将目光移向我，”可是山脚已经被不断上涨的岁月之海淹没，我到了半山腰，已经没有下山的余地了。我不想沉在无人问津的海底，只好把登顶作为我的理想。“<br />
+  我并不清楚山脚的情况，只能糊里糊涂地跟着派斯坦继续前行。这几小时的旅途并无危机，山脉也不陡峭，跟着上升的海拔，我们走到了一片旷野。<br />
+  雨水让能见度变得非常低，可前方似乎浮现出了白色的雪线，这意味着登顶之旅即将迈入新的阶段，而雪地也会比泥沼要好走一些。<br />
+  ”轰——“紫黑色的手臂擦着我的脸颊从地底冒出，巨大的冲击力把我掀翻在地。我惊慌地看向派斯坦，却发现他的身边也冒出了一只怪物手臂。<br />
+  我想从地上爬起，可是这次泥沼彻底将我粘在地面，倏地，我身边的那只怪物手臂在我眼前迅速放大，我用尽全身力气将自己的手臂抬起，想要抵挡这比我上半身还宽的手掌，却被深深地拍进泥沼当中。<br />
+  我听见了骨骼碎裂的声音，随后泥水灌进了我的耳朵。我感受到那怪物手掌正迅速握紧，因为周围的泥土正在不断地挤压我的身体。<br />
+  在意识消散之前，极力向外一瞥——<br />
+  我看见飘摇的风雪，看见垂暮的旷野，看见挥舞着长刀的派斯坦，用坚定驱散着孤单。</p>
 ]]></content>
       <categories>
-        <category>Pwn</category>
+        <category>sketch</category>
       </categories>
       <tags>
-        <tag>tricks</tag>
+        <tag>witness</tag>
       </tags>
   </entry>
   <entry>
@@ -261,44 +219,86 @@ href="https://blog.csdn.net/maosidiaoxian/article/details/85220394">如何在Hex
       </tags>
   </entry>
   <entry>
-    <title>异世界见闻录(1)</title>
-    <url>/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/</url>
+    <title>Some tricks in Pwn</title>
+    <url>/2023/08/04/Some%20tricks%20in%20Pwn/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
-我不想沉在无人问津的海底，只好把登顶作为我的理想
+脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧
 </blockquote>
 <span id="more"></span>
-<p>  雨尚未停歇。<br />
-  派斯坦擦拭着手里白色的长刀，篝火噼啪的声音回响在山洞的深处。这里是海特山峰的林线，连绵不断的小雨让森林蔓延到极高的海拔，也让覆盖着土壤的地面化为泥沼。<br />
-  远处的乌云褪去了夜色，昭示着黎明的到来。<br />
-  “今天还要向上走吗？”我问道。<br />
-  派斯坦收起手中擦拭刀具的布，拿起一根架在篝火旁的粗树枝，上面还串着不明生物的肉，经过火焰的炙烤，让人分不出那黑色究竟是炭还是肉本来的颜色。<br />
-  他自顾自地吃了起来，并没有回答我的问题。看着派斯坦吃得津津有味，我也拿起一串，轻轻撕下一块放在嘴里。<br />
-  苦涩瞬间在嘴里爆开。炙烤后的肉几乎没有水分，让咀嚼变得十分困难，而且还散发着令人抗拒的味道，我实在难以吃下第二口，便把肉放回了篝火旁。<br />
-  派斯坦也不在乎，他只是向外走，将覆盖在洞口的枝条掀开一个小角，侧身站在洞穴边缘，小心翼翼地用眼睛观察外面的情况。稍许，他走了回来，开始收拾自己的包裹。<br />
-  天还只是蒙蒙亮，厚厚的黑云让光线变得更加黯淡。看到派斯坦要离开，我也开始收拾行囊。<br />
-  “山顶上究竟有什么东西，这么值得你探寻？”我看着派斯坦将煮开的热水倒进杯中，忍不住开口问道。<br />
-  “不知道。”派斯坦的回答十分简短。<br />
-  话音刚落，他带上避水斗笠，用长刀挑开枝条向外走去，我没来得及追问，只能快步跟着他走出洞穴。可刚走到泥土上我就迅速陷了下去，就好像这被雨水浸透的泥土要囫囵将我吞噬。我吃力地将脚拔出，却看到派斯坦也正十分困难地前进，我不禁感到担忧，何时才能到达这直耸入云的山巅？<br />
-  “轰——”一只紫黑色的手臂扬起一大片泥土，从离我们不远的地底伸了出来。这手臂近一人高，手掌能将我的头颅轻易抓起。恐惧填满了我的大脑，让我迅速向洞口跑去，可粘性极强的土壤死死的吸附住我的双腿，让我难以动弹。<br />
-  突然，那怪物手掌向派斯坦拍去，巨大的响声在我耳旁炸起，随后是溅起的泥水。一击不成，这手臂又开始蠕动，想要脱离泥沼的吸附，向派斯坦横扫过去。<br />
-  “铮——”长刀出鞘，白色的刀光迅速劈在紫黑色的手掌上，使得黑色的血管瞬间张开一个狰狞的裂缝，血液与碎肉迸溅在派斯坦的斗笠与披风上，而后被渐大的雨势冲洗干净。<br />
-  那手臂没了动静。<br />
-  我长舒一口气，却看到派斯坦切下怪物手臂的一块肌肉，在雨水中洗涤干净后装进包里。不愉快的早餐经历迅速涌上脑海，我感到胃中一阵翻涌。<br />
-  “这山这么危险，为什么还要坚持爬到山顶啊？”为了转移注意力，我又搬出今早的问题。<br />
-  ”不知道，“派斯坦将目光移向我，”可是山脚已经被不断上涨的岁月之海淹没，我到了半山腰，已经没有下山的余地了。我不想沉在无人问津的海底，只好把登顶作为我的理想。“<br />
-  我并不清楚山脚的情况，只能糊里糊涂地跟着派斯坦继续前行。这几小时的旅途并无危机，山脉也不陡峭，跟着上升的海拔，我们走到了一片旷野。<br />
-  雨水让能见度变得非常低，可前方似乎浮现出了白色的雪线，这意味着登顶之旅即将迈入新的阶段，而雪地也会比泥沼要好走一些。<br />
-  ”轰——“紫黑色的手臂擦着我的脸颊从地底冒出，巨大的冲击力把我掀翻在地。我惊慌地看向派斯坦，却发现他的身边也冒出了一只怪物手臂。<br />
-  我想从地上爬起，可是这次泥沼彻底将我粘在地面，倏地，我身边的那只怪物手臂在我眼前迅速放大，我用尽全身力气将自己的手臂抬起，想要抵挡这比我上半身还宽的手掌，却被深深地拍进泥沼当中。<br />
-  我听见了骨骼碎裂的声音，随后泥水灌进了我的耳朵。我感受到那怪物手掌正迅速握紧，因为周围的泥土正在不断地挤压我的身体。<br />
-  在意识消散之前，极力向外一瞥——<br />
-  我看见飘摇的风雪，看见垂暮的旷野，看见挥舞着长刀的派斯坦，用坚定驱散着孤单。</p>
+<hr />
+<h1 id="x01-雷区">0x01 雷区</h1>
+<h3 id="some-bugs-in-ida">1. Some bugs in IDA</h3>
+<ol type="1">
+<li>当点进StackView发现对应区域没有变量名时，动调看偏移。
+<ol type="1">
+<li>原因：IDA会分析错误</li>
+<li>例题：buuctf - cmcc_simplerop</li>
+</ol></li>
+<li>IDA显示的函数变量有可能与pwndbg显示的有区别</li>
+</ol>
+<h3 id="system参数">2. system参数</h3>
+<ol type="1">
+<li>system的参数应该是一个地址，这个地址指向字符串"/bin/sh"</li>
+</ol>
+<h3 id="位与64位格式化字符串漏洞">3. 32位与64位格式化字符串漏洞</h3>
+<ol type="1">
+<li>32位：%s不能放在地址前面，由于32位地址不存在，所以printf会打印一堆相邻的以f7开头的地址，此时获取的地址并不会是你想要的地址</li>
+<li>64位：%s不能放在地址后面，由于64位地址存在，所以printf会截断数据，并不会打印到%s的位置</li>
+</ol>
+<h3 id="send-recv">4. send &amp; recv</h3>
+<ol type="1">
+<li>send尽量after</li>
+</ol>
+<h3 id="本地与远程的关系">5. 本地与远程的关系</h3>
+<ol type="1">
+<li>本地环境如果不patchelf的话大概率与远程不同，如果本地跑不通可以直接跑远程</li>
+</ol>
+<h3 id="栈劫持">6. 栈劫持</h3>
+<ol type="1">
+<li>有的时候bss段上面是got表，如果栈没调整好则push多了以后会覆盖got表导致不能调用</li>
+</ol>
+<hr />
+<h1 id="x02-奇技淫巧">0x02 奇技淫巧</h1>
+<h3 id="ropgadget---binary-filename---ropchain">1. ROPgadget --binary
+filename --ropchain</h3>
+<ol type="1">
+<li>作用：静态编译时，二进制文件会自带许多gadget，该命令用于提取</li>
+<li>trick：可以自己修改它生成的chain，缩短shellcode</li>
+<li>例题：buuctf - cmcc_simplerop | inndy_rop</li>
+</ol>
+<h3 id="重复栈">2. 重复栈</h3>
+<ol type="1">
+<li>原理：已知main函数中先调用函数A，再调用函数B。则AB使用的栈空间重叠，在A中使用的栈并不会被擦除，所以可能会通过B再次利用</li>
+<li>例题：[ZJCTF 2019]Login</li>
+</ol>
+<h3 id="关闭标准输出">3. 关闭标准输出</h3>
+<ol type="1">
+<li>原理：看这篇<a
+href="https://blog.csdn.net/xirenwang/article/details/104139866">博客</a></li>
+</ol>
+<h3 id="int-0x80h">4. int 0x80h</h3>
+<ol type="1">
+<li>寄存器与数据的关系
+<ol type="1">
+<li>EAX/RAX：系统调用号</li>
+<li>EDX/RDX：输入长度</li>
+</ol></li>
+<li>系统调用号记录</li>
+<li>系统调用sys_read是直接从ESP开始向下写入，而不是常规的push
+<ol type="1">
+<li>例题：buuctf - pwnable_start</li>
+</ol></li>
+</ol>
+<hr />
+<h1 id="x03-工具使用">0x03 工具使用</h1>
+<h3 id="fmtstr_payload">1. fmtstr_payload</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fmtstr_payload(offset, writes, numbwritten=0, write_size=&#x27;byte&#x27;)</span><br><span class="line"></span><br><span class="line">第一个参数表示格式化字符串的偏移</span><br><span class="line"></span><br><span class="line">第二个参数表示需要利用%n写入的数据，采用字典形式，我们要将printf的GOT数据改为system函数地址，就写成&#123;printfGOT:systemAddress&#125;；</span><br><span class="line"></span><br><span class="line">第三个参数表示已经输出的字符个数</span><br><span class="line"></span><br><span class="line">第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>sketch</category>
+        <category>Pwn</category>
       </categories>
       <tags>
-        <tag>witness</tag>
+        <tag>tricks</tag>
       </tags>
   </entry>
 </search>
