@@ -28,7 +28,7 @@
 <meta property="og:description" content="脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-08-04T13:37:00.000Z">
-<meta property="article:modified_time" content="2023-08-07T06:09:23.519Z">
+<meta property="article:modified_time" content="2023-08-07T06:55:24.663Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="tricks">
 <meta name="twitter:card" content="summary">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-08-07 14:08:51" itemprop="dateModified" datetime="2023-08-07T14:09:23+08:00">2023-08-07</time>
+                <time title="修改时间：2023-08-07 14:08:66" itemprop="dateModified" datetime="2023-08-07T14:55:24+08:00">2023-08-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -251,59 +251,76 @@
         <blockquote class="blockquote-center">
 脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧
 </blockquote>
-
 <span id="more"></span>
-<hr>
-<h1 id="0x01-雷区"><a href="#0x01-雷区" class="headerlink" title="0x01  雷区"></a>0x01  雷区</h1><h3 id="1-Some-bugs-in-IDA"><a href="#1-Some-bugs-in-IDA" class="headerlink" title="1.  Some bugs in IDA"></a>1.  Some bugs in IDA</h3><ol>
-<li>当点进StackView发现对应区域没有变量名时，动调看偏移。<ol>
+<hr />
+<h1 id="x01-雷区">0x01 雷区</h1>
+<h3 id="some-bugs-in-ida">1. Some bugs in IDA</h3>
+<ol type="1">
+<li>当点进StackView发现对应区域没有变量名时，动调看偏移。
+<ol type="1">
 <li>原因：IDA会分析错误</li>
 <li>例题：buuctf - cmcc_simplerop</li>
-</ol>
-</li>
+</ol></li>
 <li>IDA显示的函数变量有可能与pwndbg显示的有区别</li>
 </ol>
-<h3 id="2-system参数"><a href="#2-system参数" class="headerlink" title="2.  system参数"></a>2.  system参数</h3><ol>
-<li>system的参数应该是一个地址，这个地址指向字符串”/bin/sh\x00”</li>
+<h3 id="system参数">2. system参数</h3>
+<ol type="1">
+<li>system的参数应该是一个地址，这个地址指向字符串"/bin/sh"</li>
 </ol>
-<h3 id="3-32位与64位格式化字符串漏洞"><a href="#3-32位与64位格式化字符串漏洞" class="headerlink" title="3.  32位与64位格式化字符串漏洞"></a>3.  32位与64位格式化字符串漏洞</h3><ol>
-<li>32位：%s不能放在地址前面，由于32位地址不存在\x00，所以printf会打印一堆相邻的以f7开头的地址，此时获取的地址并不会是你想要的地址</li>
-<li>64位：%s不能放在地址后面，由于64位地址存在\x00，所以printf会截断数据，并不会打印到%s的位置</li>
+<h3 id="位与64位格式化字符串漏洞">3. 32位与64位格式化字符串漏洞</h3>
+<ol type="1">
+<li>32位：%s不能放在地址前面，由于32位地址不存在，所以printf会打印一堆相邻的以f7开头的地址，此时获取的地址并不会是你想要的地址</li>
+<li>64位：%s不能放在地址后面，由于64位地址存在，所以printf会截断数据，并不会打印到%s的位置</li>
 </ol>
-<h3 id="4-send-amp-recv"><a href="#4-send-amp-recv" class="headerlink" title="4.  send &amp; recv"></a>4.  send &amp; recv</h3><ol>
+<h3 id="send-recv">4. send &amp; recv</h3>
+<ol type="1">
 <li>send尽量after</li>
 </ol>
-<h3 id="5-本地与远程的关系"><a href="#5-本地与远程的关系" class="headerlink" title="5. 本地与远程的关系"></a>5. 本地与远程的关系</h3><ol>
+<h3 id="本地与远程的关系">5. 本地与远程的关系</h3>
+<ol type="1">
 <li>本地环境如果不patchelf的话大概率与远程不同，如果本地跑不通可以直接跑远程</li>
 </ol>
-<h3 id="6-栈劫持"><a href="#6-栈劫持" class="headerlink" title="6. 栈劫持"></a>6. 栈劫持</h3><ol>
+<h3 id="栈劫持">6. 栈劫持</h3>
+<ol type="1">
 <li>有的时候bss段上面是got表，如果栈没调整好则push多了以后会覆盖got表导致不能调用</li>
 </ol>
-<hr>
-<h1 id="0x02-奇技淫巧"><a href="#0x02-奇技淫巧" class="headerlink" title="0x02  奇技淫巧"></a>0x02  奇技淫巧</h1><h3 id="1-ROPgadget-—binary-filename-—ropchain"><a href="#1-ROPgadget-—binary-filename-—ropchain" class="headerlink" title="1.  ROPgadget —binary filename —ropchain"></a>1.  ROPgadget —binary filename —ropchain</h3><ol>
+<hr />
+<h1 id="x02-奇技淫巧">0x02 奇技淫巧</h1>
+<h3 id="ropgadget---binary-filename---ropchain">1. ROPgadget --binary
+filename --ropchain</h3>
+<ol type="1">
 <li>作用：静态编译时，二进制文件会自带许多gadget，该命令用于提取</li>
 <li>trick：可以自己修改它生成的chain，缩短shellcode</li>
-<li>例题：buuctf - cmcc_simplerop  |  inndy_rop</li>
+<li>例题：buuctf - cmcc_simplerop | inndy_rop</li>
 </ol>
-<h3 id="2-重复栈"><a href="#2-重复栈" class="headerlink" title="2.  重复栈"></a>2.  重复栈</h3><ol>
+<h3 id="重复栈">2. 重复栈</h3>
+<ol type="1">
 <li>原理：已知main函数中先调用函数A，再调用函数B。则AB使用的栈空间重叠，在A中使用的栈并不会被擦除，所以可能会通过B再次利用</li>
 <li>例题：[ZJCTF 2019]Login</li>
 </ol>
-<h3 id="3-关闭标准输出"><a href="#3-关闭标准输出" class="headerlink" title="3.  关闭标准输出"></a>3.  关闭标准输出</h3><ol>
-<li>原理：看这篇<a target="_blank" rel="noopener" href="https://blog.csdn.net/xirenwang/article/details/104139866">博客</a></li>
+<h3 id="关闭标准输出">3. 关闭标准输出</h3>
+<ol type="1">
+<li>原理：看这篇<a
+target="_blank" rel="noopener" href="https://blog.csdn.net/xirenwang/article/details/104139866">博客</a></li>
 </ol>
-<h3 id="4-int-0x80h"><a href="#4-int-0x80h" class="headerlink" title="4.  int 0x80h"></a>4.  int 0x80h</h3><ol>
-<li>寄存器与数据的关系<ol>
+<h3 id="int-0x80h">4. int 0x80h</h3>
+<ol type="1">
+<li>寄存器与数据的关系
+<ol type="1">
 <li>EAX/RAX：系统调用号</li>
 <li>EDX/RDX：输入长度</li>
-</ol>
-</li>
+</ol></li>
 <li>系统调用号记录</li>
-<li>系统调用sys_read是直接从ESP开始向下写入，而不是常规的push<ol>
+<li>系统调用sys_read是直接从ESP开始向下写入，而不是常规的push
+<ol type="1">
 <li>例题：buuctf - pwnable_start</li>
+</ol></li>
 </ol>
-</li>
-</ol>
-<h1 id="0x03-工具使用"><a href="#0x03-工具使用" class="headerlink" title="0x03 工具使用"></a>0x03 工具使用</h1><h3 id="1-fmtstr-payload"><a href="#1-fmtstr-payload" class="headerlink" title="1.  fmtstr_payload"></a>1.  fmtstr_payload</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fmtstr_payload(offset, writes, numbwritten=0, write_size=&#x27;byte&#x27;)</span><br><span class="line"></span><br><span class="line">第一个参数表示格式化字符串的偏移</span><br><span class="line"></span><br><span class="line">第二个参数表示需要利用%n写入的数据，采用字典形式，我们要将printf的GOT数据改为system函数地址，就写成&#123;printfGOT:systemAddress&#125;；</span><br><span class="line"></span><br><span class="line">第三个参数表示已经输出的字符个数</span><br><span class="line"></span><br><span class="line">第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<hr />
+<h1 id="x03-工具使用">0x03 工具使用</h1>
+<h3 id="fmtstr_payload">1. fmtstr_payload</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fmtstr_payload(offset, writes, numbwritten=0, write_size=&#x27;byte&#x27;)</span><br><span class="line"></span><br><span class="line">第一个参数表示格式化字符串的偏移</span><br><span class="line"></span><br><span class="line">第二个参数表示需要利用%n写入的数据，采用字典形式，我们要将printf的GOT数据改为system函数地址，就写成&#123;printfGOT:systemAddress&#125;；</span><br><span class="line"></span><br><span class="line">第三个参数表示已经输出的字符个数</span><br><span class="line"></span><br><span class="line">第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
     </div>
 
     
@@ -413,7 +430,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-%E9%9B%B7%E5%8C%BA"><span class="nav-number">1.</span> <span class="nav-text">0x01  雷区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Some-bugs-in-IDA"><span class="nav-number">1.0.1.</span> <span class="nav-text">1.  Some bugs in IDA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-system%E5%8F%82%E6%95%B0"><span class="nav-number">1.0.2.</span> <span class="nav-text">2.  system参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-32%E4%BD%8D%E4%B8%8E64%E4%BD%8D%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.0.3.</span> <span class="nav-text">3.  32位与64位格式化字符串漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-send-amp-recv"><span class="nav-number">1.0.4.</span> <span class="nav-text">4.  send &amp; recv</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%9C%AC%E5%9C%B0%E4%B8%8E%E8%BF%9C%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">1.0.5.</span> <span class="nav-text">5. 本地与远程的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E6%A0%88%E5%8A%AB%E6%8C%81"><span class="nav-number">1.0.6.</span> <span class="nav-text">6. 栈劫持</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-%E5%A5%87%E6%8A%80%E6%B7%AB%E5%B7%A7"><span class="nav-number">2.</span> <span class="nav-text">0x02  奇技淫巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-ROPgadget-%E2%80%94binary-filename-%E2%80%94ropchain"><span class="nav-number">2.0.1.</span> <span class="nav-text">1.  ROPgadget —binary filename —ropchain</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%87%8D%E5%A4%8D%E6%A0%88"><span class="nav-number">2.0.2.</span> <span class="nav-text">2.  重复栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%85%B3%E9%97%AD%E6%A0%87%E5%87%86%E8%BE%93%E5%87%BA"><span class="nav-number">2.0.3.</span> <span class="nav-text">3.  关闭标准输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-int-0x80h"><span class="nav-number">2.0.4.</span> <span class="nav-text">4.  int 0x80h</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x03-%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">0x03 工具使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-fmtstr-payload"><span class="nav-number">3.0.1.</span> <span class="nav-text">1.  fmtstr_payload</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E9%9B%B7%E5%8C%BA"><span class="nav-number">1.</span> <span class="nav-text">0x01 雷区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#some-bugs-in-ida"><span class="nav-number">1.0.1.</span> <span class="nav-text">1. Some bugs in IDA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#system%E5%8F%82%E6%95%B0"><span class="nav-number">1.0.2.</span> <span class="nav-text">2. system参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%8D%E4%B8%8E64%E4%BD%8D%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.0.3.</span> <span class="nav-text">3. 32位与64位格式化字符串漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#send-recv"><span class="nav-number">1.0.4.</span> <span class="nav-text">4. send &amp; recv</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E4%B8%8E%E8%BF%9C%E7%A8%8B%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">1.0.5.</span> <span class="nav-text">5. 本地与远程的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88%E5%8A%AB%E6%8C%81"><span class="nav-number">1.0.6.</span> <span class="nav-text">6. 栈劫持</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x02-%E5%A5%87%E6%8A%80%E6%B7%AB%E5%B7%A7"><span class="nav-number">2.</span> <span class="nav-text">0x02 奇技淫巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ropgadget---binary-filename---ropchain"><span class="nav-number">2.0.1.</span> <span class="nav-text">1. ROPgadget --binary
+filename --ropchain</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%A0%88"><span class="nav-number">2.0.2.</span> <span class="nav-text">2. 重复栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%97%AD%E6%A0%87%E5%87%86%E8%BE%93%E5%87%BA"><span class="nav-number">2.0.3.</span> <span class="nav-text">3. 关闭标准输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#int-0x80h"><span class="nav-number">2.0.4.</span> <span class="nav-text">4. int 0x80h</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x03-%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">0x03 工具使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fmtstr_payload"><span class="nav-number">3.0.1.</span> <span class="nav-text">1. fmtstr_payload</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
