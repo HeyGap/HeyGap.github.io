@@ -101,93 +101,6 @@ RELRO为什么可以改啊🤔</li>
       </tags>
   </entry>
   <entry>
-    <title>Some tricks in Pwn</title>
-    <url>/2023/08/04/Some%20tricks%20in%20Pwn/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧
-</blockquote>
-<span id="more"></span>
-<hr />
-<h1 id="x01-雷区">0x01 雷区</h1>
-<h3 id="some-bugs-in-ida">1. Some bugs in IDA</h3>
-<ol type="1">
-<li>当点进StackView发现对应区域没有变量名时，动调看偏移。
-<ol type="1">
-<li>原因：IDA会分析错误</li>
-<li>例题：buuctf - cmcc_simplerop</li>
-</ol></li>
-<li>IDA显示的函数变量有可能与pwndbg显示的有区别</li>
-</ol>
-<h3 id="system参数">2. system参数</h3>
-<ol type="1">
-<li>system的参数应该是一个地址，这个地址指向字符串"/bin/sh"</li>
-</ol>
-<h3 id="位与64位格式化字符串漏洞">3. 32位与64位格式化字符串漏洞</h3>
-<ol type="1">
-<li>32位：%s不能放在地址前面，由于32位地址不存在，所以printf会打印一堆相邻的以f7开头的地址，此时获取的地址并不会是你想要的地址</li>
-<li>64位：%s不能放在地址后面，由于64位地址存在，所以printf会截断数据，并不会打印到%s的位置</li>
-</ol>
-<h3 id="send-recv">4. send &amp; recv</h3>
-<ol type="1">
-<li>send尽量after</li>
-</ol>
-<h3 id="libc不同可能导致的后果">5. libc不同可能导致的后果</h3>
-<ol type="1">
-<li>栈偏移量不同</li>
-<li>tcache的存在使部分堆攻击变难</li>
-</ol>
-<h3 id="栈劫持">6. 栈劫持</h3>
-<ol type="1">
-<li>有的时候bss段上面是got表，如果栈没调整好则push多了以后会覆盖got表导致不能调用
-<ol type="1">
-<li>例题：buu - gyctf_2020_borrowstack</li>
-</ol></li>
-</ol>
-<hr />
-<h1 id="x02-奇技淫巧">0x02 奇技淫巧</h1>
-<h3 id="ropgadget---binary-filename---ropchain">1. ROPgadget --binary
-filename --ropchain</h3>
-<ol type="1">
-<li>作用：静态编译时，二进制文件会自带许多gadget，该命令用于提取</li>
-<li>trick：可以自己修改它生成的chain，缩短shellcode</li>
-<li>例题：buuctf - cmcc_simplerop | inndy_rop</li>
-</ol>
-<h3 id="重复栈">2. 重复栈</h3>
-<ol type="1">
-<li>原理：已知main函数中先调用函数A，再调用函数B。则AB使用的栈空间重叠，在A中使用的栈并不会被擦除，所以可能会通过B再次利用</li>
-<li>例题：[ZJCTF 2019]Login</li>
-</ol>
-<h3 id="关闭标准输出">3. 关闭标准输出</h3>
-<ol type="1">
-<li>原理：看这篇<a
-href="https://blog.csdn.net/xirenwang/article/details/104139866">博客</a></li>
-</ol>
-<h3 id="int-0x80h">4. int 0x80h</h3>
-<ol type="1">
-<li>寄存器与数据的关系
-<ol type="1">
-<li>EAX/RAX：系统调用号</li>
-<li>EDX/RDX：输入长度</li>
-</ol></li>
-<li>系统调用号记录</li>
-<li>系统调用sys_read是直接从ESP开始向下写入，而不是常规的push
-<ol type="1">
-<li>例题：buuctf - pwnable_start</li>
-</ol></li>
-</ol>
-<hr />
-<h1 id="x03-工具使用">0x03 工具使用</h1>
-<h3 id="fmtstr_payload">1. fmtstr_payload</h3>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fmtstr_payload(offset, writes, numbwritten=0, write_size=&#x27;byte&#x27;)</span><br><span class="line"></span><br><span class="line">第一个参数表示格式化字符串的偏移</span><br><span class="line"></span><br><span class="line">第二个参数表示需要利用%n写入的数据，采用字典形式，我们要将printf的GOT数据改为system函数地址，就写成&#123;printfGOT:systemAddress&#125;；</span><br><span class="line"></span><br><span class="line">第三个参数表示已经输出的字符个数</span><br><span class="line"></span><br><span class="line">第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Pwn</category>
-      </categories>
-      <tags>
-        <tag>tricks</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hexo &amp; Next 博客配置与美化</title>
     <url>/2023/01/10/Hexo%20&amp;%20Next%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
@@ -362,6 +275,93 @@ href="https://blog.csdn.net/maosidiaoxian/article/details/85220394">如何在Hex
       </categories>
       <tags>
         <tag>Blog</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Some tricks in Pwn</title>
+    <url>/2023/08/04/Some%20tricks%20in%20Pwn/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧
+</blockquote>
+<span id="more"></span>
+<hr />
+<h1 id="x01-雷区">0x01 雷区</h1>
+<h3 id="some-bugs-in-ida">1. Some bugs in IDA</h3>
+<ol type="1">
+<li>当点进StackView发现对应区域没有变量名时，动调看偏移。
+<ol type="1">
+<li>原因：IDA会分析错误</li>
+<li>例题：buuctf - cmcc_simplerop</li>
+</ol></li>
+<li>IDA显示的函数变量有可能与pwndbg显示的有区别</li>
+</ol>
+<h3 id="system参数">2. system参数</h3>
+<ol type="1">
+<li>system的参数应该是一个地址，这个地址指向字符串"/bin/sh"</li>
+</ol>
+<h3 id="位与64位格式化字符串漏洞">3. 32位与64位格式化字符串漏洞</h3>
+<ol type="1">
+<li>32位：%s不能放在地址前面，由于32位地址不存在，所以printf会打印一堆相邻的以f7开头的地址，此时获取的地址并不会是你想要的地址</li>
+<li>64位：%s不能放在地址后面，由于64位地址存在，所以printf会截断数据，并不会打印到%s的位置</li>
+</ol>
+<h3 id="send-recv">4. send &amp; recv</h3>
+<ol type="1">
+<li>send尽量after</li>
+</ol>
+<h3 id="libc不同可能导致的后果">5. libc不同可能导致的后果</h3>
+<ol type="1">
+<li>栈偏移量不同</li>
+<li>tcache的存在使部分堆攻击变难</li>
+</ol>
+<h3 id="栈劫持">6. 栈劫持</h3>
+<ol type="1">
+<li>有的时候bss段上面是got表，如果栈没调整好则push多了以后会覆盖got表导致不能调用
+<ol type="1">
+<li>例题：buu - gyctf_2020_borrowstack</li>
+</ol></li>
+</ol>
+<hr />
+<h1 id="x02-奇技淫巧">0x02 奇技淫巧</h1>
+<h3 id="ropgadget---binary-filename---ropchain">1. ROPgadget --binary
+filename --ropchain</h3>
+<ol type="1">
+<li>作用：静态编译时，二进制文件会自带许多gadget，该命令用于提取</li>
+<li>trick：可以自己修改它生成的chain，缩短shellcode</li>
+<li>例题：buuctf - cmcc_simplerop | inndy_rop</li>
+</ol>
+<h3 id="重复栈">2. 重复栈</h3>
+<ol type="1">
+<li>原理：已知main函数中先调用函数A，再调用函数B。则AB使用的栈空间重叠，在A中使用的栈并不会被擦除，所以可能会通过B再次利用</li>
+<li>例题：[ZJCTF 2019]Login</li>
+</ol>
+<h3 id="关闭标准输出">3. 关闭标准输出</h3>
+<ol type="1">
+<li>原理：看这篇<a
+href="https://blog.csdn.net/xirenwang/article/details/104139866">博客</a></li>
+</ol>
+<h3 id="int-0x80h">4. int 0x80h</h3>
+<ol type="1">
+<li>寄存器与数据的关系
+<ol type="1">
+<li>EAX/RAX：系统调用号</li>
+<li>EDX/RDX：输入长度</li>
+</ol></li>
+<li>系统调用号记录</li>
+<li>系统调用sys_read是直接从ESP开始向下写入，而不是常规的push
+<ol type="1">
+<li>例题：buuctf - pwnable_start</li>
+</ol></li>
+</ol>
+<hr />
+<h1 id="x03-工具使用">0x03 工具使用</h1>
+<h3 id="fmtstr_payload">1. fmtstr_payload</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fmtstr_payload(offset, writes, numbwritten=0, write_size=&#x27;byte&#x27;)</span><br><span class="line"></span><br><span class="line">第一个参数表示格式化字符串的偏移</span><br><span class="line"></span><br><span class="line">第二个参数表示需要利用%n写入的数据，采用字典形式，我们要将printf的GOT数据改为system函数地址，就写成&#123;printfGOT:systemAddress&#125;；</span><br><span class="line"></span><br><span class="line">第三个参数表示已经输出的字符个数</span><br><span class="line"></span><br><span class="line">第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>tricks</tag>
       </tags>
   </entry>
   <entry>
