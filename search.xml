@@ -195,6 +195,48 @@ patchelf，根据远程调试选择了libc2.31 <figure class="highlight plaintex
       </tags>
   </entry>
   <entry>
+    <title>Heap常规利用方式总结</title>
+    <url>/2023/09/22/Heap%E5%B8%B8%E8%A7%84%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+大佬都有这种总结性的wp，那我也邯郸学步一下 :P
+</blockquote>
+<span id="more"></span>
+<h1 id="unsortedbin-attack">Unsortedbin Attack</h1>
+<h2 id="概述">概述</h2>
+<p>Unsortedbinattack分为leak和write两部分，leak是指“当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址，而这个地址可以通过查看libc的二进制文件逆向得出”，write是指“”。此外，unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
+<h2 id="申请fake_chunk">申请fake_chunk</h2>
+<p><strong>2.23版本</strong><br />
+- 初状态<br />
+unsortedbin --&gt; chunk_victim</p>
+<blockquote>
+<p>此时我们令chunk_victim.bk = fake_chunk_head</p>
+</blockquote>
+<ul>
+<li>末状态<br />
+unsortedbin --&gt; chunk_victim --&gt; fake_chunk</li>
+</ul>
+<blockquote>
+<p>连续申请两个chunk即可申请到fake_chunk</p>
+</blockquote>
+<h1 id="houseoforange">HouseofOrange</h1>
+<h2 id="概述-1">概述</h2>
+<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。<br />
+## 伪造chunk需求 1. top_chunk的结束地址必须页对齐<br />
+-
+一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可<br />
+2. top_chunk.size &gt;= MINSIZE<br />
+3. top_chunk.size &lt; chunk_size + MINSIZE 4. top_chunk.prev_inuse == 1
+- 第一点中说的0xfe0要变为0xfe1</p>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>Heap</tag>
+        <tag>Summary</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>BUUCTF babyheap_0ctf_2017</title>
     <url>/2023/08/14/BUUCTF%20babyheap_0ctf_2017/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
@@ -393,48 +435,6 @@ pwn的环境搭建有了一点印象，但里面的大部分内容我都看不�
       </categories>
       <tags>
         <tag>LearningLog, Heap</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Heap常规利用方式总结</title>
-    <url>/2023/09/22/Heap%E5%B8%B8%E8%A7%84%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-大佬都有这种总结性的wp，那我也邯郸学步一下 :P
-</blockquote>
-<span id="more"></span>
-<h1 id="unsortedbin-attack">Unsortedbin Attack</h1>
-<h2 id="概述">概述</h2>
-<p>Unsortedbinattack分为leak和write两部分，leak是指“当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址，而这个地址可以通过查看libc的二进制文件逆向得出”，write是指“”。此外，unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
-<h2 id="申请fake_chunk">申请fake_chunk</h2>
-<p><strong>2.23版本</strong><br />
-- 初状态<br />
-unsortedbin --&gt; chunk_victim</p>
-<blockquote>
-<p>此时我们令chunk_victim.bk = fake_chunk_head</p>
-</blockquote>
-<ul>
-<li>末状态<br />
-unsortedbin --&gt; chunk_victim --&gt; fake_chunk</li>
-</ul>
-<blockquote>
-<p>连续申请两个chunk即可申请到fake_chunk</p>
-</blockquote>
-<h1 id="houseoforange">HouseofOrange</h1>
-<h2 id="概述-1">概述</h2>
-<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。<br />
-## 伪造chunk需求 1. top_chunk的结束地址必须页对齐<br />
--
-一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可<br />
-2. top_chunk.size &gt;= MINSIZE<br />
-3. top_chunk.size &lt; chunk_size + MINSIZE 4. top_chunk.prev_inuse == 1
-- 第一点中说的0xfe0要变为0xfe1</p>
-]]></content>
-      <categories>
-        <category>Pwn</category>
-      </categories>
-      <tags>
-        <tag>Heap</tag>
-        <tag>Summary</tag>
       </tags>
   </entry>
   <entry>
