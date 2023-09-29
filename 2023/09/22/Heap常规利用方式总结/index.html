@@ -252,33 +252,35 @@
         <blockquote class="blockquote-center">
 大佬都有这种总结性的wp，那我也邯郸学步一下 :P
 </blockquote>
+
 <span id="more"></span>
-<h1 id="unsortedbin-attack">Unsortedbin Attack</h1>
-<h2 id="概述">概述</h2>
-<p>Unsortedbinattack分为leak和write两部分，leak是指“当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址，而这个地址可以通过查看libc的二进制文件逆向得出”，write是指“”。此外，unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
-<h2 id="申请fake_chunk">申请fake_chunk</h2>
-<p><strong>2.23版本</strong><br />
-- 初状态<br />
-unsortedbin --&gt; chunk_victim</p>
+<h1 id="Unsortedbin-Attack"><a href="#Unsortedbin-Attack" class="headerlink" title="Unsortedbin Attack"></a>Unsortedbin Attack</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Unsortedbinattack分为leak和write两部分，leak是指“当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址，而这个地址可以通过查看libc的二进制文件逆向得出”，write是指“”。此外，unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
+<h2 id="申请fake-chunk"><a href="#申请fake-chunk" class="headerlink" title="申请fake_chunk"></a>申请fake_chunk</h2><p><strong>2.23版本</strong>  </p>
+<ul>
+<li>初状态<br>unsortedbin —&gt; chunk_victim  </li>
+</ul>
 <blockquote>
 <p>此时我们令chunk_victim.bk = fake_chunk_head</p>
 </blockquote>
 <ul>
-<li>末状态<br />
-unsortedbin --&gt; chunk_victim --&gt; fake_chunk</li>
+<li>末状态<br>unsortedbin  —&gt; chunk_victim —&gt; fake_chunk</li>
 </ul>
 <blockquote>
 <p>连续申请两个chunk即可申请到fake_chunk</p>
 </blockquote>
-<h1 id="houseoforange">HouseofOrange</h1>
-<h2 id="概述-1">概述</h2>
-<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。<br />
-## 伪造chunk需求 1. top_chunk的结束地址必须页对齐<br />
--
-一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可<br />
-2. top_chunk.size &gt;= MINSIZE<br />
-3. top_chunk.size &lt; chunk_size + MINSIZE 4. top_chunk.prev_inuse == 1
-- 第一点中说的0xfe0要变为0xfe1</p>
+<h1 id="HouseofOrange"><a href="#HouseofOrange" class="headerlink" title="HouseofOrange"></a>HouseofOrange</h1><h2 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h2><p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。    </p>
+<h2 id="伪造chunk需求"><a href="#伪造chunk需求" class="headerlink" title="伪造chunk需求"></a>伪造chunk需求</h2><ol>
+<li>top_chunk的结束地址必须页对齐  <ul>
+<li>一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可  </li>
+</ul>
+</li>
+<li>top_chunk.size &gt;= MINSIZE  </li>
+<li>top_chunk.size &lt; chunk_size + MINSIZE</li>
+<li>top_chunk.prev_inuse == 1<ul>
+<li>第一点中说的0xfe0要变为0xfe1 </li>
+</ul>
+</li>
+</ol>
 
     </div>
 
@@ -390,7 +392,7 @@ unsortedbin --&gt; chunk_victim --&gt; fake_chunk</li>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#unsortedbin-attack"><span class="nav-number">1.</span> <span class="nav-text">Unsortedbin Attack</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7fake_chunk"><span class="nav-number">1.2.</span> <span class="nav-text">申请fake_chunk</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#houseoforange"><span class="nav-number">2.</span> <span class="nav-text">HouseofOrange</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">2.1.</span> <span class="nav-text">概述</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Unsortedbin-Attack"><span class="nav-number">1.</span> <span class="nav-text">Unsortedbin Attack</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B3%E8%AF%B7fake-chunk"><span class="nav-number">1.2.</span> <span class="nav-text">申请fake_chunk</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HouseofOrange"><span class="nav-number">2.</span> <span class="nav-text">HouseofOrange</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">2.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%AA%E9%80%A0chunk%E9%9C%80%E6%B1%82"><span class="nav-number">2.2.</span> <span class="nav-text">伪造chunk需求</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
