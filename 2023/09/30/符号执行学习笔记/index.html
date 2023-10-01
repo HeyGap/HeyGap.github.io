@@ -28,7 +28,7 @@
 <meta property="og:description" content="迈向自动化的第一步——">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-09-30T07:44:00.000Z">
-<meta property="article:modified_time" content="2023-09-30T07:50:42.848Z">
+<meta property="article:modified_time" content="2023-10-01T15:43:14.576Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="SymbolicExecution">
 <meta name="twitter:card" content="summary">
@@ -210,10 +210,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2023-09-30 15:09:00 / 修改时间：15:09:84" itemprop="dateCreated datePublished" datetime="2023-09-30T15:44:00+08:00">2023-09-30</time>
+              <time title="创建时间：2023-09-30 15:09:00" itemprop="dateCreated datePublished" datetime="2023-09-30T15:44:00+08:00">2023-09-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-10-01 23:10:57" itemprop="dateModified" datetime="2023-10-01T23:43:14+08:00">2023-10-01</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -245,81 +251,271 @@
         <blockquote class="blockquote-center">
 迈向自动化的第一步——
 </blockquote>
-
 <span id="more"></span>
-<h1 id="0x00-基本模型"><a href="#0x00-基本模型" class="headerlink" title="0x00  基本模型"></a>0x00  基本模型</h1><ul>
+<h1 id="x00-基本模型">0x00 基本模型</h1>
+<ul>
+<li><p><strong>概述</strong><br />
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1  void sum(a,b)&#123;</span><br><span class="line">2    int x = a;</span><br><span class="line">3    int y = b;</span><br><span class="line">4    int z = x + y;</span><br><span class="line">5    return z;</span><br><span class="line">6  &#125;</span><br></pre></td></tr></table></figure> 调用<span
+class="math inline">\(sum(1,2)\)</span>，学过C语言的都知道会发生什么事情<br />
+但如果我调用<span
+class="math inline">\(sum(a1,a2)\)</span>，并且我在这之前并未声明a1，a2呢？<br />
+先不要用C语言的思路来考虑了，我们称这种情况为<strong>符号执行(Symbolic
+Execution)</strong>，具体会发生什么我们接着往下看</p></li>
 <li><p><strong>基本思想</strong></p>
-<ol>
-<li>使用符号变量代替具体值作为程序或函数的参数，并模拟执行程序中的指令，各指令的操作都基于符号变量进行，其中操作数的值由符号和常量组成的表达式来表示<ol>
-<li>符号变量是什么？<ol>
-<li>读者可以将符号执行视为程序具体执行的自然扩展，符号变量使得程序执行变得不确定，当我们给一系列符号赋一个确定的值时，符号执行就成为了程序具体执行（i.e. 程序的一次具体执行可以视为符号执行的一次实例）</li>
-</ol>
-</li>
+<ol type="1">
+<li>使用符号变量代替具体值作为程序或函数的参数，并模拟执行程序中的指令，各指令的操作都基于符号变量进行，其中操作数的值由符号和常量组成的表达式来表示
+<ol type="1">
+<li>符号变量是什么？
+<ol type="1">
+<li>读者可以将符号执行视为程序具体执行的自然扩展，符号变量使得程序执行变得不确定，当我们给一系列符号赋一个确定的值时，符号执行就成为了程序具体执行（i.e.
+程序的一次具体执行可以视为符号执行的一次实例）</li>
+</ol></li>
 <li>操作数是什么？</li>
-</ol>
-</li>
-<li>对于任意程序，其执行流程是由执行序列的执行语义控制的<ol>
-<li>执行语义：<ol>
+</ol></li>
+<li>对于任意程序，其执行流程是由执行序列的执行语义控制的
+<ol type="1">
+<li>执行语义：
+<ol type="1">
 <li>变量定义语句对数据对象的描述 <code>int a;</code></li>
 <li>声明语句对程序数据对象的修改 <code>a = 10;</code></li>
 <li>条件语句对程序执行流程的控制</li>
-</ol>
-</li>
-</ol>
-</li>
+</ol></li>
+</ol></li>
 <li>当程序的输入参数确定时，其指令序列被固定，因此程序执行语义和控制流也被固定</li>
-</ol>
-</li>
+</ol></li>
 <li><p><strong>程序语言定义</strong></p>
-<ol>
-<li>James C. King在提出符号执行技术的同时，也为其限定了理想的适用场景：<ol>
+<ol type="1">
+<li>James C. King在提出符号执行技术的同时，也为其限定了理想的适用场景：
+<ol type="1">
 <li>理想模型中程序只处理“有符号整数”</li>
 <li>程序“执行数”规模有限</li>
 <li>可以处理程序内所有if条件语句的约束表达式</li>
-</ol>
-</li>
-<li>基于符号执行技术的理想场景，对程序语言做如下定义<ol>
+</ol></li>
+<li>基于符号执行技术的理想场景，对程序语言做如下定义
+<ol type="1">
 <li>程序变量类型：只包含“有符号整数”</li>
-<li>程序语句类型<ol>
+<li>程序语句类型
+<ol type="1">
 <li>简单声明语句，如<code>a = 3</code></li>
 <li>if条件语句(包括then 和 else)</li>
 <li>无条件跳转语句，如goto语句</li>
 <li>变量操作语句：如read函数、基本整数运算操作（+、-、*）</li>
-</ol>
-</li>
-<li>程序语义<ol>
+</ol></li>
+<li>程序语义
+<ol type="1">
 <li>简单声明语句、无条件跳转语句和变量操作语句，只是将程序中的具体值替换为了符号</li>
 <li>而if条件语句中，将具体值替换为了符号，所以我们无法判断if语句中的真值，就不能确定条件分支的走向，这是符号执行技术对程序执行语义的最大改变，也是符号执行与具体执行的关键区别</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
+</ol></li>
+</ol></li>
+</ol></li>
 <li><p><strong>程序执行状态</strong></p>
 <ul>
-<li>PC<ol>
-<li>为了解决“分支走向不确定”的问题，King为程序状态新添加了一个变量：<strong>路径约束条件 pc(path constraint)</strong>，在每个if条件语句处并没有实际决定程序执行哪个分支，这就需要符号执行引擎<strong>主动选择执行分支</strong>并<strong>记录整个执行过程</strong>，pc就辅助完成了这项工作</li>
+<li>PC
+<ol type="1">
+<li>为了解决“分支走向不确定”的问题，King为程序状态新添加了一个变量：<strong>路径约束条件
+pc(path
+constraint)</strong>，在每个if条件语句处并没有实际决定程序执行哪个分支，这就需要符号执行引擎<strong>主动选择执行分支</strong>并<strong>记录整个执行过程</strong>，pc就辅助完成了这项工作</li>
 <li>Simply，pc就是符号执行过程中对路径上条件分支走向的选择情况</li>
-<li>来看一段示例<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if1: a1 &gt;= 0</span><br><span class="line">if2: a1+2*a2 &gt;= 0</span><br><span class="line">if3: a3&gt;= 0</span><br></pre></td></tr></table></figure></li>
-<li>假设上述三个分支中选择了if1:true if2:true if3:false，pc表示为<code>pc = (a1 &gt;= 0 &amp;&amp; a1+2*a2 &gt;= 0 &amp;&amp; ~(a3 &gt;= 0))</code>，由此可见，pc是一个bool表达式</li>
-</ol>
-</li>
-<li>符号执行引擎<ul>
-<li>当符号执行到 if(q) 时，pc 有可能包含q（1），也可能包含 ~q（2），如果符号执行引擎选择进入then分支，则 pc 表现为（1）的形式，如果符号执行引擎选择进入else分支， 则 pc 表现为（2）的形式</li>
+<li>来看一段示例 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if1: a1 &gt;= 0</span><br><span class="line">if2: a1+2*a2 &gt;= 0</span><br><span class="line">if3: a3&gt;= 0</span><br></pre></td></tr></table></figure></li>
+<li>假设上述三个分支中选择了if1:true if2:true
+if3:false，pc表示为<code>pc = (a1 &gt;= 0 &amp;&amp; a1+2*a2 &gt;= 0 &amp;&amp; ~(a3 &gt;= 0))</code>，由此可见，pc是一个bool表达式</li>
+</ol></li>
+<li>符号执行引擎
+<ul>
+<li>当符号执行到 if(q) 时，pc 有可能包含q（1），也可能包含
+~q（2），如果符号执行引擎选择进入then分支，则 pc
+表现为（1）的形式，如果符号执行引擎选择进入else分支， 则 pc
+表现为（2）的形式</li>
 <li>而我们希望两条分支都被测试，所以符号执行引擎执行到if条件语句时，符号执行需要创建两个“并行”的执行过程</li>
 <li>每个和符号变量相关的if条件语句都会为pc贡献一个决定程序执行走向的表达式，最后要确定pc对应路径的程序输入参数，只需要用约束求解器对pc进行求解</li>
-</ul>
-</li>
-</ul>
-</li>
+</ul></li>
+</ul></li>
 <li><p><strong>符号执行树</strong></p>
-<ol>
+<ol type="1">
 <li>定义：用来描述程序执行路径的树形结构</li>
-<li>内容：一个节点对应程序中的一条语句，还可以包含指令计数、PC、变量值等程序执行状态信息</li>
-</ol>
+<li>内容：一个节点对应程序中的一条语句，还可以包含指令计数、PC、变量值等程序执行状态信息(没找到合适的图，就先放一张不带C代码的)
+<img
+src="https://img-blog.csdnimg.cn/792e3c5258b74c3bb8a021f3d7d5f1fc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qix5bKb44Gu6bK4,size_20,color_FFFFFF,t_70,g_se,x_16" /></li>
+</ol></li>
+<li><p><strong>约束求解</strong></p>
+<ol type="1">
+<li>定义：
+<ol type="1">
+<li>给定一个三元组&lt;V,D,C&gt;,其中：
+<ol type="1">
+<li>V: 变量的有限集合<br />
 </li>
+<li>D: 变量的论域，变量可能取值的有限集合<br />
+</li>
+<li>C: 有限约束集合，某个约束关系<span
+class="math inline">\(C_i\)</span>包含V中一个或多个变量，若<span
+class="math inline">\(C_i\)</span>包含k个变量，则称其为在这k个变量集合上的k元约束<br />
+</li>
+</ol></li>
+<li>约束求解就是找到约束问题的一个解，该解对变量集合中所有变量都赋一个取自其论域的值，并且这些变量的值满足该问题的所有约束条件<br />
+</li>
+<li>对于约束问题<span class="math inline">\(P =
+&lt;V,D,C&gt;\)</span>，若P至少存在一个解，则称P为可满足的，否则称其为不可满足的<br />
+</li>
+</ol></li>
+<li>分类:
+<ol type="1">
+<li>SAT(The Satisfiability problem, 可满足性问题)
+<ol type="1">
+<li>定义：求解由<strong>布尔变量集合</strong>所构成的布尔函数，是否存在变量的一种分布使得该函数的取值为1<br />
+</li>
+<li>缺陷：①只能解决命题逻辑公式问题，很多实际问题转化不成命题逻辑问题②必须用布尔变量来表示，将实际问题转化为布尔函数开销大，转换后的函数也极其复杂<br />
+</li>
+</ol></li>
+<li>SMT(Satisfiability Modulo Theories, 可满足性模理论)
+<ol type="1">
+<li>定义：将SAT只能求解命题逻辑公式问题扩展为可以解决一阶逻辑所表达的公式。包含多种理论。
+<ol type="1">
+<li>什么是一阶逻辑</li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+<li><p><strong>回到开始的函数</strong></p></li>
 </ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1  void sum(a,b)&#123;</span><br><span class="line">2    int x = a;</span><br><span class="line">3    int y = b;</span><br><span class="line">4    int z = x + y;</span><br><span class="line">5    return z;</span><br><span class="line">6  &#125;</span><br></pre></td></tr></table></figure>
+<p>我们将其写为<em>类PL/1语言</em> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1  SUM: PROCEDURE(A,B);</span><br><span class="line">2    X&lt;-A;</span><br><span class="line">3    Y&lt;-B;</span><br><span class="line">4    Z&lt;-X+Y;</span><br><span class="line">5    RETURN(Z);</span><br><span class="line">6  END;</span><br></pre></td></tr></table></figure></p>
+<p>我们在调用<span
+class="math inline">\(sum(1,2)\)</span>后，可以列一个表格来观察程序流<br />
+<span class="math display">\[
+\def\arraystretch{.7}
+   \begin{array}{|c|c|c|c|c|c|c|}
+   \hline
+    Line &amp; X &amp; Y &amp; Z &amp; A &amp; B &amp; pc \cr \hline
+    1 &amp; ? &amp; ? &amp; ? &amp; 1 &amp; 2 &amp; true \cr \hline
+    2 &amp; 1 &amp; ? &amp; ? &amp; 1 &amp; 2 &amp; true \cr \hline
+    3 &amp; 1 &amp; 2 &amp; ? &amp; 1 &amp; 2 &amp; true \cr \hline
+    4 &amp; 1 &amp; 2 &amp; 3 &amp; 1 &amp; 2 &amp; true \cr \hline
+\end{array}
+\]</span> &gt; Line 5是return 3 (Katex不支持合并单元格，理解万岁)</p>
+<p>我们在调用<span
+class="math inline">\(sum(a1,a2)\)</span>后，就是把具体值换成了对应的符号
+<span class="math display">\[
+\def\arraystretch{.7}
+   \begin{array}{|c|c|c|c|c|c|c|}
+   \hline
+    Line &amp; X &amp; Y &amp; Z &amp; A &amp; B &amp; pc \cr \hline
+    1 &amp; ? &amp; ? &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+    2 &amp; a1 &amp; ? &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+    3 &amp; a1 &amp; a2 &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+    4 &amp; a1 &amp; a2 &amp; a3 &amp; a1 &amp; a2 &amp; true \cr \hline
+\end{array}
+\]</span></p>
+<blockquote>
+<p>Line 5是return (a1+a2)</p>
+</blockquote>
+<p>既然符号执行与具体值执行最大的区别是if条件语句，那么我们写一个带有if语句的程序来看一下
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"> 1: POWER: PROCEDURE(X, Y);</span><br><span class="line"> 2:     Z = 1;</span><br><span class="line"> 3:     J = 1;</span><br><span class="line"> 4:</span><br><span class="line"> 5: LAB: IF Y &gt;= J THEN</span><br><span class="line"> 6:         DO;</span><br><span class="line"> 7:             Z = Z * X;</span><br><span class="line"> 8:             J = J + 1;</span><br><span class="line"> 9:             GO TO LAB;</span><br><span class="line">10:         END;</span><br><span class="line">11:</span><br><span class="line">12:     RETURN(Z);</span><br><span class="line">13: END POWER;</span><br></pre></td></tr></table></figure></p>
+<p>这个函数转化为C++就是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">int power(int X, int Y) &#123;</span><br><span class="line">    int Z = 1;</span><br><span class="line">    int J = 1;</span><br><span class="line">    while (Y &gt;= J) &#123;</span><br><span class="line">        Z *= X;</span><br><span class="line">        J++;</span><br><span class="line">    &#125;</span><br><span class="line">    return Z;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们继续用表格的格式来看</p>
+<p><span class="math display">\[
+\def\arraystretch{.6}
+   \begin{array}{|c|c|c|c|c|c|}
+   \hline
+        Line &amp; Z &amp; J &amp; X &amp; Y &amp; pc \cr \hline
+        1 &amp; ? &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+        2 &amp; 1 &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+        3 &amp; 1 &amp; 1 &amp; a1 &amp; a2 &amp; true \cr \hline
+\end{array}
+\]</span></p>
+<p>前三行都很正常，直到第五行进行判断<br />
+1. 处理判断语句 <code>Y&gt;=J</code> 得到约束条件 <code>a2&gt;=1</code>
+2. 生成两个分支的路径约束条件：<br />
+- (a2&gt;=1) <span class="math inline">\(\subset\)</span> true -
+~(a2&gt;=1) <span class="math inline">\(\subset\)</span> true 3.
+两个路径约束都可满足，分别对两个路径进行探索</p>
+<p>对于分支: ~(a2&gt;=1) <span class="math inline">\(\subset\)</span>
+true</p>
+<p><span class="math display">\[
+\def\arraystretch{.6}
+   \begin{array}{|c|c|c|c|c|c|}
+   \hline
+        Line &amp; Z &amp; J &amp; X &amp; Y &amp; pc \cr \hline
+        5 &amp; 1 &amp; 1 &amp; a1 &amp; a2 &amp; ~(a2&gt;=1) \cr \hline
+\end{array}
+\]</span></p>
+<p>然后马上在Line 12处得到(return 1 when a2&lt;1)，探索完成</p>
+<p>对于分支: (a2&gt;=1) <span class="math inline">\(\subset\)</span>
+true</p>
+<p><span class="math display">\[
+\def\arraystretch{.6}
+   \begin{array}{|c|c|c|c|c|c|}
+   \hline
+        Line &amp; Z &amp; J &amp; X &amp; Y &amp; pc \cr \hline
+        5 &amp; 1 &amp; 1 &amp; a1 &amp; a2 &amp; (a2&gt;=1) \cr \hline
+        7 &amp; a1 &amp; 1 &amp; a1 &amp; a2 &amp; (a2&gt;=1) \cr \hline
+        8 &amp; a1 &amp; 2 &amp; a1 &amp; a2 &amp; (a2&gt;=1) \cr \hline
+\end{array}
+\]</span></p>
+<p>然后因为Line
+9，程序会跳回第四行继续判断语句，会产生两个新的分支，就陷入了无限循环，这不是我们想要的。</p>
+<p>可是循环在一个程序中经常出现，该怎么解决这一问题？我们接着往后看</p>
+<h1 id="x01-动态符号执行技术dse">0x01 动态符号执行技术(DSE)</h1>
+<ul>
+<li><strong>基本思想</strong>
+<ol type="1">
+<li>以具体的数值作为输入，执行程序代码，在程序实际执行路径的基础上：
+<ol type="1">
+<li>用符号执行技术对路径进行分析</li>
+<li>提取路径的约束表达式</li>
+<li>根据路径搜索策略(深度、广度)对约束表达式进行变形</li>
+<li>求解变形后的表达式并生成新的测试用例</li>
+<li>不断迭代上述过程，直到完全遍历程序的所有执行路径</li>
+</ol></li>
+<li>DSE的出现是为了解决静态SE①执行效率低②系统开销大③误报率高的问题</li>
+</ol></li>
+<li><strong>实现细节(以函数为例)</strong>
+<ol type="1">
+<li>场景：<code>void func(int a,int b)</code>,调用<code>func(X,Y)</code></li>
+<li>Step1: 生成一组随机输入，开始"实际执行"</li>
+<li>Step2:
+<strong>同时</strong>符号引擎开始符号执行，按照“实际执行”的“执行路径”上的分支条件语句的“谓词”，搜集所有符号约束条件及其对应真值</li>
+<li>Step3:
+根据收集到的符号约束条件，按照一定路径选择策略，构造出一条新的可行路径约束
+<ul>
+<li>举个例子：深度优先策略</li>
+<li>如果<code>pc = p1 ∩ p2 ∩ p3</code>,
+深度优先就是将最后一个谓词(对不起jo太郎😭离散没学好忘了这个p3叫啥了)取非，变为<code>p1 ∩ p2 ∩ ~p3</code></li>
+</ul></li>
+<li>Step4: 使用约束求解器求解出新约束集合对应的具体输入</li>
+<li>Step5: 重复上述过程，直到遍历全部路径</li>
+</ol></li>
+<li><strong>DSE工具SAGE</strong>
+<ol type="1">
+<li>原理粗略地过了一遍，大段大段的看不懂😭这里就不花时间总结了</li>
+<li>SAGE基于x86的机器码进行符号执行，原因如下：
+<ol type="1">
+<li>屏蔽不同编程语言、编译器及编译平台对分析过程的影响，具有更强的复用性</li>
+<li>忽略编译器"代码优化""代码混淆""基本块转换"等使代码语义发生变化的操作，有利于确定程序实际存在的漏洞</li>
+<li>闭源分析yyds</li>
+</ol></li>
+</ol></li>
+<li><strong>关键问题</strong>
+<ol type="1">
+<li>外部函数调用</li>
+<li>循环问题：路径爆炸</li>
+</ol></li>
+</ul>
+<blockquote>
+<p>这一段也不仔细读了...用到再学</p>
+</blockquote>
+<h1 id="x02-并行符号执行技术pse">0x02
+<strong>并行符号执行技术(PSE)</strong></h1>
+<ul>
+<li><strong>基本思想</strong>
+<ol type="1">
+<li>很多情况下符号执行引擎无法继续运行的原因是内存不足，所以我们希望通过计算集群可无穷扩展的内存空间和CPU来缓解路径爆炸问题</li>
+<li>分布式...这我就先不看了</li>
+</ol></li>
+</ul>
+<h1 id="x03-参考文献">0x03 参考文献</h1>
+<p>1《软件安全分析与应用》</p>
 
     </div>
 
@@ -427,7 +623,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-%E5%9F%BA%E6%9C%AC%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">0x00  基本模型</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-%E5%9F%BA%E6%9C%AC%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">0x00 基本模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E5%8A%A8%E6%80%81%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E6%8A%80%E6%9C%AFdse"><span class="nav-number">2.</span> <span class="nav-text">0x01 动态符号执行技术(DSE)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x02-%E5%B9%B6%E8%A1%8C%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E6%8A%80%E6%9C%AFpse"><span class="nav-number">3.</span> <span class="nav-text">0x02
+并行符号执行技术(PSE)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x03-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">4.</span> <span class="nav-text">0x03 参考文献</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -572,6 +769,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
