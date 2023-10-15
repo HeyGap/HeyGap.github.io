@@ -251,82 +251,83 @@
         <blockquote class="blockquote-center">
 学习还是要写点日志才有意思
 </blockquote>
-
 <span id="more"></span>
-<h2 id="说在前面"><a href="#说在前面" class="headerlink" title="说在前面"></a>说在前面</h2><blockquote>
+<h2 id="说在前面">说在前面</h2>
+<blockquote>
 <p>关于博客</p>
 </blockquote>
-<p>平时通过搜索学习时，经常会遇到一些吸收起来特别困难博客，这些博客大多是博主的外脑，博主看到自己的博客可能马上能理解自己写了什么，或者知道该怎么检索这篇博客。但对于读者，这篇博客几乎没有什么用……搜索引擎把这篇博客拉过来纯属浪费读者的时间。<br>所以我希望自己关于学习的blog，能够让一个0基础的读者从头到尾读完并且吸收这篇blog的内容。再不济也要让读者感到有用。而外脑放在本地即可。  </p>
+<p>平时通过搜索学习时，经常会遇到一些吸收起来特别困难博客，这些博客大多是博主的外脑，博主看到自己的博客可能马上能理解自己写了什么，或者知道该怎么检索这篇博客。但对于读者，这篇博客几乎没有什么用......搜索引擎把这篇博客拉过来纯属浪费读者的时间。<br />
+所以我希望自己关于学习的blog，能够让一个0基础的读者从头到尾读完并且吸收这篇blog的内容。再不济也要让读者感到有用。而外脑放在本地即可。</p>
 <blockquote>
 <p>关于LearningLog</p>
 </blockquote>
-<p>我在学习nju的PA时写过一段时间的learninglog，目的是强迫自己输出以达到更好的理解，review log也可以让自己关注好自己的学习动态<del>（神精态状）</del><br>对于读者，learninglog可以给到借鉴作用，在学习过程中起到对照作用，不至于担忧自己的学习进度。</p>
-<hr>
-<h2 id="2023-08-24"><a href="#2023-08-24" class="headerlink" title="2023/08/24"></a>2023/08/24</h2><p>已经8.25了。。。<br>hacknote那道题，还是用fastbin机制将heapList进行修改，然后UAF进行leak和提权。<br>现在做题感觉还是不够灵活，看到好多dai佬在大一结束的时候Pwn就已经很强了…我这半道出家实在没眼看。<br>所以只好成为赛棍了(<br>拿高考数学来举例，我现在不是120提到140，而是20提到40分。<br>加油吧…任重道远</p>
-<h2 id="2023-08-25"><a href="#2023-08-25" class="headerlink" title="2023/08/25"></a>2023/08/25</h2><p>好好好，整了一天新生赛，有点浮躁。<br>弹了会儿吉他现在才稍微好点<br>开整！</p>
-<p>结果打了一天的水题，把buu前四页的栈题和格式化字符串全打了，堆题畏难情绪到达了一个巅峰（  </p>
-<h2 id="2023-08-26"><a href="#2023-08-26" class="headerlink" title="2023/08/26"></a>2023/08/26</h2><p>蓝帽杯！做了道tcachebin的堆题，虽然是赛后一小时解出来的（<br>虽然但是，还是一上来就做难题并且是在比赛中做题，吸收知识快一些。<br>写了篇wp,今天就先到这吧。</p>
-<h2 id="2023-08-27"><a href="#2023-08-27" class="headerlink" title="2023/08/27"></a>2023/08/27</h2><p>实在不想在buu刷了，题目难度不太均衡；所以开了pwnable，但题又难又多….<br>还是回buu吧，别找那么多理由，至少先把堆的原理搞熟再说<br>哈哈 结果今天看了一天猫猫救援视频😅<br>谁懂啊，把救来的猫猫起个奇奇怪怪的名字然后好好照顾再找个好一点的领养人真的很酷！  </p>
-<h2 id="2023-08-28"><a href="#2023-08-28" class="headerlink" title="2023/08/28"></a>2023/08/28</h2><p>原来不想学习的真正原因是ddl太多+没运动<br>今天中午起床清了一下杂务ddl，然后去打了四局双打，回来洗个澡就想学了（<br>把昨天的buu补上，今晚做两道题<br>跟lmarch2师傅讨论以后，我们一致认为进入Heap阶段要考虑的东西暴涨。<br>但与其说要考虑的东西变多了，不如说能考虑的点变多了。<br>如果思路清晰了，其实要考虑的点也就那些<br>所以一个思路索引表还是挺重要的，比如：  </p>
-<ul>
-<li>整数溢出<ul>
-<li>可改写BSS段以上部分<ul>
-<li>能改标准IO<ul>
-<li>IO_FILE攻击</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>格式化字符串<ol>
-<li>找偏移量</li>
-</ol>
-<ul>
-<li>在栈上</li>
-<li>不在栈上<ul>
-<li>找比较近的三个串在一起的地址</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>堆<ul>
-<li>敏感函数：观察<ul>
-<li>读<ul>
-<li>printf</li>
-<li>puts</li>
-</ul>
-</li>
-<li>写<ul>
-<li>gets</li>
-<li>read</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Libc版本<ul>
-<li>2.26以前<ul>
-<li>fastbin attack</li>
-</ul>
-</li>
-<li>2.26以后<ul>
-<li>tcachebin attack</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Leaked Address<ul>
-<li>堆地址(tcache 2.31及以下的bk)</li>
-<li>libc地址(unsortedbin leak; 控制heapList leak)</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<p>还有一点，做Heap题不像Stack一样可以整体分析完以后，用排除法来决定用什么打法，而应该是边打边分析我碰到了什么敏感函数。<br>大失败..做不下去，把一道题的思路分析好了就因为觉得自己差不多能做出来了就不想做了，kuso。<br>杀了个回马枪，23:00决定还是今天要做出一道题来，于是打开buu第三页准备做一道。<br>1h，完全做不出来（<br>roar这道题是off_by_one + fastbin attack就好了，最后劫持malloc_hook为og不太行，网上说要用realloc调整栈环境，但调整以后也不行…<br>先sleep吧，明天再战。    </p>
-<h2 id="2023-08-31"><a href="#2023-08-31" class="headerlink" title="2023/08/31"></a>2023/08/31</h2><p>突然发现两天没写log了。<br>29号忘了干了啥了，30号返校，下午收拾了一下然后给新生赛出题。<br>今天上午把moe的pwnak掉，下午练吉他打球，晚上复盘并整合一下IOfile。<br>奥对，今天过了NaN的审核，以后咱也是联合战队的一员啦XD<br>不过…N1师傅们确实太牛了，我想被录到N1现在还是天方夜谭…<br>现在是幻想时间：<br>九月份第一个周通关Heap，第二个周复现一些奇奇怪怪的题比如WM的jit，第三周缓冲，第四周接触Kernal.<br>针不戳，看看我有没有能力实现吧…去复盘IOFILE了.  </p>
-<h2 id="2023-09-04"><a href="#2023-09-04" class="headerlink" title="2023/09/04"></a>2023/09/04</h2><p>又好久没记录log…返校以后太忙了，第一个周各种文件各种学生工作，零碎时间都被占用了。<br>第一周通关Heap的梦想破灭了…  </p>
-<h2 id="2023-09-20"><a href="#2023-09-20" class="headerlink" title="2023/09/20"></a>2023/09/20</h2><p>居然九月二十了，这也太快了。<br>今天大致看了一下kernal pwn的CVE-2022-0995，对kernal pwn的环境搭建有了一点印象，但里面的大部分内容我都看不懂😭不过里面提到的堆喷让我想起了蓝帽杯初赛的heapSpray我还没复现。<br>然后复现了一下heapSpray，整个程序逆向起来贼头疼，以后要是逆起来很麻烦就patch，一边调一边猜一边逆，不过最后没复现出来，只是大概对堆喷有了一个基本的认知。<br>然后又去wiki上看一下接下来要学堆的哪一部分，结果发现自己哪一部分都有纰漏…主要原因还是对ptmalloc的一些机制不够熟悉，比如unsortedbin什么时候前向合并，比如unlink的时候检查的是fd和bk的什么等等。<br>正好想到之前看的winmt也写过heap和io的笔记，那我也来模仿一下吧。<br>之前太膨胀了，给自己定了好多不切实际的目标。<br>这个月剩下的十天，每天的pwn时间肯定还是要打一道题的，如果有多余的时间就来整理一下堆的管理机制。  </p>
+<p>我在学习nju的PA时写过一段时间的learninglog，目的是强迫自己输出以达到更好的理解，review
+log也可以让自己关注好自己的学习动态<del>（神精态状）</del><br />
+对于读者，learninglog可以给到借鉴作用，在学习过程中起到对照作用，不至于担忧自己的学习进度。</p>
+<hr />
+<h2 id="section">2023/08/24</h2>
+<p>已经8.25了。。。<br />
+hacknote那道题，还是用fastbin机制将heapList进行修改，然后UAF进行leak和提权。<br />
+现在做题感觉还是不够灵活，看到好多dai佬在大一结束的时候Pwn就已经很强了...我这半道出家实在没眼看。<br />
+所以只好成为赛棍了(<br />
+拿高考数学来举例，我现在不是120提到140，而是20提到40分。
+加油吧...任重道远</p>
+<h2 id="section-1">2023/08/25</h2>
+<p>好好好，整了一天新生赛，有点浮躁。<br />
+弹了会儿吉他现在才稍微好点<br />
+开整！</p>
+<p>结果打了一天的水题，把buu前四页的栈题和格式化字符串全打了，堆题畏难情绪到达了一个巅峰（</p>
+<h2 id="section-2">2023/08/26</h2>
+<p>蓝帽杯！做了道tcachebin的堆题，虽然是赛后一小时解出来的（<br />
+虽然但是，还是一上来就做难题并且是在比赛中做题，吸收知识快一些。<br />
+写了篇wp,今天就先到这吧。</p>
+<h2 id="section-3">2023/08/27</h2>
+<p>实在不想在buu刷了，题目难度不太均衡；所以开了pwnable，但题又难又多....<br />
+还是回buu吧，别找那么多理由，至少先把堆的原理搞熟再说<br />
+哈哈 结果今天看了一天猫猫救援视频😅<br />
+谁懂啊，把救来的猫猫起个奇奇怪怪的名字然后好好照顾再找个好一点的领养人真的很酷！</p>
+<h2 id="section-4">2023/08/28</h2>
+<p>原来不想学习的真正原因是ddl太多+没运动<br />
+今天中午起床清了一下杂务ddl，然后去打了四局双打，回来洗个澡就想学了（<br />
+把昨天的buu补上，今晚做两道题<br />
+跟lmarch2师傅讨论以后，我们一致认为进入Heap阶段要考虑的东西暴涨。<br />
+但与其说要考虑的东西变多了，不如说能考虑的点变多了。<br />
+如果思路清晰了，其实要考虑的点也就那些<br />
+所以一个思路索引表还是挺重要的，比如：<br />
+- 整数溢出 - 可改写BSS段以上部分 - 能改标准IO - IO_FILE攻击 -
+格式化字符串 1. 找偏移量 - 在栈上 - 不在栈上 -
+找比较近的三个串在一起的地址 - 堆 - 敏感函数：观察 - 读 - printf - puts
+- 写 - gets - read - Libc版本 - 2.26以前 - fastbin attack - 2.26以后 -
+tcachebin attack - Leaked Address - 堆地址(tcache 2.31及以下的bk) -
+libc地址(unsortedbin leak; 控制heapList leak)</p>
+<p>还有一点，做Heap题不像Stack一样可以整体分析完以后，用排除法来决定用什么打法，而应该是边打边分析我碰到了什么敏感函数。<br />
+大失败..做不下去，把一道题的思路分析好了就因为觉得自己差不多能做出来了就不想做了，kuso。
+杀了个回马枪，23:00决定还是今天要做出一道题来，于是打开buu第三页准备做一道。<br />
+1h，完全做不出来（<br />
+roar这道题是off_by_one + fastbin
+attack就好了，最后劫持malloc_hook为og不太行，网上说要用realloc调整栈环境，但调整以后也不行...<br />
+先sleep吧，明天再战。</p>
+<h2 id="section-5">2023/08/31</h2>
+<p>突然发现两天没写log了。<br />
+29号忘了干了啥了，30号返校，下午收拾了一下然后给新生赛出题。<br />
+今天上午把moe的pwnak掉，下午练吉他打球，晚上复盘并整合一下IOfile。
+奥对，今天过了NaN的审核，以后咱也是联合战队的一员啦XD<br />
+不过...N1师傅们确实太牛了，我想被录到N1现在还是天方夜谭...<br />
+现在是幻想时间：<br />
+九月份第一个周通关Heap，第二个周复现一些奇奇怪怪的题比如WM的jit，第三周缓冲，第四周接触Kernal.<br />
+针不戳，看看我有没有能力实现吧...去复盘IOFILE了.</p>
+<h2 id="section-6">2023/09/04</h2>
+<p>又好久没记录log...返校以后太忙了，第一个周各种文件各种学生工作，零碎时间都被占用了。<br />
+第一周通关Heap的梦想破灭了...</p>
+<h2 id="section-7">2023/09/20</h2>
+<p>居然九月二十了，这也太快了。<br />
+今天大致看了一下kernal pwn的CVE-2022-0995，对kernal
+pwn的环境搭建有了一点印象，但里面的大部分内容我都看不懂😭不过里面提到的堆喷让我想起了蓝帽杯初赛的heapSpray我还没复现。<br />
+然后复现了一下heapSpray，整个程序逆向起来贼头疼，以后要是逆起来很麻烦就patch，一边调一边猜一边逆，不过最后没复现出来，只是大概对堆喷有了一个基本的认知。<br />
+然后又去wiki上看一下接下来要学堆的哪一部分，结果发现自己哪一部分都有纰漏...主要原因还是对ptmalloc的一些机制不够熟悉，比如unsortedbin什么时候前向合并，比如unlink的时候检查的是fd和bk的什么等等。<br />
+正好想到之前看的winmt也写过heap和io的笔记，那我也来模仿一下吧。<br />
+之前太膨胀了，给自己定了好多不切实际的目标。<br />
+这个月剩下的十天，每天的pwn时间肯定还是要打一道题的，如果有多余的时间就来整理一下堆的管理机制。</p>
 
     </div>
 
@@ -437,7 +438,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2023-08-24"><span class="nav-number">2.</span> <span class="nav-text">2023&#x2F;08&#x2F;24</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2023-08-25"><span class="nav-number">3.</span> <span class="nav-text">2023&#x2F;08&#x2F;25</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2023-08-26"><span class="nav-number">4.</span> <span class="nav-text">2023&#x2F;08&#x2F;26</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2023-08-27"><span class="nav-number">5.</span> <span class="nav-text">2023&#x2F;08&#x2F;27</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2023-08-28"><span class="nav-number">6.</span> <span class="nav-text">2023&#x2F;08&#x2F;28</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2023-08-31"><span class="nav-number">7.</span> <span class="nav-text">2023&#x2F;08&#x2F;31</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2023-09-04"><span class="nav-number">8.</span> <span class="nav-text">2023&#x2F;09&#x2F;04</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2023-09-20"><span class="nav-number">9.</span> <span class="nav-text">2023&#x2F;09&#x2F;20</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%B4%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.</span> <span class="nav-text">说在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section"><span class="nav-number">2.</span> <span class="nav-text">2023&#x2F;08&#x2F;24</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section-1"><span class="nav-number">3.</span> <span class="nav-text">2023&#x2F;08&#x2F;25</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section-2"><span class="nav-number">4.</span> <span class="nav-text">2023&#x2F;08&#x2F;26</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section-3"><span class="nav-number">5.</span> <span class="nav-text">2023&#x2F;08&#x2F;27</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section-4"><span class="nav-number">6.</span> <span class="nav-text">2023&#x2F;08&#x2F;28</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section-5"><span class="nav-number">7.</span> <span class="nav-text">2023&#x2F;08&#x2F;31</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section-6"><span class="nav-number">8.</span> <span class="nav-text">2023&#x2F;09&#x2F;04</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section-7"><span class="nav-number">9.</span> <span class="nav-text">2023&#x2F;09&#x2F;20</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -453,7 +454,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
