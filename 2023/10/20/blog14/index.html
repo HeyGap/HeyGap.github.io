@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="迈向自动化的第三步——      0x01 库架构分析12345678910111213141516171819202122232425262728angr | - Project()		 | - factory				 | - state					   | - entry_state()					   | - blank_state(addr)					   | - regs.eax&#x2F;ebx">
+  <meta name="description" content="迈向自动化的第三步——">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Symbolic Execution Leaning Note (3) -- Angr_API">
 <meta property="og:url" content="http://example.com/2023/10/20/blog14/index.html">
 <meta property="og:site_name" content="Gap&#39;s_Blog">
-<meta property="og:description" content="迈向自动化的第三步——      0x01 库架构分析12345678910111213141516171819202122232425262728angr | - Project()		 | - factory				 | - state					   | - entry_state()					   | - blank_state(addr)					   | - regs.eax&#x2F;ebx">
+<meta property="og:description" content="迈向自动化的第三步——">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2023-10-20T05:57:00.000Z">
-<meta property="article:modified_time" content="2023-10-20T11:10:38.198Z">
+<meta property="article:modified_time" content="2023-10-20T11:15:03.322Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="SymbolicExecution">
 <meta name="twitter:card" content="summary">
@@ -212,7 +212,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2023-10-20 13:10:00 / 修改时间：19:10:19" itemprop="dateCreated datePublished" datetime="2023-10-20T13:57:00+08:00">2023-10-20</time>
+              <time title="创建时间：2023-10-20 13:10:00 / 修改时间：19:10:32" itemprop="dateCreated datePublished" datetime="2023-10-20T13:57:00+08:00">2023-10-20</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -242,170 +242,150 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
-<blockquote class="blockquote-center">
-迈向自动化的第三步——  
+        <blockquote class="blockquote-center">
+迈向自动化的第三步——
 </blockquote>
-
-
-<h1 id="0x01-库架构分析"><a href="#0x01-库架构分析" class="headerlink" title="0x01 库架构分析"></a>0x01 库架构分析</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">angr</span><br><span class="line"> | - Project()</span><br><span class="line">		 | - factory</span><br><span class="line">				 | - state</span><br><span class="line">					   | - entry_state()</span><br><span class="line">					   | - blank_state(addr)</span><br><span class="line"></span><br><span class="line">					   | - regs.eax/ebx/...</span><br><span class="line">					   | - solver</span><br><span class="line">							  | - BVS</span><br><span class="line">							  | - eval</span><br><span class="line">					   | - fs</span><br><span class="line">						    | - insert(string filename,angr.storage.SimFile())</span><br><span class="line">				 | - simulation_manager(init_state)</span><br><span class="line">						 | - explore(find,avoid)</span><br><span class="line">						 | - found[]</span><br><span class="line"></span><br><span class="line"> | - storage</span><br><span class="line">		 | - SimFile(filename,content,size)</span><br><span class="line"> | - sim_options</span><br><span class="line">		 | - SYMBOL_FILL_UNCONSTRAINED_MEMORY</span><br><span class="line">		 | - SYMBOL_FILL_UNCONSTRAINED_REGISTERS</span><br><span class="line"></span><br><span class="line">found_state</span><br><span class="line">	 | - posix</span><br><span class="line">		   | - dumps(std)</span><br><span class="line">	 | - solver</span><br><span class="line">		   | - eval(claripy.BVS pass,cast_to)</span><br></pre></td></tr></table></figure>
-<h1 id="0x02-API手册"><a href="#0x02-API手册" class="headerlink" title="0x02 API手册"></a>0x02 API手册</h1><ul>
-<li><p><strong>Project类(参数、功能、重载、返回值)</strong></p>
-<ol>
-<li>构造函数参数：“命令行中运行程序的指令”(eg: “./00_angr_find”)</li>
+<span id="more"></span>
+<h1 id="x01-库架构分析">0x01 库架构分析</h1>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">angr</span><br><span class="line"> | - Project()</span><br><span class="line">		 | - factory</span><br><span class="line">				 | - state</span><br><span class="line">					   | - entry_state()</span><br><span class="line">					   | - blank_state(addr)</span><br><span class="line"></span><br><span class="line">					   | - regs.eax/ebx/...</span><br><span class="line">					   | - solver</span><br><span class="line">							  | - BVS</span><br><span class="line">							  | - eval</span><br><span class="line">					   | - fs</span><br><span class="line">						    | - insert(string filename,angr.storage.SimFile())</span><br><span class="line">				 | - simulation_manager(init_state)</span><br><span class="line">						 | - explore(find,avoid)</span><br><span class="line">						 | - found[]</span><br><span class="line"></span><br><span class="line"> | - storage</span><br><span class="line">		 | - SimFile(filename,content,size)</span><br><span class="line"> | - sim_options</span><br><span class="line">		 | - SYMBOL_FILL_UNCONSTRAINED_MEMORY</span><br><span class="line">		 | - SYMBOL_FILL_UNCONSTRAINED_REGISTERS</span><br><span class="line"></span><br><span class="line">found_state</span><br><span class="line">	 | - posix</span><br><span class="line">		   | - dumps(std)</span><br><span class="line">	 | - solver</span><br><span class="line">		   | - eval(claripy.BVS pass,cast_to)</span><br></pre></td></tr></table></figure>
+<h1 id="x02-api手册">0x02 API手册</h1>
+<ul>
+<li><strong>Project类(参数、功能、重载、返回值)</strong>
+<ol type="1">
+<li>构造函数参数：“命令行中运行程序的指令”(eg: "./00_angr_find")</li>
 <li>功能：“构建一个符号执行项目”</li>
-<li>附属成员<ul>
-<li><strong>factory</strong><ol>
-<li>附属成员<ul>
-<li><strong>state</strong><ol>
-<li>重载函数<ul>
-<li><strong>entry_state()</strong><ol>
+<li>附属成员
+<ul>
+<li><strong>factory</strong>
+<ol type="1">
+<li>附属成员
+<ul>
+<li><strong>state</strong>
+<ol type="1">
+<li>重载函数
+<ul>
+<li><strong>entry_state()</strong>
+<ol type="1">
 <li>返回值：程序入口点</li>
-</ol>
-</li>
-<li><strong>blank_state(addr)</strong><ol>
+</ol></li>
+<li><strong>blank_state(addr)</strong>
+<ol type="1">
 <li>参数：模拟执行开始的地址</li>
-</ol>
-</li>
-</ul>
-</li>
-<li>附属成员<ul>
-<li><strong>regs</strong><ol>
+</ol></li>
+</ul></li>
+<li>附属成员
+<ul>
+<li><strong>regs</strong>
+<ol type="1">
 <li>附属成员: 各种寄存器</li>
-</ol>
-</li>
-<li><strong>fs</strong><ol>
+</ol></li>
+<li><strong>fs</strong>
+<ol type="1">
 <li>全称: filesystem</li>
-<li>附属成员：<ul>
-<li><strong>insert(string filename,angr.storage.simFile)</strong><ol>
+<li>附属成员：
+<ul>
+<li><strong>insert(string filename,angr.storage.simFile)</strong>
+<ol type="1">
 <li>参数1：文件名称</li>
 <li>参数2：创建过的符号化文件对象</li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-</li>
-<li><strong>simulation_manager类</strong><ol>
+</ol></li>
+</ul></li>
+</ol></li>
+</ul></li>
+</ol></li>
+<li><strong>simulation_manager类</strong>
+<ol type="1">
 <li>构造函数参数：起始状态</li>
 <li>功能：设置模拟执行的起始地址，并返回实例化对象</li>
-<li>附属成员<ul>
-<li><strong>explore(find, avoid)</strong><ol>
+<li>附属成员
+<ul>
+<li><strong>explore(find, avoid)</strong>
+<ol type="1">
 <li>参数find：希望程序抵达的地址</li>
 <li>参数avoid：希望程序不抵达的地址</li>
 <li>功能：用符号探索到find指向的地址，并避免avoid指向的地址</li>
 <li>重载：explore(find=func1,avoid=func2) <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def func1(state):</span><br><span class="line">	return b&quot;Good Job!&quot; in state.posix.dumps(1)</span><br><span class="line">def func2(state):</span><br><span class="line">	return b&quot;Try Again!&quot; in state.posix.dumps(1)</span><br></pre></td></tr></table></figure>
-<ol>
+<ol type="1">
 <li>功能：探索具有func1特征的的函数分支，回避具有func2特征的函数分支</li>
-</ol>
-</li>
-</ol>
-</li>
-<li><strong>found数组</strong><ol>
+</ol></li>
+</ol></li>
+<li><strong>found数组</strong>
+<ol type="1">
 <li>found_state的实例化数组</li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
-</li>
-<li><p><strong>found_state类</strong></p>
+</ol></li>
+</ul></li>
+</ol></li>
+</ul></li>
+</ol></li>
+</ul></li>
+</ol></li>
+<li><strong>found_state类</strong>
 <ul>
-<li><strong>posix</strong><ul>
-<li><strong>dumps(int std)</strong><ol>
+<li><strong>posix</strong>
+<ul>
+<li><strong>dumps(int std)</strong>
+<ol type="1">
 <li>参数std: stdin(0)/stdout(1)/stderr(2)</li>
 <li>功能: 将std指向的内容打印出来</li>
-</ol>
-</li>
-</ul>
-</li>
-<li>solver<ul>
-<li>eval(claripy.BVS arg1)<ol>
+</ol></li>
+</ul></li>
+<li>solver
+<ul>
+<li>eval(claripy.BVS arg1)
+<ol type="1">
 <li>参数：要求解的约束公式</li>
 <li>功能：求解arg1并返回结果</li>
-</ol>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>claripy类</strong></p>
+</ol></li>
+</ul></li>
+</ul></li>
+<li><strong>claripy类</strong>
 <ul>
-<li><strong>BVS类</strong><ol>
+<li><strong>BVS类</strong>
+<ol type="1">
 <li>构造函数参数：arg1: 别名 | arg2: 符号向量占多少位</li>
 <li>功能：构建一个空的约束公示</li>
-</ol>
-</li>
-</ul>
-</li>
-<li><p><strong>storage类</strong></p>
+</ol></li>
+</ul></li>
+<li><strong>storage类</strong>
 <ul>
-<li>SimFile(filename,content,size)<ol>
+<li>SimFile(filename,content,size)
+<ol type="1">
 <li>参数filename：要引入的filename</li>
 <li>参数content：符号化向量</li>
 <li>参数size：要从文件中读取的字节数*8（单位：bits）</li>
 <li>功能：创建一个符号化的文件对象</li>
-</ol>
-</li>
-</ul>
-</li>
-<li><p><strong>sim_options类</strong></p>
+</ol></li>
+</ul></li>
+<li><strong>sim_options类</strong>
 <ul>
-<li>SYMBOL_FILL_UNCONSTRAINED_MEMORY<ul>
+<li>SYMBOL_FILL_UNCONSTRAINED_MEMORY
+<ul>
 <li>功能：自动用符号填充未约束的内存（模拟过程中没有明确值的内存位置）</li>
-</ul>
-</li>
-<li>SYMBOL_FILL_UNCONSTRAINED_REGISTERS<ul>
+</ul></li>
+<li>SYMBOL_FILL_UNCONSTRAINED_REGISTERS
+<ul>
 <li>功能：自动用符号填充未约束的寄存器</li>
+</ul></li>
+</ul></li>
 </ul>
-</li>
+<h1 id="x01-angr语法">0x01 Angr语法</h1>
+<h3 id="准备阶段">1. 准备阶段</h3>
+<ul>
+<li><p><strong>引入与初始化</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import angr</span><br><span class="line"></span><br><span class="line">p = angr.Project(exec_path)</span><br><span class="line"></span><br><span class="line">init_state = p.factory.entry_state()</span><br><span class="line"># init_state = p.factory.blank_state(addr) # addr = 0xbeef</span><br><span class="line"></span><br><span class="line">sm = p.factory.simulation_manager(init_state)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>命令行引入参数</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">import sys</span><br><span class="line"></span><br><span class="line">def main(argv):</span><br><span class="line">	arg1 = argv[1]</span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">	main(sys.argv)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>符号向量</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">import claripy</span><br><span class="line"></span><br><span class="line">pass1 = claripy.BVS(&#x27;pass1&#x27;, 32)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>符号化寄存器</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">init_state.regs.eax = pass1</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>符号化文件</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">filename = &quot;&quot;</span><br><span class="line">filesize = </span><br><span class="line"></span><br><span class="line">password = init_state.solver.BVS(&#x27;password&#x27;,filesize*8)</span><br><span class="line">sim_file = angr.storage.SimFile(filename,content=password,size=filesize)</span><br><span class="line"></span><br><span class="line">init_state.fs.insert(sim_file)</span><br></pre></td></tr></table></figure></p></li>
 </ul>
-</li>
+<h3 id="探索阶段">2. 探索阶段</h3>
+<ul>
+<li><p><strong>探索指定地址并查看标准流</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sm.explore(find = addr_to_find)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>利用函数explore分支</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">def is_good(state):</span><br><span class="line">	return b&quot;Good Job!&quot; in state.posix.dumps(1)</span><br><span class="line"></span><br><span class="line">def is_bad(state):</span><br><span class="line">	return b&quot;Try Again!&quot; in state.posix.dumps(1)</span><br><span class="line"></span><br><span class="line">sm.explore(find=is_good, avoid=is_bad)</span><br><span class="line"># sm.explore(find=addr_find, avoid=addr_avoid)</span><br></pre></td></tr></table></figure></p></li>
 </ul>
-<h1 id="0x01-Angr语法"><a href="#0x01-Angr语法" class="headerlink" title="0x01  Angr语法"></a>0x01  Angr语法</h1><h3 id="1-准备阶段"><a href="#1-准备阶段" class="headerlink" title="1. 准备阶段"></a>1. 准备阶段</h3><ul>
-<li><p><strong>引入与初始化</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import angr</span><br><span class="line"></span><br><span class="line">p = angr.Project(exec_path)</span><br><span class="line"></span><br><span class="line">init_state = p.factory.entry_state()</span><br><span class="line"># init_state = p.factory.blank_state(addr) # addr = 0xbeef</span><br><span class="line"></span><br><span class="line">sm = p.factory.simulation_manager(init_state)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>命令行引入参数</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">import sys</span><br><span class="line"></span><br><span class="line">def main(argv):</span><br><span class="line">	arg1 = argv[1]</span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">	main(sys.argv)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>符号向量</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">import claripy</span><br><span class="line"></span><br><span class="line">pass1 = claripy.BVS(&#x27;pass1&#x27;, 32)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>符号化寄存器</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">init_state.regs.eax = pass1</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>符号化文件</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">filename = &quot;&quot;</span><br><span class="line">filesize = </span><br><span class="line"></span><br><span class="line">password = init_state.solver.BVS(&#x27;password&#x27;,filesize*8)</span><br><span class="line">sim_file = angr.storage.SimFile(filename,content=password,size=filesize)</span><br><span class="line"></span><br><span class="line">init_state.fs.insert(sim_file)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="2-探索阶段"><a href="#2-探索阶段" class="headerlink" title="2. 探索阶段"></a>2. 探索阶段</h3><ul>
-<li><p><strong>探索指定地址并查看标准流</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sm.explore(find = addr_to_find)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>利用函数explore分支</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">def is_good(state):</span><br><span class="line">	return b&quot;Good Job!&quot; in state.posix.dumps(1)</span><br><span class="line"></span><br><span class="line">def is_bad(state):</span><br><span class="line">	return b&quot;Try Again!&quot; in state.posix.dumps(1)</span><br><span class="line"></span><br><span class="line">sm.explore(find=is_good, avoid=is_bad)</span><br><span class="line"># sm.explore(find=addr_find, avoid=addr_avoid)</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="3-输出阶段"><a href="#3-输出阶段" class="headerlink" title="3. 输出阶段"></a>3. 输出阶段</h3><ul>
-<li><p><strong>查看结果</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if sm.found:</span><br><span class="line">	found_state = sm.found[0]</span><br><span class="line">	</span><br><span class="line">	print(&#x27;[x] Solution: &#123;&#125;&#x27;.format(found_state.posix.dumps(0)))</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>求解寄存器的符号向量</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = init_state.solver.eval(BVS)</span><br></pre></td></tr></table></figure>
-</li>
+<h3 id="输出阶段">3. 输出阶段</h3>
+<ul>
+<li><p><strong>查看结果</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if sm.found:</span><br><span class="line">	found_state = sm.found[0]</span><br><span class="line">	</span><br><span class="line">	print(&#x27;[x] Solution: &#123;&#125;&#x27;.format(found_state.posix.dumps(0)))</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>求解寄存器的符号向量</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = init_state.solver.eval(BVS)</span><br></pre></td></tr></table></figure></p></li>
 </ul>
 
     </div>
@@ -514,7 +494,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-%E5%BA%93%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">0x01 库架构分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-API%E6%89%8B%E5%86%8C"><span class="nav-number">2.</span> <span class="nav-text">0x02 API手册</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-Angr%E8%AF%AD%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">0x01  Angr语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5"><span class="nav-number">3.0.1.</span> <span class="nav-text">1. 准备阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%8E%A2%E7%B4%A2%E9%98%B6%E6%AE%B5"><span class="nav-number">3.0.2.</span> <span class="nav-text">2. 探索阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%BE%93%E5%87%BA%E9%98%B6%E6%AE%B5"><span class="nav-number">3.0.3.</span> <span class="nav-text">3. 输出阶段</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E5%BA%93%E6%9E%B6%E6%9E%84%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">0x01 库架构分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x02-api%E6%89%8B%E5%86%8C"><span class="nav-number">2.</span> <span class="nav-text">0x02 API手册</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-angr%E8%AF%AD%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">0x01 Angr语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E9%98%B6%E6%AE%B5"><span class="nav-number">3.0.1.</span> <span class="nav-text">1. 准备阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A2%E7%B4%A2%E9%98%B6%E6%AE%B5"><span class="nav-number">3.0.2.</span> <span class="nav-text">2. 探索阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%E9%98%B6%E6%AE%B5"><span class="nav-number">3.0.3.</span> <span class="nav-text">3. 输出阶段</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
