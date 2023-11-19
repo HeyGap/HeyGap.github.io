@@ -30,8 +30,8 @@
 <meta property="article:published_time" content="2023-09-22T02:54:00.000Z">
 <meta property="article:modified_time" content="2023-10-20T13:20:44.153Z">
 <meta property="article:author" content="Gap">
-<meta property="article:tag" content="Summary">
 <meta property="article:tag" content="Heap">
+<meta property="article:tag" content="Summary">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2023/09/22/blog7/">
@@ -252,34 +252,33 @@
         <blockquote class="blockquote-center">
 大佬都有这种总结性的wp，那我也邯郸学步一下 :P
 </blockquote>
+
 <span id="more"></span>
-<h1 id="fastbin-attack">Fastbin Attack</h1>
-<h1 id="tcachebin-attack">Tcachebin Attack</h1>
-<h1 id="use-after-free">Use After Free</h1>
-<ul>
-<li><strong>概述</strong>
-在<code>free(chunk_ptr)</code>后并没有<code>chunk_ptr=0</code>，导致我们仍然能通过<code>chunk_ptr</code>对这个chunk进行修改</li>
+<h1 id="Fastbin-Attack"><a href="#Fastbin-Attack" class="headerlink" title="Fastbin Attack"></a>Fastbin Attack</h1><h1 id="Tcachebin-Attack"><a href="#Tcachebin-Attack" class="headerlink" title="Tcachebin Attack"></a>Tcachebin Attack</h1><h1 id="Use-After-Free"><a href="#Use-After-Free" class="headerlink" title="Use After Free"></a>Use After Free</h1><ul>
+<li><strong>概述</strong><br>在<code>free(chunk_ptr)</code>后并没有<code>chunk_ptr=0</code>，导致我们仍然能通过<code>chunk_ptr</code>对这个chunk进行修改</li>
 <li>Fastbin Attack</li>
 <li></li>
 </ul>
-<h1 id="unsortedbin-attack">Unsortedbin Attack</h1>
-<h3 id="概述">概述</h3>
-<p><code>Unsortedbin attack</code>分为<code>leak</code>和<code>write</code>两部分
-### Leak
-当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址<br />
-而这个地址可以用ida查看对应libc的malloc_trim函数找到<br />
-### write write是指
-此外，低libc版本的unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk
-- 申请fake_chunk <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">**2.23版本**  </span><br><span class="line">- 初状态  </span><br><span class="line">unsortedbin --&gt; chunk_victim  </span><br><span class="line"></span><br><span class="line">&gt; 此时我们令chunk_victim.bk = fake_chunk_head</span><br><span class="line"></span><br><span class="line">- 末状态  </span><br><span class="line">unsortedbin  --&gt; chunk_victim --&gt; fake_chunk</span><br><span class="line"></span><br><span class="line">&gt; 连续申请两个chunk即可申请到fake_chunk</span><br></pre></td></tr></table></figure></p>
-<h1 id="houseoforange">HouseofOrange</h1>
-<h2 id="概述-1">概述</h2>
-<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。<br />
-## 伪造chunk需求 1. top_chunk的结束地址必须页对齐<br />
--
-一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可<br />
-2. top_chunk.size &gt;= MINSIZE<br />
-3. top_chunk.size &lt; chunk_size + MINSIZE 4. top_chunk.prev_inuse == 1
-- 第一点中说的0xfe0要变为0xfe1</p>
+<h1 id="Unsortedbin-Attack"><a href="#Unsortedbin-Attack" class="headerlink" title="Unsortedbin Attack"></a>Unsortedbin Attack</h1><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p><code>Unsortedbin attack</code>分为<code>leak</code>和<code>write</code>两部分</p>
+<h3 id="Leak"><a href="#Leak" class="headerlink" title="Leak"></a>Leak</h3><p>当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址<br>而这个地址可以用ida查看对应libc的malloc_trim函数找到  </p>
+<h3 id="write"><a href="#write" class="headerlink" title="write"></a>write</h3><p>write是指<br>此外，低libc版本的unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
+<ul>
+<li>申请fake_chunk<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">**2.23版本**  </span><br><span class="line">- 初状态  </span><br><span class="line">unsortedbin --&gt; chunk_victim  </span><br><span class="line"></span><br><span class="line">&gt; 此时我们令chunk_victim.bk = fake_chunk_head</span><br><span class="line"></span><br><span class="line">- 末状态  </span><br><span class="line">unsortedbin  --&gt; chunk_victim --&gt; fake_chunk</span><br><span class="line"></span><br><span class="line">&gt; 连续申请两个chunk即可申请到fake_chunk</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="HouseofOrange"><a href="#HouseofOrange" class="headerlink" title="HouseofOrange"></a>HouseofOrange</h1><h2 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h2><p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。    </p>
+<h2 id="伪造chunk需求"><a href="#伪造chunk需求" class="headerlink" title="伪造chunk需求"></a>伪造chunk需求</h2><ol>
+<li>top_chunk的结束地址必须页对齐  <ul>
+<li>一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可  </li>
+</ul>
+</li>
+<li>top_chunk.size &gt;= MINSIZE  </li>
+<li>top_chunk.size &lt; chunk_size + MINSIZE</li>
+<li>top_chunk.prev_inuse == 1<ul>
+<li>第一点中说的0xfe0要变为0xfe1 </li>
+</ul>
+</li>
+</ol>
 
     </div>
 
@@ -316,8 +315,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Summary/" rel="tag"># Summary</a>
               <a href="/tags/Heap/" rel="tag"># Heap</a>
+              <a href="/tags/Summary/" rel="tag"># Summary</a>
           </div>
 
         
@@ -391,7 +390,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#fastbin-attack"><span class="nav-number">1.</span> <span class="nav-text">Fastbin Attack</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tcachebin-attack"><span class="nav-number">2.</span> <span class="nav-text">Tcachebin Attack</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#use-after-free"><span class="nav-number">3.</span> <span class="nav-text">Use After Free</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#unsortedbin-attack"><span class="nav-number">4.</span> <span class="nav-text">Unsortedbin Attack</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">4.0.1.</span> <span class="nav-text">概述</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#houseoforange"><span class="nav-number">5.</span> <span class="nav-text">HouseofOrange</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">5.1.</span> <span class="nav-text">概述</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Fastbin-Attack"><span class="nav-number">1.</span> <span class="nav-text">Fastbin Attack</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tcachebin-Attack"><span class="nav-number">2.</span> <span class="nav-text">Tcachebin Attack</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Use-After-Free"><span class="nav-number">3.</span> <span class="nav-text">Use After Free</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Unsortedbin-Attack"><span class="nav-number">4.</span> <span class="nav-text">Unsortedbin Attack</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">4.0.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Leak"><span class="nav-number">4.0.2.</span> <span class="nav-text">Leak</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#write"><span class="nav-number">4.0.3.</span> <span class="nav-text">write</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HouseofOrange"><span class="nav-number">5.</span> <span class="nav-text">HouseofOrange</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">5.1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%AA%E9%80%A0chunk%E9%9C%80%E6%B1%82"><span class="nav-number">5.2.</span> <span class="nav-text">伪造chunk需求</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -407,7 +406,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">16</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
