@@ -30,9 +30,9 @@
 <meta property="article:published_time" content="2023-09-28T14:00:00.000Z">
 <meta property="article:modified_time" content="2023-09-30T07:46:03.189Z">
 <meta property="article:author" content="Gap">
-<meta property="article:tag" content="SoftwareProtection">
 <meta property="article:tag" content="VMRe">
 <meta property="article:tag" content="FLA">
+<meta property="article:tag" content="SoftwareProtection">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2023/09/28/blog8/">
@@ -253,155 +253,159 @@
         <blockquote class="blockquote-center">
 回家晚上休息，看点re涨涨见识
 </blockquote>
+
 <span id="more"></span>
-<h1 id="x00-vm">0x00 VM</h1>
+<h1 id="0x00-VM"><a href="#0x00-VM" class="headerlink" title="0x00  VM"></a>0x00  VM</h1><ul>
+<li><p><strong>背景</strong><br>  C代码都会读吧，IDA反汇编出来的东西仔细看还是能看明白的。<br>  那我要增加你逆向的难度，就得让你看不懂。<br>  好，<strong>我把每条汇编指令封装成一个函数，给每个函数一个独有的编号(opcode)</strong>。<br>  再<strong>做一个索引表</strong>，我使用opcode1就等价于使用函数1.</p>
+<p>  比如“汇编指令A”—&gt;封装为“函数A”—&gt;opcode为1。<br>  然后定义一个指针数组function：</p>
+<pre><code>  function的index为opcode
+  function的内容为“指向对应函数的指针”。
+</code></pre><p>  那么，如果我要使用汇编指令A，只需要执行function[1]即可。<br>  这样你IDA反汇编就会出来一堆类似于switch case的东西，比以前更难读了。</p>
+<p>  如果你有相关经验，那么可以类比一下：<br>  这玩意儿叫做VM，顾名思义就是虚拟机嘛。<br>  就是你在物理机里面自己写了个虚拟机，然后自己用“你自己的虚拟机指令集”写了个程序。</p>
+</li>
+</ul>
 <ul>
-<li><p><strong>背景</strong>
-C代码都会读吧，IDA反汇编出来的东西仔细看还是能看明白的。
-那我要增加你逆向的难度，就得让你看不懂。
-好，<strong>我把每条汇编指令封装成一个函数，给每个函数一个独有的编号(opcode)</strong>。
-再<strong>做一个索引表</strong>，我使用opcode1就等价于使用函数1.</p>
-<p>比如“汇编指令A”--&gt;封装为“函数A”--&gt;opcode为1。
-然后定义一个指针数组function： function的index为opcode
-function的内容为“指向对应函数的指针”。
-那么，如果我要使用汇编指令A，只需要执行function[1]即可。
-这样你IDA反汇编就会出来一堆类似于switch case的东西，比以前更难读了。</p>
-<p>如果你有相关经验，那么可以类比一下：
-这玩意儿叫做VM，顾名思义就是虚拟机嘛。
-就是你在物理机里面自己写了个虚拟机，然后自己用“你自己的虚拟机指令集"写了个程序。</p></li>
-<li><p><strong>KEY</strong> 概括来讲你需要对应起这么几个东西：_ip,
-op_function_array, op_i</p>
-<ol type="1">
-<li>_ip：ip寄存器，指示“当前运行到哪一条指令”
-<ul>
-<li>特征：在每个函数中会有 ip +=
-num;之类的指令，表示ip寄存器读取了num个字节的指令，当前正指向下一个待执行的指令。</li>
-</ul></li>
+<li><p><strong>KEY</strong><br>  概括来讲你需要对应起这么几个东西：_ip, op_function_array, op_i</p>
+<ol>
+<li>_ip：ip寄存器，指示“当前运行到哪一条指令”<ul>
+<li>特征：在每个函数中会有 ip += num;之类的指令，表示ip寄存器读取了num个字节的指令，当前正指向下一个待执行的指令。</li>
+</ul>
+</li>
 <li>op_function_array：索引表，确定函数指向哪个位置</li>
-<li>op_i：第i个操作数，比如<code>mov eax,ebx</code>中，op1就是eax，op2就是ebx</li>
+<li><p>op_i：第i个操作数，比如<code>mov eax,ebx</code>中，op1就是eax，op2就是ebx</p>
+<p>正常的汇编指令是这样的：<code>cmd arg1,arg2</code><br>在VM也要有这样的：<code>opcode op1,op2</code></p>
+</li>
 </ol>
-<p>正常的汇编指令是这样的：<code>cmd arg1,arg2</code>
-在VM也要有这样的：<code>opcode op1,op2</code></p></li>
+</li>
 <li><p><strong>常见替换变量</strong></p>
 <ul>
 <li>stack</li>
-<li>regs
-<ul>
+<li>regs<ul>
 <li>eax/ebx/ecx/edx</li>
 <li>flag</li>
-</ul></li>
+</ul>
+</li>
 <li>esp</li>
-</ul></li>
+</ul>
+</li>
 <li><p><strong>常见实现指令</strong></p>
-<ol type="1">
+<ol>
 <li>nop</li>
-<li>mov
-<ol type="1">
+<li>mov<ol>
 <li>两个操作数</li>
 <li>将操作数2赋值给操作数1（或者操作数1作为index指向的某块内存）</li>
-</ol></li>
-<li>push
-<ol type="1">
+</ol>
+</li>
+<li>push<ol>
 <li>某个值++（不妨称“某个值”为A），并将（内存地址addr+A）的值设置为操作数1</li>
 <li>这里的A就是esp/rsp寄存器</li>
 <li>内存地址addr就是自己做的stack</li>
 <li>⚠ 某些vm可能会将push num和push regs分开实现</li>
-</ol></li>
-<li>pop
-<ol type="1">
-<li>esp--</li>
-</ol></li>
-<li>ja/jz/jnz/jl
-<ol type="1">
+</ol>
+</li>
+<li>pop<ol>
+<li>esp—</li>
+</ol>
+</li>
+<li>ja/jz/jnz/jl<ol>
 <li>跟e_flag有关</li>
 <li>会改变eip</li>
-</ol></li>
-<li>cmp
-<ol type="1">
+</ol>
+</li>
+<li>cmp<ol>
 <li>eflag = val1 - val2</li>
-</ol></li>
-</ol></li>
+</ol>
+</li>
+</ol>
+</li>
 <li><p>补充</p>
-<ol type="1">
+<ol>
 <li>有的时候vm会自己实现/集成一些函数，比如puts</li>
 <li>一些想法：有时间可以读一下jadx的源码，因为jadx是对抗jvm的，所以只需要更换一下指令集，很有可能就可以迁移到不同平台上对抗不同的vm</li>
-</ol></li>
-<li><p>VM pwn
-我猜应该是自己实现的虚拟机出现了缓冲区漏洞然后可以给pwn掉...</p></li>
+</ol>
+</li>
 </ul>
-<h1 id="x01-控制流平坦化fla">0x01 控制流平坦化（FLA）</h1>
 <ul>
-<li><p><strong>背景</strong> 先来看一段代码 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">for(int i=0;i&lt;10;i++)</span><br><span class="line">&#123;</span><br><span class="line">	if(i%2 == 0)</span><br><span class="line">		printf(&#x27;a&#x27;);</span><br><span class="line">	else</span><br><span class="line">		printf(&#x27;b&#x27;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-这段代码整理成CFG（就是你IDA刚开始加载进入以后，默认出现的程序控制流图），想都不用想这段代码的CFG肯定相对简单</p>
-<p>但使用FLA之后，CFG就会变得极其复杂，同时反汇编出来的伪代码也会很难读，这就大大增加了逆向分析的难度</p></li>
-<li><p><strong>原理</strong> 控制流平坦化的基本结构为：入口块 + 主分发块
-+ 子分发块 + 原基本块 + 返回块 + 预分发器
-在“推荐阅读”的第二条中，有一张图片能够帮助理解以上术语是什么，但因为貌似需要科学上网，所以这边就不贴在博客里了。</p>
-<ol type="1">
+<li>VM pwn<br>我猜应该是自己实现的虚拟机出现了缓冲区漏洞然后可以给pwn掉…</li>
+</ul>
+<h1 id="0x01-控制流平坦化（FLA）"><a href="#0x01-控制流平坦化（FLA）" class="headerlink" title="0x01 控制流平坦化（FLA）"></a>0x01 控制流平坦化（FLA）</h1><ul>
+<li><p><strong>背景</strong><br>  先来看一段代码</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">for(int i=0;i&lt;10;i++)</span><br><span class="line">&#123;</span><br><span class="line">	if(i%2 == 0)</span><br><span class="line">		printf(&#x27;a&#x27;);</span><br><span class="line">	else</span><br><span class="line">		printf(&#x27;b&#x27;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  这段代码整理成CFG（就是你IDA刚开始加载进入以后，默认出现的程序控制流图），想都不用想这段代码的CFG肯定相对简单</p>
+<p>  但使用FLA之后，CFG就会变得极其复杂，同时反汇编出来的伪代码也会很难读，这就大大增加了逆向分析的难度</p>
+</li>
+<li><p><strong>原理</strong><br>  控制流平坦化的基本结构为：入口块 + 主分发块 + 子分发块 + 原基本块 + 返回块 + 预分发器<br>  在“推荐阅读”的第二条中，有一张图片能够帮助理解以上术语是什么，但因为貌似需要科学上网，所以这边就不贴在博客里了。</p>
+<ol>
 <li>入口块（有时也称“序言”）：调节堆栈、初始化、做一个分发的初始工作</li>
 <li>主分发块：决定跳到哪个次分发块，进而进入哪个“原基本块”</li>
 <li>子分发块：无用块，纯纯混淆用的</li>
 <li>原基本块：原程序逻辑，但被平坦以后我们不知道这几个块的先后执行顺序是什么</li>
 <li>返回块：结束程序/结束分支</li>
 <li>预分发器：返回“主分发块”</li>
-</ol></li>
-<li><p><strong>FLA对抗工具安装</strong> <a
-target="_blank" rel="noopener" href="https://github.com/cq674350529/deflat">GitHub -
-cq674350529/deflat: use angr to deFLAfuscation</a></p>
+</ol>
+<ul>
+<li><p><strong>FLA对抗工具安装</strong><br> <a target="_blank" rel="noopener" href="https://github.com/cq674350529/deflat">GitHub - cq674350529/deflat: use angr to deFLAfuscation</a></p>
 <p>该工具基于angr，使用之前需要用pip安装angr</p>
 <p><code>pip3 install angr(在另外一篇教程里用的是sudo proxychains pip3 install angr)</code></p>
-<p>使用方式： -f file -addr entry_addr
-例如：<code>python3 deflat.py -f ./a.out --addr 0x400510</code></p>
-<p>推荐读一下deflat.py的源码，针对特殊情况去修改这个代码</p></li>
-<li><p><strong>FLA对抗工具原理</strong></p>
-<ol type="1">
-<li>源码解读
-<ol type="1">
-<li>参数设置
-<ol type="1">
-<li>load_options = {'auto_load_libcs': False}
+<p>使用方式：</p>
+<pre><code>-f file
+-addr entry_addr
+例如：`python3 deflat.py -f ./a.out --addr 0x400510`
+</code></pre><p>推荐读一下deflat.py的源码，针对特殊情况去修改这个代码</p>
+</li>
+</ul>
+</li>
+</ul>
 <ul>
+<li><strong>FLA对抗工具原理</strong><ol>
+<li>源码解读<ol>
+<li>参数设置<ol>
+<li>load_options = {‘auto_load_libcs’: False}<ul>
 <li>不步入标准库函数(如printf)，减少代码分析量</li>
-</ul></li>
-</ol></li>
-<li>to_supergraph函数：对“以call结尾的原基本块做一些处理”
-<ol type="1">
+</ul>
+</li>
+</ol>
+</li>
+<li>to_supergraph函数：对“以call结尾的原基本块做一些处理”<ol>
 <li>这一块儿没理解</li>
 <li>好像做了个什么“丢弃’三环到零环‘这种比如syscall之类的越界”、删除一些孤立节点之类的工作</li>
-</ol></li>
+</ol>
+</li>
 <li>页面对齐</li>
-<li>“块”处理
-<ol type="1">
+<li>“块”处理<ol>
 <li>序言：入度为0</li>
 <li>return块：出度为0 || 出分支为0（出分支我没理解是什么）</li>
 <li>预分发器：后继为主分发器（主分发器前驱 &amp;&amp; 不是序言）</li>
 <li>主分发器：跟在序言后面（序言后继）</li>
-<li>原基本块
-<ol type="1">
+<li>原基本块<ol>
 <li>与预处理器相关（不过得看FLA的作者怎么混淆的，需要自己去改脚本来做对抗）</li>
 <li>是“序言”“返回块”或“预处理器”，且块长（bytecode数）&gt; 8</li>
-</ol></li>
-<li>无用块
-<ol type="1">
+</ol>
+</li>
+<li>无用块<ol>
 <li>不是“序言”“返回块”和“预处理器”</li>
-</ol></li>
-</ol></li>
-<li>重做二进制文件
-<ol type="1">
+</ol>
+</li>
+</ol>
+</li>
+<li>重做二进制文件<ol>
 <li>有点没理解，它用到了符号执行的知识，后面再来继续读一下吧</li>
-</ol></li>
-</ol></li>
-</ol></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+<ul>
 <li><p><strong>注</strong></p>
 <ul>
 <li>IDA7.6之后的版本自带了一点平坦化处理，简单的平坦化可能会被分析并还原</li>
 <li>andorid平台上的ollvm-FLA更成熟一些，所以deflat.py有比较多的手机平台处理模块</li>
-</ul></li>
-<li><p>推荐阅读 <a
-target="_blank" rel="noopener" href="https://www.wireghost.cn/2020/08/28/OLLVM%E9%80%9A%E7%94%A8%E5%8F%8D%E5%B9%B3%E5%9D%A6%E5%8C%96%E7%A0%94%E7%A9%B6/">OLLVM通用反平坦化研究
-| Shell In Ghost (wireghost.cn)</a> <a
-target="_blank" rel="noopener" href="https://jev0n.com/2022/07/08/ollvm-1.html">OLLVM混淆学习（1）——控制流平坦化（FLA）
-- 思泉 | Jev0n</a></p></li>
+</ul>
+</li>
+<li><p>推荐阅读<br><a target="_blank" rel="noopener" href="https://www.wireghost.cn/2020/08/28/OLLVM%E9%80%9A%E7%94%A8%E5%8F%8D%E5%B9%B3%E5%9D%A6%E5%8C%96%E7%A0%94%E7%A9%B6/">OLLVM通用反平坦化研究 | Shell In Ghost (wireghost.cn)</a><br><a target="_blank" rel="noopener" href="https://jev0n.com/2022/07/08/ollvm-1.html">OLLVM混淆学习（1）——控制流平坦化（FLA） - 思泉 | Jev0n</a></p>
+</li>
 </ul>
 
     </div>
@@ -439,9 +443,9 @@ target="_blank" rel="noopener" href="https://jev0n.com/2022/07/08/ollvm-1.html">
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/SoftwareProtection/" rel="tag"># SoftwareProtection</a>
               <a href="/tags/VMRe/" rel="tag"># VMRe</a>
               <a href="/tags/FLA/" rel="tag"># FLA</a>
+              <a href="/tags/SoftwareProtection/" rel="tag"># SoftwareProtection</a>
           </div>
 
         
@@ -515,7 +519,7 @@ target="_blank" rel="noopener" href="https://jev0n.com/2022/07/08/ollvm-1.html">
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-vm"><span class="nav-number">1.</span> <span class="nav-text">0x00 VM</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E6%8E%A7%E5%88%B6%E6%B5%81%E5%B9%B3%E5%9D%A6%E5%8C%96fla"><span class="nav-number">2.</span> <span class="nav-text">0x01 控制流平坦化（FLA）</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-VM"><span class="nav-number">1.</span> <span class="nav-text">0x00  VM</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-%E6%8E%A7%E5%88%B6%E6%B5%81%E5%B9%B3%E5%9D%A6%E5%8C%96%EF%BC%88FLA%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">0x01 控制流平坦化（FLA）</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
