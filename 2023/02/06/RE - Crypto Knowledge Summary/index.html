@@ -20,17 +20,20 @@
     var CONFIG = {"hostname":"heygap.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="An undergraduate student of Cybersecurity at SDU.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Gap&#39;s_Blog">
-<meta property="og:url" content="http://heygap.github.io/tags/auto-tools/index.html">
+  <meta name="description" content="总结一下逆向中有关密码学的相关内容，便于后续调用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RE - Crypto Knowledge Summary">
+<meta property="og:url" content="http://heygap.github.io/2023/02/06/RE%20-%20Crypto%20Knowledge%20Summary/index.html">
 <meta property="og:site_name" content="Gap&#39;s_Blog">
-<meta property="og:description" content="An undergraduate student of Cybersecurity at SDU.">
+<meta property="og:description" content="总结一下逆向中有关密码学的相关内容，便于后续调用">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-06T15:32:00.000Z">
+<meta property="article:modified_time" content="2024-02-06T15:34:29.780Z">
 <meta property="article:author" content="Gap">
+<meta property="article:tag" content="REVERSE">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://heygap.github.io/tags/auto-tools/">
+<link rel="canonical" href="http://heygap.github.io/2023/02/06/RE%20-%20Crypto%20Knowledge%20Summary/">
 
 
 <script id="page-configurations">
@@ -38,12 +41,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>标签: auto_tools | Gap's_Blog</title>
+  <title>RE - Crypto Knowledge Summary | Gap's_Blog</title>
   
 
 
@@ -178,51 +181,137 @@
         <div class="content-wrap">
           
 
-          <div class="content tag">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">auto_tools
-          <small>标签</small>
-        </h2>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2023/02/06/RE%20-%20Crypto%20Knowledge%20Summary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Gap">
+      <meta itemprop="description" content="An undergraduate student of Cybersecurity at SDU.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Gap's_Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RE - Crypto Knowledge Summary
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-02-06 23:02:00" itemprop="dateCreated datePublished" datetime="2023-02-06T23:32:00+08:00">2023-02-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-02-06 23:02:78" itemprop="dateModified" datetime="2024-02-06T23:34:29+08:00">2024-02-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF-Theory/" itemprop="url" rel="index"><span itemprop="name">CTF_Theory</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2024</span>
+        <blockquote class="blockquote-center">
+总结一下逆向中有关密码学的相关内容，便于后续调用
+</blockquote>
+
+<span id="more"></span>
+<h1 id="TEA-系列"><a href="#TEA-系列" class="headerlink" title="TEA 系列"></a>TEA 系列</h1><h2 id="Tea-decrypt"><a href="#Tea-decrypt" class="headerlink" title="Tea decrypt"></a>Tea decrypt</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">uint32_t</span> key[<span class="number">4</span>] = &#123;<span class="number">1234</span>,<span class="number">2341</span>,<span class="number">3412</span>,<span class="number">4123</span>&#125;;</span><br><span class="line"><span class="type">uint32_t</span> delta = <span class="number">0xDEADBEEF</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">tea_decrypt</span><span class="params">(<span class="type">uint32_t</span> *encrypted)</span> </span>&#123;</span><br><span class="line">    <span class="type">uint32_t</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="type">uint32_t</span> enc_tmp1 = encrypted[<span class="number">0</span>],enc_tmp2 = encrypted[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">32</span>;i++) &#123;</span><br><span class="line">        sum += delta;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">32</span>;i++) &#123;</span><br><span class="line">        enc_tmp2 -= (sum + enc_tmp1) ^ (<span class="number">16</span> * enc_tmp1 + key[<span class="number">2</span>]) ^ (<span class="number">32</span> * enc_tmp1 + key[<span class="number">3</span>]);</span><br><span class="line">        enc_tmp1 -= (sum + enc_tmp2) ^ (<span class="number">16</span> * enc_tmp2 + key[<span class="number">0</span>]) ^ (<span class="number">32</span> * enc_tmp2 + key[<span class="number">1</span>]);</span><br><span class="line">        sum -= delta;</span><br><span class="line">    &#125;</span><br><span class="line">    encrypted[<span class="number">0</span>] = enc_tmp1;</span><br><span class="line">    encrypted[<span class="number">1</span>] = enc_tmp2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> encflag[] = &#123;</span><br><span class="line">        <span class="number">0</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">tea_decrypt</span>((<span class="type">uint32_t</span> *)encflag+<span class="number">0</span>);</span><br><span class="line">    <span class="built_in">tea_decrypt</span>((<span class="type">uint32_t</span> *)encflag+<span class="number">2</span>);</span><br><span class="line">    <span class="built_in">tea_decrypt</span>((<span class="type">uint32_t</span> *)encflag+<span class="number">4</span>);</span><br><span class="line">    <span class="built_in">tea_decrypt</span>((<span class="type">uint32_t</span> *)encflag+<span class="number">6</span>);</span><br><span class="line">    cout&lt;&lt;(<span class="type">char</span> *)encflag&lt;&lt;endl;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="xTea-decrypt"><a href="#xTea-decrypt" class="headerlink" title="xTea decrypt"></a>xTea decrypt</h2><h2 id="xxTea-decrypt"><a href="#xxTea-decrypt" class="headerlink" title="xxTea decrypt"></a>xxTea decrypt</h2>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
+        
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2024-01-25T10:36:00+08:00"
-              content="2024-01-25">
-          01-25
-        </time>
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Gap
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://heygap.github.io/2023/02/06/RE%20-%20Crypto%20Knowledge%20Summary/" title="RE - Crypto Knowledge Summary">http://heygap.github.io/2023/02/06/RE - Crypto Knowledge Summary/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------文章就到这里啦！<i class="fa fa-paw"></i>感谢您的阅读XD-------------</div>
+    
+</div>
+        
       </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2024/01/25/cwe_checker%20Learning%20Note/" itemprop="url">
-            <span itemprop="name">cwe_checker Learning Note</span>
-          </a>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/REVERSE/" rel="tag"># REVERSE</a>
+          </div>
 
-    </header>
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/01/10/blog%20configuration%20&%20beautify/" rel="prev" title="Hexo & Next 博客配置与美化">
+      <i class="fa fa-chevron-left"></i> Hexo & Next 博客配置与美化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/14/Pwn%20-%20Practice/" rel="next" title="Pwn - Practice">
+      Pwn - Practice <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
   </article>
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
@@ -275,6 +364,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#TEA-%E7%B3%BB%E5%88%97"><span class="nav-number">1.</span> <span class="nav-text">TEA 系列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Tea-decrypt"><span class="nav-number">1.1.</span> <span class="nav-text">Tea decrypt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#xTea-decrypt"><span class="nav-number">1.2.</span> <span class="nav-text">xTea decrypt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#xxTea-decrypt"><span class="nav-number">1.3.</span> <span class="nav-text">xxTea decrypt</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -301,7 +391,7 @@
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">11</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
