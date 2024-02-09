@@ -28,7 +28,7 @@
 <meta property="og:description" content="Shellcode 也是十分核心的技术🤔">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-02-08T02:10:00.000Z">
-<meta property="article:modified_time" content="2024-02-09T08:18:31.098Z">
+<meta property="article:modified_time" content="2024-02-09T10:09:50.424Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Shellcode">
@@ -219,7 +219,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-09 16:02:09" itemprop="dateModified" datetime="2024-02-09T16:18:31+08:00">2024-02-09</time>
+                <time title="修改时间：2024-02-09 18:02:42" itemprop="dateModified" datetime="2024-02-09T18:09:50+08:00">2024-02-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -254,43 +254,45 @@ Shellcode 也是十分核心的技术🤔
 </blockquote>
 <span id="more"></span>
 <h1 id="目录">[0] 目录</h1>
+<ol type="1">
+<li><a href="#1-编写-shellcode">编写 shellcode</a>
 <ul>
-<li><a href="#%5B1%5D-编写-shellcode">编写 shellcode</a>
+<li><a href="#1-1-shellcode-板子">shellcode 板子</a></li>
+<li><a href="#1-2-现有工具">现有工具</a>
 <ul>
-<li><a href="#%5B1-1%5D-shellcode-板子">shellcode 板子</a></li>
-<li><a href="#%5B1-2%5D-现有工具">现有工具</a>
-<ul>
-<li><a href="#%5B1-2-1%5D-Pwntools">Pwntools</a></li>
+<li><a href="#1-2-1-pwntools">Pwntools</a></li>
 </ul></li>
-<li><a href="#%5B1-3%5D-板子">板子</a></li>
+<li><a href="#1-3-板子">板子</a></li>
 </ul></li>
-<li><a href="#shellcode-restrictions--bypass-限制与绕过">shellcode
+</ol>
+<ul>
+<li><a href="#2-shellcode-restrictions--bypass-限制与绕过">shellcode
 restrictions &amp; bypass (限制与绕过)</a>
 <ul>
-<li><a href="##-length-restrictions-长度约束">Length restrictions
+<li><a href="#2-1-length-restrictions-长度约束">Length restrictions
 (长度约束)</a>
 <ul>
-<li><a href="###-restriction">restriction:</a></li>
-<li><a href="###-bypass1---压缩-shellcode">bypass1 - 压缩
+<li><a href="#2-1-1-restriction">restriction</a></li>
+<li><a href="#2-1-2-bypass1---压缩-shellcode">bypass1 - 压缩
 shellcode</a></li>
-<li><a href="###-bypass2---二次-read">bypass2 - 二次 read</a></li>
+<li><a href="#2-1-3-bypass2---二次-read">bypass2 - 二次 read</a></li>
 </ul></li>
-<li><a href="##-seccomp-禁用">seccomp 禁用</a>
+<li><a href="#2-2-seccomp-禁用">seccomp 禁用</a>
 <ul>
-<li><a href="###-restriction-1">restriction:</a></li>
-<li><a href="###-bypass-1">bypass</a></li>
+<li><a href="#2-2-1-restriction">restriction</a></li>
+<li><a href="#2-2-2-bypass">bypass</a></li>
 </ul></li>
-<li><a href="##-alphanumeric-shellcode-字母数字构成">alphanumeric
+<li><a href="#2-3-alphanumeric-shellcode-字母数字构成">alphanumeric
 shellcode (字母+数字构成)</a>
 <ul>
-<li><a href="###-manual">Manual</a></li>
-<li><a href="###-restriction-2">restriction:</a></li>
-<li><a href="###-shellcode-生成">shellcode 生成:</a></li>
-<li><a href="###-示例">示例：</a></li>
+<li><a href="#2-3-1-manual">Manual</a></li>
+<li><a href="#2-3-2-restriction-1">restriction</a></li>
+<li><a href="#2-3-3-shellcode-生成">shellcode 生成:</a></li>
+<li><a href="#2-3-4-示例">示例：</a></li>
 </ul></li>
 </ul></li>
-<li><a href="#%5B3%5D-例题">例题</a></li>
-<li><a href="#%5B4%5D-参考资料">参考资料</a></li>
+<li><a href="#3-例题">例题</a></li>
+<li><a href="#4-参考资料">参考资料</a></li>
 </ul>
 <h1 id="编写-shellcode">[1] 编写 shellcode</h1>
 <h2 id="shellcode-板子">[1-1] shellcode 板子</h2>
@@ -339,7 +341,7 @@ shellcode 数据库</p></li>
 restrictions &amp; bypass (限制与绕过)</h1>
 <h2 id="length-restrictions-长度约束">[2-1] Length restrictions
 (长度约束)</h2>
-<h3 id="restriction">[2-1-1] restriction:</h3>
+<h3 id="restriction">[2-1-1] restriction</h3>
 <p>shellcode 限制在 xx bytes 以内</p>
 <h3 id="bypass1---压缩-shellcode">[2-1-2] bypass1 - 压缩 shellcode</h3>
 <ol type="1">
@@ -369,7 +371,7 @@ context（上下文），用上下文的一些寄存器来初始化</li>
 </ol>
 <h3 id="bypass2---二次-read">[2-1-3] bypass2 - 二次 read</h3>
 <h2 id="seccomp-禁用">[2-2] seccomp 禁用</h2>
-<h3 id="restriction-1">[2-2-1] restriction:</h3>
+<h3 id="restriction-1">[2-2-1] restriction</h3>
 <p>shellcode 中不允许出现 execve 等</p>
 <h3 id="bypass">[2-2-2] bypass</h3>
 <p>使用 <code>seccomp dump ./pwn</code> 来查看 elf
@@ -383,7 +385,7 @@ shellcode (字母+数字构成)</h2>
 <h3 id="manual">[2-3-1] Manual</h3>
 <p><a target="_blank" rel="noopener" href="https://nets.ec/Ascii_shellcode">ascii -&gt; asm
 手册</a></p>
-<h3 id="restriction-2">[2-3-2] restriction:</h3>
+<h3 id="restriction-2">[2-3-2] restriction</h3>
 <p>shellcode 只能由字母和数字组成</p>
 <h3 id="shellcode-生成">[2-3-3] shellcode 生成:</h3>
 <p>这种 shellcode 可以由工具 <a
@@ -411,6 +413,9 @@ target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/237
 <p><a
 target="_blank" rel="noopener" href="https://pullp.github.io/tips/2021/01/30/shellcode-tips.html">wxk1997's
 blog - shellcode tips</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://hkhanbing.github.io/2023/09/25/brics-ctf-pwn-paint%E9%A2%98%E8%A7%A3/">hkbin's
+blog - shellcode</a></p>
 
     </div>
 
@@ -460,7 +465,10 @@ blog - shellcode tips</a></p>
     <a href="/2024/02/06/REV%20-%20Crypto%20Knowledge%20Summary/" rel="prev" title="REV - Crypto Knowledge Summary">
       <i class="fa fa-chevron-left"></i> REV - Crypto Knowledge Summary
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/02/09/Pwn%20-%20Architecture%20other%20than%20LinuxC/" rel="next" title="Pwn - Architecture other than LinuxC">
+      Pwn - Architecture other than LinuxC <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -521,8 +529,8 @@ blog - shellcode tips</a></p>
       <div class="post-toc-wrap sidebar-panel">
           <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">[0] 目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E5%86%99-shellcode"><span class="nav-number">2.</span> <span class="nav-text">[1] 编写 shellcode</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#shellcode-%E6%9D%BF%E5%AD%90"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] shellcode 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E5%B7%A5%E5%85%B7"><span class="nav-number">2.2.</span> <span class="nav-text">[1-2] 现有工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pwntools"><span class="nav-number">2.2.1.</span> <span class="nav-text">[1-2-1] Pwntools</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#shellcraft"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">[1-2-1-1] shellcraft</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#asm"><span class="nav-number">2.2.1.2.</span> <span class="nav-text">[1-2-1-2] asm</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%BF%E5%AD%90"><span class="nav-number">2.3.</span> <span class="nav-text">[1-3] 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E7%BA%BF%E7%BD%91%E7%AB%99"><span class="nav-number">2.4.</span> <span class="nav-text">[1-4] 在线网站</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%8B%E6%90%93-shellcode"><span class="nav-number">2.5.</span> <span class="nav-text">[1-5] 手搓 shellcode</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#shellcode-restrictions-bypass-%E9%99%90%E5%88%B6%E4%B8%8E%E7%BB%95%E8%BF%87"><span class="nav-number">3.</span> <span class="nav-text">[2] shellcode
 restrictions &amp; bypass (限制与绕过)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#length-restrictions-%E9%95%BF%E5%BA%A6%E7%BA%A6%E6%9D%9F"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] Length restrictions
-(长度约束)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] restriction:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass1---%E5%8E%8B%E7%BC%A9-shellcode"><span class="nav-number">3.1.2.</span> <span class="nav-text">[2-1-2] bypass1 - 压缩 shellcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass2---%E4%BA%8C%E6%AC%A1-read"><span class="nav-number">3.1.3.</span> <span class="nav-text">[2-1-3] bypass2 - 二次 read</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#seccomp-%E7%A6%81%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">[2-2] seccomp 禁用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">[2-2-1] restriction:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass"><span class="nav-number">3.2.2.</span> <span class="nav-text">[2-2-2] bypass</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%81%E7%94%A8-execve"><span class="nav-number">3.2.2.1.</span> <span class="nav-text">[2-2-2-1] 禁用 execve</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#alphanumeric-shellcode-%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97%E6%9E%84%E6%88%90"><span class="nav-number">3.3.</span> <span class="nav-text">[2-3] alphanumeric
-shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#manual"><span class="nav-number">3.3.1.</span> <span class="nav-text">[2-3-1] Manual</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">[2-3-2] restriction:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shellcode-%E7%94%9F%E6%88%90"><span class="nav-number">3.3.3.</span> <span class="nav-text">[2-3-3] shellcode 生成:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.3.4.</span> <span class="nav-text">[2-3-4] 示例：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">[3] 例题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">[4] 参考资料</span></a></li></ol></div>
+(长度约束)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass1---%E5%8E%8B%E7%BC%A9-shellcode"><span class="nav-number">3.1.2.</span> <span class="nav-text">[2-1-2] bypass1 - 压缩 shellcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass2---%E4%BA%8C%E6%AC%A1-read"><span class="nav-number">3.1.3.</span> <span class="nav-text">[2-1-3] bypass2 - 二次 read</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#seccomp-%E7%A6%81%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">[2-2] seccomp 禁用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">[2-2-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass"><span class="nav-number">3.2.2.</span> <span class="nav-text">[2-2-2] bypass</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%81%E7%94%A8-execve"><span class="nav-number">3.2.2.1.</span> <span class="nav-text">[2-2-2-1] 禁用 execve</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#alphanumeric-shellcode-%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97%E6%9E%84%E6%88%90"><span class="nav-number">3.3.</span> <span class="nav-text">[2-3] alphanumeric
+shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#manual"><span class="nav-number">3.3.1.</span> <span class="nav-text">[2-3-1] Manual</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">[2-3-2] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shellcode-%E7%94%9F%E6%88%90"><span class="nav-number">3.3.3.</span> <span class="nav-text">[2-3-3] shellcode 生成:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.3.4.</span> <span class="nav-text">[2-3-4] 示例：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">[3] 例题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">[4] 参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -538,18 +546,18 @@ shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-i
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
