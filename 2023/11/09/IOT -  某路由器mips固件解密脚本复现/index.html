@@ -22,7 +22,7 @@
 
   <meta name="description" content="期中终于结束了😭复现一下b站Wker666的固件解密">
 <meta property="og:type" content="article">
-<meta property="og:title" content="IOT — 某路由器mips固件解密脚本复现">
+<meta property="og:title" content="IOT - 某路由器mips固件解密脚本复现">
 <meta property="og:url" content="http://heygap.github.io/2023/11/09/IOT%20-%20%20%E6%9F%90%E8%B7%AF%E7%94%B1%E5%99%A8mips%E5%9B%BA%E4%BB%B6%E8%A7%A3%E5%AF%86%E8%84%9A%E6%9C%AC%E5%A4%8D%E7%8E%B0/index.html">
 <meta property="og:site_name" content="Gap&#39;s_Blog">
 <meta property="og:description" content="期中终于结束了😭复现一下b站Wker666的固件解密">
@@ -30,11 +30,9 @@
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/lto8e.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/ltiAU.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/ltjx0.png">
-<meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/l12OW.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/l1ZZe.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/l1lK3.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/l1tB2.png">
-<meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/l111j.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/l1UfV.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/l1iQJ.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/l1qvD.png">
@@ -44,7 +42,7 @@
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/lJXIC.png">
 <meta property="og:image" content="https://i0.imgs.ovh/2023/11/09/lJZRR.png">
 <meta property="article:published_time" content="2023-11-09T05:35:00.000Z">
-<meta property="article:modified_time" content="2024-02-05T14:12:52.621Z">
+<meta property="article:modified_time" content="2024-02-09T10:27:11.140Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="Mips">
 <meta property="article:tag" content="Wifi">
@@ -64,7 +62,7 @@
   };
 </script>
 
-  <title>IOT — 某路由器mips固件解密脚本复现 | Gap's_Blog</title>
+  <title>IOT - 某路由器mips固件解密脚本复现 | Gap's_Blog</title>
   
 
 
@@ -219,7 +217,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          IOT — 某路由器mips固件解密脚本复现
+          IOT - 某路由器mips固件解密脚本复现
         </h1>
 
         <div class="post-meta">
@@ -236,7 +234,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-05 22:02:62" itemprop="dateModified" datetime="2024-02-05T22:12:52+08:00">2024-02-05</time>
+                <time title="修改时间：2024-02-09 18:02:14" itemprop="dateModified" datetime="2024-02-09T18:27:11+08:00">2024-02-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -269,72 +267,164 @@
         <blockquote class="blockquote-center">
 期中终于结束了😭复现一下b站Wker666的固件解密
 </blockquote>
-
-
 <span id="more"></span>
 <blockquote>
 <p>第一次分析IOT固件，不当之处请指出😭</p>
 </blockquote>
-<h1 id="0xFF-前置知识"><a href="#0xFF-前置知识" class="headerlink" title="0xFF 前置知识"></a>0xFF 前置知识</h1><ol>
-<li><p>多数情况下，路由器固件解包以后我们会拿到一个类似于 Linux 文件系统的文件夹，这个文件系统会跑一些三环程序，而三环程序有非常多的系统调用，因此我们希望通过这些三环程序来提权。</p>
-</li>
-<li><p>现在很多厂商会认为，自己的路由器能被解包太不安全了，因此他们会通过加密，但是每次更新换代时，后一代的固件包都是通过前一代的固件中的某个解密算法来解密的。因此，我们在挖掘 IOT 漏洞时，会先找到比较老的一些版本，分析解密算法，进而自己写出解密脚本来解密新一代的固件包。</p>
-</li>
-<li><p>(建议看到0x01后再来阅读本条)我们在路由器的 web user 上发送一个更新请求的时候，客户端会先发给服务器一个 http 请求，然后被服务器的 httpd 二进制文件接收，httpd 会 fork 一个新的进程来启用二进制文件 cgibin ，并把环境变量和 http 的请求发给 cgi ， cgi 完成处理以后，把内容输出到标准输出流之类的东西，并返回客户</p>
-</li>
-<li><p>IDA 反编译 Mips 文件会有很多“无用操作”，就是两个变量来回赋值之类的，这是由于 Mips 有分支延迟的特性</p>
-</li>
+<h1 id="xff-前置知识">0xFF 前置知识</h1>
+<ol type="1">
+<li><p>多数情况下，路由器固件解包以后我们会拿到一个类似于 Linux
+文件系统的文件夹，这个文件系统会跑一些三环程序，而三环程序有非常多的系统调用，因此我们希望通过这些三环程序来提权。</p></li>
+<li><p>现在很多厂商会认为，自己的路由器能被解包太不安全了，因此他们会通过加密，但是每次更新换代时，后一代的固件包都是通过前一代的固件中的某个解密算法来解密的。因此，我们在挖掘
+IOT
+漏洞时，会先找到比较老的一些版本，分析解密算法，进而自己写出解密脚本来解密新一代的固件包。</p></li>
+<li><p>(建议看到0x01后再来阅读本条)我们在路由器的 web user
+上发送一个更新请求的时候，客户端会先发给服务器一个 http
+请求，然后被服务器的 httpd 二进制文件接收，httpd 会 fork
+一个新的进程来启用二进制文件 cgibin ，并把环境变量和 http 的请求发给 cgi
+， cgi
+完成处理以后，把内容输出到标准输出流之类的东西，并返回客户</p></li>
+<li><p>IDA 反编译 Mips
+文件会有很多“无用操作”，就是两个变量来回赋值之类的，这是由于 Mips
+有分支延迟的特性</p></li>
 </ol>
-<h1 id="0x00-准备工作"><a href="#0x00-准备工作" class="headerlink" title="0x00 准备工作"></a>0x00 准备工作</h1><p><img src="https://i0.imgs.ovh/2023/11/09/lto8e.png" alt="lto8e.png"><br>上图中间有这样一句话<code>Upgrade to Firmware V2.10 and then instantly go back into the web user interface and upgrade to Firmware V2.20</code></p>
-<p>它告诉我们，从web user更新到2.2版本时，需要先从官网下载2.1的固件并更新到2.1才行</p>
+<h1 id="x00-准备工作">0x00 准备工作</h1>
+<p><img src="https://i0.imgs.ovh/2023/11/09/lto8e.png"
+alt="lto8e.png" />
+上图中间有这样一句话<code>Upgrade to Firmware V2.10 and then instantly go back into the web user interface and upgrade to Firmware V2.20</code></p>
+<p>它告诉我们，从web
+user更新到2.2版本时，需要先从官网下载2.1的固件并更新到2.1才行</p>
 <p>也就是说，2.2大概率是一个加密固件包，我们无法通过<code>binwalk</code>直接解包，但是2.1可以</p>
 <p>我们download两个包到本地binwalk解包一下看看</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/ltiAU.png" alt="ltiAU.png"></p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/ltjx0.png" alt="ltjx0.png"></p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/ltiAU.png" alt="ltiAU.png" />
+<figcaption aria-hidden="true">ltiAU.png</figcaption>
+</figure>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/ltjx0.png" alt="ltjx0.png" />
+<figcaption aria-hidden="true">ltjx0.png</figcaption>
+</figure>
 <p>我们可以看到，确实像我们猜想的那样，V2.1未加密，V2.2加密</p>
-<h1 id="0x01-定位解密逻辑"><a href="#0x01-定位解密逻辑" class="headerlink" title="0x01 定位解密逻辑"></a>0x01 定位解密逻辑</h1><p>通过 <strong>0xFF.3</strong> 我们知道要分析cgibin和httpd文件，所以我们用IDA打开看一下<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cgibin : /_DIR850LB1_FW210WWb03.bin.extracted/squashfs-root/htdocs</span><br><span class="line"></span><br><span class="line">httpd : /_DIR850LB1_FW210WWb03.bin.extracted/squashfs-root/sbin</span><br></pre></td></tr></table></figure></p>
-<p>我们先来分析一下在本文中不那么重要的 httpd 文件，IDA7.6 以上的版本是可以反编译 Mips 的<br><img src="https://i0.imgs.ovh/2023/11/09/l12OW.png" alt="l12OW.png"><br>我们在 function 中搜索 cgi，找到<code>process_cgi</code>函数，如上图，可以看到里面有很多环境变量如<code>GATEWAY_INTERFACE</code>和<code>CONTENT_LENGTH</code>等，在设置完环境变量后，我们可以看到它调用了<code>spawn</code>函数，我们跟进去看一下<br><img src="https://i0.imgs.ovh/2023/11/09/l1ZZe.png" alt="l1ZZe.png"></p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/l1lK3.png" alt="l1lK3.png"><br>可以看到，在 <strong>Line20</strong> 的位置，该进程是被fork起来的，而在 <strong>Line46</strong> 的位置，我们执行了 <code>execve</code> 系统调用，而我们知道 execve 的第一个参数是文件路径，第二个参数是argv，第三个参数是环境变量，因此我们回溯一下</p>
-<p>而在调用 <code>spawn</code> 的图中，我们可以看到，spawn 的第一个参数是<code>*v77,v77,ptr</code>,这里的 v77 就是 file_path，而 ptr 就是 env_ptr，我们接着溯源(溯源的时候我们会发现 file_path 的调用处非常少，这是因为 ida 的反编译并没有将 file_path 的数据类型正确处理，导致 file_path 下面的一些变量，其实可能就是 file_path，但因为处理错了，所以被命名为 v78 v79 …)</p>
-<p>如下图，我们挨个分析，而当我们看到 v80 时，可以看到对 v80 被做了手脚，Wker666 说这里是对 cgi 进行一些选择，但我 STFW 以后也没找到原因，先搁置一下吧</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/l1tB2.png" alt="l1tB2.png"></p>
-<p>至此，httpd 就分析完了，httpd主要是做前端用的，它本身也有一些漏洞，不过这里就不再分析了，我们直接看cgibin</p>
-<hr>
-<p>我们用 IDA 打开 cgibin 文件，往下找到 seamacgi_main (这里没找到 seama 到底是什么意思，只是因为在 function 中搜索 enc 可以找到 encrypt_main ，溯源分析就能找到 semacgi_main 了)<br><img src="https://i0.imgs.ovh/2023/11/09/l111j.png" alt="l111j.png"></p>
-<p>跟进 semacgi_main ,可以找到 encrypt_main 函数，这就是我们需要的解密函数了</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/l1UfV.png" alt="l1UfV.png"></p>
-<h1 id="0x02-解密逻辑分析"><a href="#0x02-解密逻辑分析" class="headerlink" title="0x02 解密逻辑分析"></a>0x02 解密逻辑分析</h1><h3 id="被传入的参数"><a href="#被传入的参数" class="headerlink" title="被传入的参数"></a>被传入的参数</h3><p>我们查看 encrypt_main 函数的引用，可以在 sub_407664+668 处找到一处调用，我们可以看到第一个参数是6，第二个参数被赋值了很多类似于-i，-d之类的东西，结合 encrypt_main 函数是个 main，我们猜测第一个参数是 argc，第二个参数是argv</p>
-<p>但是这里的赋值方式很奇怪，v116 是<code>struct stat</code>，是一个结构体，我们再去别的引用处看一下，可以在 encode_file_check 函数中发现这些参数其实是一个 char 数组，这就符合我们对 argv 的认知了。</p>
+<h1 id="x01-定位解密逻辑">0x01 定位解密逻辑</h1>
+<p>通过 <strong>0xFF.3</strong>
+我们知道要分析cgibin和httpd文件，所以我们用IDA打开看一下
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cgibin : /_DIR850LB1_FW210WWb03.bin.extracted/squashfs-root/htdocs</span><br><span class="line"></span><br><span class="line">httpd : /_DIR850LB1_FW210WWb03.bin.extracted/squashfs-root/sbin</span><br></pre></td></tr></table></figure></p>
+<p>我们先来分析一下在本文中不那么重要的 httpd 文件，IDA7.6
+以上的版本是可以反编译 Mips 的 <img
+src="https://i0.imgs.ovh/2023/11/09/l12OW.png" alt="l12OW.png" /> 我们在
+function 中搜索
+cgi，找到<code>process_cgi</code>函数，如上图，可以看到里面有很多环境变量如<code>GATEWAY_INTERFACE</code>和<code>CONTENT_LENGTH</code>等，在设置完环境变量后，我们可以看到它调用了<code>spawn</code>函数，我们跟进去看一下
+<img src="https://i0.imgs.ovh/2023/11/09/l1ZZe.png"
+alt="l1ZZe.png" /></p>
+<p><img src="https://i0.imgs.ovh/2023/11/09/l1lK3.png"
+alt="l1lK3.png" /> 可以看到，在 <strong>Line20</strong>
+的位置，该进程是被fork起来的，而在 <strong>Line46</strong>
+的位置，我们执行了 <code>execve</code> 系统调用，而我们知道 execve
+的第一个参数是文件路径，第二个参数是argv，第三个参数是环境变量，因此我们回溯一下</p>
+<p>而在调用 <code>spawn</code> 的图中，我们可以看到，spawn
+的第一个参数是<code>*v77,v77,ptr</code>,这里的 v77 就是 file_path，而
+ptr 就是 env_ptr，我们接着溯源(溯源的时候我们会发现 file_path
+的调用处非常少，这是因为 ida 的反编译并没有将 file_path
+的数据类型正确处理，导致 file_path 下面的一些变量，其实可能就是
+file_path，但因为处理错了，所以被命名为 v78 v79 ...)</p>
+<p>如下图，我们挨个分析，而当我们看到 v80 时，可以看到对 v80
+被做了手脚，Wker666 说这里是对 cgi 进行一些选择，但我 STFW
+以后也没找到原因，先搁置一下吧</p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/l1tB2.png" alt="l1tB2.png" />
+<figcaption aria-hidden="true">l1tB2.png</figcaption>
+</figure>
+<p>至此，httpd
+就分析完了，httpd主要是做前端用的，它本身也有一些漏洞，不过这里就不再分析了，我们直接看cgibin</p>
+<hr />
+<p>我们用 IDA 打开 cgibin 文件，往下找到 seamacgi_main (这里没找到 seama
+到底是什么意思，只是因为在 function 中搜索 enc 可以找到 encrypt_main
+，溯源分析就能找到 semacgi_main 了) <img
+src="https://i0.imgs.ovh/2023/11/09/l111j.png" alt="l111j.png" /></p>
+<p>跟进 semacgi_main ,可以找到 encrypt_main
+函数，这就是我们需要的解密函数了</p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/l1UfV.png" alt="l1UfV.png" />
+<figcaption aria-hidden="true">l1UfV.png</figcaption>
+</figure>
+<h1 id="x02-解密逻辑分析">0x02 解密逻辑分析</h1>
+<h3 id="被传入的参数">被传入的参数</h3>
+<p>我们查看 encrypt_main 函数的引用，可以在 sub_407664+668
+处找到一处调用，我们可以看到第一个参数是6，第二个参数被赋值了很多类似于-i，-d之类的东西，结合
+encrypt_main 函数是个 main，我们猜测第一个参数是
+argc，第二个参数是argv</p>
+<p>但是这里的赋值方式很奇怪，v116
+是<code>struct stat</code>，是一个结构体，我们再去别的引用处看一下，可以在
+encode_file_check 函数中发现这些参数其实是一个 char 数组，这就符合我们对
+argv 的认知了。</p>
 <p>我们按 y 键将 sub_407664 中的 v116 的数据类型修改成 char* 即可</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/l1iQJ.png" alt="l1iQJ.png"></p>
-<p>接下来分析 argv 都是些什么东西  </p>
-<ul>
-<li>第一个参数: encimg</li>
-<li>第二个参数: -i (将 v116 数据类型修改后，可以很明显的看到”-i”是 v117，而全局变量 ptr 才是 v118)</li>
-<li>第三个参数: ptr(在 encode_file_check 函数中我们可以看到，ptr 与 “/var/firmware.seama” 作了比较，因此我们猜测ptr可能是指向文件名字符串的指针)</li>
-<li>第四个参数: -s</li>
-<li>第五个参数: byte_43CDB0(在 encode_file_check 函数中我们可以看到，byte_43CDB0 是从 <code>/etc/config/image_sign</code> 文件读出了128个字符，我们去看一下这个文件，发现里面是<code>wrgac25_dlink.2013gui_dir850l</code>)</li>
-<li>第六个参数: -d</li>
-</ul>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/l1iQJ.png" alt="l1iQJ.png" />
+<figcaption aria-hidden="true">l1iQJ.png</figcaption>
+</figure>
+<p>接下来分析 argv 都是些什么东西<br />
+- 第一个参数: encimg - 第二个参数: -i (将 v116
+数据类型修改后，可以很明显的看到"-i"是 v117，而全局变量 ptr 才是 v118) -
+第三个参数: ptr(在 encode_file_check 函数中我们可以看到，ptr 与
+"/var/firmware.seama"
+作了比较，因此我们猜测ptr可能是指向文件名字符串的指针) - 第四个参数: -s
+- 第五个参数: byte_43CDB0(在 encode_file_check
+函数中我们可以看到，byte_43CDB0 是从 <code>/etc/config/image_sign</code>
+文件读出了128个字符，我们去看一下这个文件，发现里面是<code>wrgac25_dlink.2013gui_dir850l</code>)
+- 第六个参数: -d</p>
 <p>因此，我们传入的参数是<code>encimg -i file -s wrgac25_dlink.2013gui_dir850l -d</code></p>
 <p>这也符合 argc = 6 的要求</p>
-<h3 id="参数功能"><a href="#参数功能" class="headerlink" title="参数功能"></a>参数功能</h3><p>我们知道，一般来说 -h 代表的是 help，所以我们查看一下 encrypt_main 函数的<code>case h:</code>会打印什么东西</p>
+<h3 id="参数功能">参数功能</h3>
+<p>我们知道，一般来说 -h 代表的是 help，所以我们查看一下 encrypt_main
+函数的<code>case h:</code>会打印什么东西</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">sub_408F8C</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Usage: %s &#123;OPTIONS&#125;\n&quot;</span>, <span class="string">&quot;encimg&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;   -h                      : show this message.&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;   -v                      : Verbose mode.&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;   -i &#123;input image file&#125;   : input image file.&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;   -e                      : encode file.&quot;</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;   -d                      : decode file.&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">puts</span>(<span class="string">&quot;   -s                      : signature.&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>而经过 switch-case 后，在 Line57 判断 dword_43CE40 也就是 signature 是否存在，这个是 -s 参数做的事情，而在 Line59 处判断 file 是否存在，如果两个都通过，就会调用 sub_4090E0 函数，我们继续跟进</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/l1qvD.png" alt="l1qvD.png"></p>
-<p>在 sub_4090E0 函数的前一部分中，做了文件校验等不是很重要的操作，而重要的解密操作从 <strong>Line108</strong> 开始，也就是下图位置，我已经加好注释了</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/lJCoX.png" alt="lJCoX.png"></p>
-<p>Line130-Line137 是设置AES加解密密钥<code>user_key</code>，而 Line108-Line129 是用<code>_____progs_board_fw_sign_data</code>初始化<code>user_key</code>，接着用 encrypt 函数对<code>user_key</code>做一些处理，我们跟进一下 encrypt 函数</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/lJP5U.png" alt="lJP5U.png"></p>
-<p>而设置好密钥以后，Line158 处调用 AES_cbc_encrypt 函数(如下图)，但我们通过<a target="_blank" rel="noopener" href="https://blog.csdn.net/duanxingheng/article/details/11730617">OpenSSL-AES</a>这篇文章知道，AES 不可能只有这么点参数，并且根据分析， v32 和 mmap_file_ptr 都是 mmap_file ，这肯定不对。</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/lJLr0.png" alt="lJLr0.png"></p>
-<p>所以我们按 y 键，将<code>AES_cbc_encrypt</code>修改为<code>void AES_cbc_encrypt(const unsigned char *in, unsigned char *out,   size_t length, const AES_KEY *key,    unsigned char *ivec, const int enc);</code></p>
+<p>而经过 switch-case 后，在 Line57 判断 dword_43CE40 也就是 signature
+是否存在，这个是 -s 参数做的事情，而在 Line59 处判断 file
+是否存在，如果两个都通过，就会调用 sub_4090E0 函数，我们继续跟进</p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/l1qvD.png" alt="l1qvD.png" />
+<figcaption aria-hidden="true">l1qvD.png</figcaption>
+</figure>
+<p>在 sub_4090E0
+函数的前一部分中，做了文件校验等不是很重要的操作，而重要的解密操作从
+<strong>Line108</strong> 开始，也就是下图位置，我已经加好注释了</p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/lJCoX.png" alt="lJCoX.png" />
+<figcaption aria-hidden="true">lJCoX.png</figcaption>
+</figure>
+<p>Line130-Line137 是设置AES加解密密钥<code>user_key</code>，而
+Line108-Line129
+是用<code>_____progs_board_fw_sign_data</code>初始化<code>user_key</code>，接着用
+encrypt 函数对<code>user_key</code>做一些处理，我们跟进一下 encrypt
+函数</p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/lJP5U.png" alt="lJP5U.png" />
+<figcaption aria-hidden="true">lJP5U.png</figcaption>
+</figure>
+<p>而设置好密钥以后，Line158 处调用 AES_cbc_encrypt
+函数(如下图)，但我们通过<a
+target="_blank" rel="noopener" href="https://blog.csdn.net/duanxingheng/article/details/11730617">OpenSSL-AES</a>这篇文章知道，AES
+不可能只有这么点参数，并且根据分析， v32 和 mmap_file_ptr 都是 mmap_file
+，这肯定不对。</p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/lJLr0.png" alt="lJLr0.png" />
+<figcaption aria-hidden="true">lJLr0.png</figcaption>
+</figure>
+<p>所以我们按 y
+键，将<code>AES_cbc_encrypt</code>修改为<code>void AES_cbc_encrypt(const unsigned char *in, unsigned char *out,   size_t length, const AES_KEY *key,    unsigned char *ivec, const int enc);</code></p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">in</span>： 需要加密/解密的数据；</span><br><span class="line"></span><br><span class="line">out： 计算后输出的数据；</span><br><span class="line"></span><br><span class="line">length： 数据长度（这里不包含初始向量数据长度）</span><br><span class="line"></span><br><span class="line">key：密钥</span><br><span class="line"></span><br><span class="line">ivec： 初始向量（一般为<span class="number">16</span>字节全<span class="number">0</span>）</span><br><span class="line"></span><br><span class="line">enc： <span class="title function_">AES_ENCRYPT</span>(<span class="number">1</span>) 代表加密， <span class="title function_">AES_DECRYPT</span>(<span class="number">0</span>) 代表解密；</span><br></pre></td></tr></table></figure>
-<p><img src="https://i0.imgs.ovh/2023/11/09/lJXIC.png" alt="lJXIC.png"></p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/lJXIC.png" alt="lJXIC.png" />
+<figcaption aria-hidden="true">lJXIC.png</figcaption>
+</figure>
 <p>现在我们可以看出，Line131-Line177 就是很标准的一个 AES 加解密</p>
-<h1 id="解密脚本"><a href="#解密脚本" class="headerlink" title="解密脚本"></a>解密脚本</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">aes_decrypt_file</span>(<span class="params">key,iv,input_file,output_file</span>):</span><br><span class="line">    cipher = AES.new(<span class="built_in">bytes</span>(key),AES.MODE_CBC,<span class="built_in">bytes</span>(iv))</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(input_file,<span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> infile, <span class="built_in">open</span>(output_file,<span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> outfile:</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            chunk = infile.read(<span class="number">16</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(chunk) == <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="built_in">len</span>(chunk) % <span class="number">16</span> != <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">raise</span> ValueError(<span class="string">&quot;aes error&quot;</span>)</span><br><span class="line">            decrypted_chunk = cipher.decrypt(chunk)</span><br><span class="line">            outfile.write(decrypted_chunk)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">______progs_board_fw_sign_data =[<span class="number">0x6B</span>, <span class="number">0x35</span>, <span class="number">0x4E</span>, <span class="number">0x49</span>, <span class="number">0x31</span>, <span class="number">0x2B</span>, <span class="number">0x62</span>, <span class="number">0x76</span>, <span class="number">0x57</span>, <span class="number">0x45</span>, </span><br><span class="line">  <span class="number">0x66</span>, <span class="number">0x5A</span>, <span class="number">0x36</span>, <span class="number">0x6F</span>, <span class="number">0x68</span>, <span class="number">0x74</span>, <span class="number">0x70</span>, <span class="number">0x55</span>, <span class="number">0x4F</span>, <span class="number">0x77</span>, </span><br><span class="line">  <span class="number">0x79</span>, <span class="number">0x6E</span>, <span class="number">0x4F</span>, <span class="number">0x64</span>, <span class="number">0x55</span>, <span class="number">0x63</span>, <span class="number">0x69</span>, <span class="number">0x76</span>, <span class="number">0x71</span>, <span class="number">0x77</span>, </span><br><span class="line">  <span class="number">0x45</span>, <span class="number">0x5A</span>, <span class="number">0x71</span>, <span class="number">0x51</span>, <span class="number">0x65</span>, <span class="number">0x68</span>, <span class="number">0x48</span>, <span class="number">0x4D</span>, <span class="number">0x45</span>, <span class="number">0x6D</span>, </span><br><span class="line">  <span class="number">0x45</span>, <span class="number">0x50</span>, <span class="number">0x51</span>, <span class="number">0x35</span>, <span class="number">0x69</span>, <span class="number">0x7A</span>, <span class="number">0x4C</span>, <span class="number">0x2B</span>, <span class="number">0x63</span>, <span class="number">0x61</span>, </span><br><span class="line">  <span class="number">0x62</span>, <span class="number">0x6E</span>, <span class="number">0x38</span>, <span class="number">0x62</span>, <span class="number">0x4E</span>, <span class="number">0x48</span>, <span class="number">0x5A</span>, <span class="number">0x58</span>, <span class="number">0x48</span>, <span class="number">0x6A</span>, </span><br><span class="line">  <span class="number">0x6B</span>, <span class="number">0x70</span>, <span class="number">0x36</span>, <span class="number">0x57</span>, <span class="number">0x43</span>, <span class="number">0x6C</span>, <span class="number">0x39</span>, <span class="number">0x79</span>, <span class="number">0x6E</span>, <span class="number">0x39</span>, </span><br><span class="line">  <span class="number">0x43</span>, <span class="number">0x49</span>, <span class="number">0x6B</span>, <span class="number">0x69</span>, <span class="number">0x49</span>, <span class="number">0x31</span>, <span class="number">0x0A</span>, <span class="number">0x6D</span>, <span class="number">0x54</span>, <span class="number">0x46</span>, </span><br><span class="line">  <span class="number">0x75</span>, <span class="number">0x32</span>, <span class="number">0x31</span>, <span class="number">0x54</span>, <span class="number">0x45</span>, <span class="number">0x45</span>, <span class="number">0x50</span>, <span class="number">0x6F</span>, <span class="number">0x36</span>, <span class="number">0x36</span>, </span><br><span class="line">  <span class="number">0x4A</span>, <span class="number">0x42</span>, <span class="number">0x46</span>, <span class="number">0x76</span>, <span class="number">0x39</span>, <span class="number">0x42</span>, <span class="number">0x4D</span>, <span class="number">0x6D</span>, <span class="number">0x62</span>, <span class="number">0x2B</span>, </span><br><span class="line">  <span class="number">0x49</span>, <span class="number">0x4B</span>, <span class="number">0x51</span>, <span class="number">0x67</span>, <span class="number">0x6E</span>, <span class="number">0x4F</span>, <span class="number">0x38</span>, <span class="number">0x4F</span>, <span class="number">0x75</span>, <span class="number">0x46</span>, </span><br><span class="line">  <span class="number">0x34</span>, <span class="number">0x62</span>, <span class="number">0x7A</span>, <span class="number">0x34</span>, <span class="number">0x66</span>, <span class="number">0x72</span>, <span class="number">0x47</span>, <span class="number">0x50</span>, <span class="number">0x64</span>, <span class="number">0x4E</span>, </span><br><span class="line">  <span class="number">0x36</span>, <span class="number">0x37</span>, <span class="number">0x67</span>, <span class="number">0x59</span>, <span class="number">0x4C</span>, <span class="number">0x75</span>, <span class="number">0x4F</span>, <span class="number">0x73</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dec_val_by_sig</span>(<span class="params">dec_sig_val,dec_len,sig</span>): <span class="comment"># encrypt 函数 python表示</span></span><br><span class="line">    sig_len = <span class="built_in">len</span>(sig)</span><br><span class="line">    loop_sig_idx = <span class="number">0</span></span><br><span class="line">    loop_dec_idx = <span class="number">1</span></span><br><span class="line">    idx = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        cur_sig = sig[loop_sig_idx]</span><br><span class="line">        loop_sig_idx+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span>(idx&gt;=dec_len):</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span>(loop_sig_idx&gt;=sig_len):</span><br><span class="line">            loop_sig_idx=<span class="number">0</span></span><br><span class="line"></span><br><span class="line">        dec_sig_val[idx] = loop_dec_idx ^ dec_sig_val[idx] ^ <span class="built_in">ord</span>(cur_sig)</span><br><span class="line">        loop_dec_idx+=<span class="number">1</span></span><br><span class="line">        idx+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> loop_dec_idx &gt;= <span class="number">252</span>:</span><br><span class="line">            loop_dec_idx = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">aes_key = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">32</span>):</span><br><span class="line">    aes_key.append(______progs_board_fw_sign_data[i+<span class="number">32</span>])</span><br><span class="line"></span><br><span class="line">iv = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">16</span>):</span><br><span class="line">    iv.append(______progs_board_fw_sign_data[i+<span class="number">96</span>])</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;iv before dec: &#x27;</span>,iv)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;aes_key before dec: &#x27;</span>,aes_key)</span><br><span class="line">dec_val_by_sig(iv,<span class="number">16</span>,<span class="string">&#x27;wrgac25_dlink.2013gui_dir850l&#x27;</span>)</span><br><span class="line">dec_val_by_sig(aes_key,<span class="number">32</span>,<span class="string">&#x27;wrgac25_dlink.2013gui_dir850l&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;iv before dec: &#x27;</span>,iv)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;aes_key before dec: &#x27;</span>,aes_key)</span><br><span class="line"></span><br><span class="line">aes_decrypt_file(aes_key,iv,<span class="string">&#x27;/mnt/e/EdgeDownload/IOT/DIR850LB1_FW220WWb03.bin&#x27;</span>,<span class="string">&#x27;out.bin&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="解密脚本">解密脚本</h1>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">aes_decrypt_file</span>(<span class="params">key,iv,input_file,output_file</span>):</span><br><span class="line">    cipher = AES.new(<span class="built_in">bytes</span>(key),AES.MODE_CBC,<span class="built_in">bytes</span>(iv))</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(input_file,<span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> infile, <span class="built_in">open</span>(output_file,<span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> outfile:</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            chunk = infile.read(<span class="number">16</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(chunk) == <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">elif</span> <span class="built_in">len</span>(chunk) % <span class="number">16</span> != <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">raise</span> ValueError(<span class="string">&quot;aes error&quot;</span>)</span><br><span class="line">            decrypted_chunk = cipher.decrypt(chunk)</span><br><span class="line">            outfile.write(decrypted_chunk)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">______progs_board_fw_sign_data =[<span class="number">0x6B</span>, <span class="number">0x35</span>, <span class="number">0x4E</span>, <span class="number">0x49</span>, <span class="number">0x31</span>, <span class="number">0x2B</span>, <span class="number">0x62</span>, <span class="number">0x76</span>, <span class="number">0x57</span>, <span class="number">0x45</span>, </span><br><span class="line">  <span class="number">0x66</span>, <span class="number">0x5A</span>, <span class="number">0x36</span>, <span class="number">0x6F</span>, <span class="number">0x68</span>, <span class="number">0x74</span>, <span class="number">0x70</span>, <span class="number">0x55</span>, <span class="number">0x4F</span>, <span class="number">0x77</span>, </span><br><span class="line">  <span class="number">0x79</span>, <span class="number">0x6E</span>, <span class="number">0x4F</span>, <span class="number">0x64</span>, <span class="number">0x55</span>, <span class="number">0x63</span>, <span class="number">0x69</span>, <span class="number">0x76</span>, <span class="number">0x71</span>, <span class="number">0x77</span>, </span><br><span class="line">  <span class="number">0x45</span>, <span class="number">0x5A</span>, <span class="number">0x71</span>, <span class="number">0x51</span>, <span class="number">0x65</span>, <span class="number">0x68</span>, <span class="number">0x48</span>, <span class="number">0x4D</span>, <span class="number">0x45</span>, <span class="number">0x6D</span>, </span><br><span class="line">  <span class="number">0x45</span>, <span class="number">0x50</span>, <span class="number">0x51</span>, <span class="number">0x35</span>, <span class="number">0x69</span>, <span class="number">0x7A</span>, <span class="number">0x4C</span>, <span class="number">0x2B</span>, <span class="number">0x63</span>, <span class="number">0x61</span>, </span><br><span class="line">  <span class="number">0x62</span>, <span class="number">0x6E</span>, <span class="number">0x38</span>, <span class="number">0x62</span>, <span class="number">0x4E</span>, <span class="number">0x48</span>, <span class="number">0x5A</span>, <span class="number">0x58</span>, <span class="number">0x48</span>, <span class="number">0x6A</span>, </span><br><span class="line">  <span class="number">0x6B</span>, <span class="number">0x70</span>, <span class="number">0x36</span>, <span class="number">0x57</span>, <span class="number">0x43</span>, <span class="number">0x6C</span>, <span class="number">0x39</span>, <span class="number">0x79</span>, <span class="number">0x6E</span>, <span class="number">0x39</span>, </span><br><span class="line">  <span class="number">0x43</span>, <span class="number">0x49</span>, <span class="number">0x6B</span>, <span class="number">0x69</span>, <span class="number">0x49</span>, <span class="number">0x31</span>, <span class="number">0x0A</span>, <span class="number">0x6D</span>, <span class="number">0x54</span>, <span class="number">0x46</span>, </span><br><span class="line">  <span class="number">0x75</span>, <span class="number">0x32</span>, <span class="number">0x31</span>, <span class="number">0x54</span>, <span class="number">0x45</span>, <span class="number">0x45</span>, <span class="number">0x50</span>, <span class="number">0x6F</span>, <span class="number">0x36</span>, <span class="number">0x36</span>, </span><br><span class="line">  <span class="number">0x4A</span>, <span class="number">0x42</span>, <span class="number">0x46</span>, <span class="number">0x76</span>, <span class="number">0x39</span>, <span class="number">0x42</span>, <span class="number">0x4D</span>, <span class="number">0x6D</span>, <span class="number">0x62</span>, <span class="number">0x2B</span>, </span><br><span class="line">  <span class="number">0x49</span>, <span class="number">0x4B</span>, <span class="number">0x51</span>, <span class="number">0x67</span>, <span class="number">0x6E</span>, <span class="number">0x4F</span>, <span class="number">0x38</span>, <span class="number">0x4F</span>, <span class="number">0x75</span>, <span class="number">0x46</span>, </span><br><span class="line">  <span class="number">0x34</span>, <span class="number">0x62</span>, <span class="number">0x7A</span>, <span class="number">0x34</span>, <span class="number">0x66</span>, <span class="number">0x72</span>, <span class="number">0x47</span>, <span class="number">0x50</span>, <span class="number">0x64</span>, <span class="number">0x4E</span>, </span><br><span class="line">  <span class="number">0x36</span>, <span class="number">0x37</span>, <span class="number">0x67</span>, <span class="number">0x59</span>, <span class="number">0x4C</span>, <span class="number">0x75</span>, <span class="number">0x4F</span>, <span class="number">0x73</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dec_val_by_sig</span>(<span class="params">dec_sig_val,dec_len,sig</span>): <span class="comment"># encrypt 函数 python表示</span></span><br><span class="line">    sig_len = <span class="built_in">len</span>(sig)</span><br><span class="line">    loop_sig_idx = <span class="number">0</span></span><br><span class="line">    loop_dec_idx = <span class="number">1</span></span><br><span class="line">    idx = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        cur_sig = sig[loop_sig_idx]</span><br><span class="line">        loop_sig_idx+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span>(idx&gt;=dec_len):</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span>(loop_sig_idx&gt;=sig_len):</span><br><span class="line">            loop_sig_idx=<span class="number">0</span></span><br><span class="line"></span><br><span class="line">        dec_sig_val[idx] = loop_dec_idx ^ dec_sig_val[idx] ^ <span class="built_in">ord</span>(cur_sig)</span><br><span class="line">        loop_dec_idx+=<span class="number">1</span></span><br><span class="line">        idx+=<span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> loop_dec_idx &gt;= <span class="number">252</span>:</span><br><span class="line">            loop_dec_idx = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">aes_key = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">32</span>):</span><br><span class="line">    aes_key.append(______progs_board_fw_sign_data[i+<span class="number">32</span>])</span><br><span class="line"></span><br><span class="line">iv = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="number">16</span>):</span><br><span class="line">    iv.append(______progs_board_fw_sign_data[i+<span class="number">96</span>])</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;iv before dec: &#x27;</span>,iv)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;aes_key before dec: &#x27;</span>,aes_key)</span><br><span class="line">dec_val_by_sig(iv,<span class="number">16</span>,<span class="string">&#x27;wrgac25_dlink.2013gui_dir850l&#x27;</span>)</span><br><span class="line">dec_val_by_sig(aes_key,<span class="number">32</span>,<span class="string">&#x27;wrgac25_dlink.2013gui_dir850l&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;iv before dec: &#x27;</span>,iv)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;aes_key before dec: &#x27;</span>,aes_key)</span><br><span class="line"></span><br><span class="line">aes_decrypt_file(aes_key,iv,<span class="string">&#x27;/mnt/e/EdgeDownload/IOT/DIR850LB1_FW220WWb03.bin&#x27;</span>,<span class="string">&#x27;out.bin&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p>解密后即可解包</p>
-<p><img src="https://i0.imgs.ovh/2023/11/09/lJZRR.png" alt="lJZRR.png"></p>
+<figure>
+<img src="https://i0.imgs.ovh/2023/11/09/lJZRR.png" alt="lJZRR.png" />
+<figcaption aria-hidden="true">lJZRR.png</figcaption>
+</figure>
 
     </div>
 
@@ -350,7 +440,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://heygap.github.io/2023/11/09/IOT%20-%20%20%E6%9F%90%E8%B7%AF%E7%94%B1%E5%99%A8mips%E5%9B%BA%E4%BB%B6%E8%A7%A3%E5%AF%86%E8%84%9A%E6%9C%AC%E5%A4%8D%E7%8E%B0/" title="IOT — 某路由器mips固件解密脚本复现">http://heygap.github.io/2023/11/09/IOT -  某路由器mips固件解密脚本复现/</a>
+    <a href="http://heygap.github.io/2023/11/09/IOT%20-%20%20%E6%9F%90%E8%B7%AF%E7%94%B1%E5%99%A8mips%E5%9B%BA%E4%BB%B6%E8%A7%A3%E5%AF%86%E8%84%9A%E6%9C%AC%E5%A4%8D%E7%8E%B0/" title="IOT - 某路由器mips固件解密脚本复现">http://heygap.github.io/2023/11/09/IOT -  某路由器mips固件解密脚本复现/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -446,7 +536,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#0xFF-%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">0xFF 前置知识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00-%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">0x00 准备工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01-%E5%AE%9A%E4%BD%8D%E8%A7%A3%E5%AF%86%E9%80%BB%E8%BE%91"><span class="nav-number">3.</span> <span class="nav-text">0x01 定位解密逻辑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02-%E8%A7%A3%E5%AF%86%E9%80%BB%E8%BE%91%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">0x02 解密逻辑分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A2%AB%E4%BC%A0%E5%85%A5%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">4.0.1.</span> <span class="nav-text">被传入的参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%8A%9F%E8%83%BD"><span class="nav-number">4.0.2.</span> <span class="nav-text">参数功能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%AF%86%E8%84%9A%E6%9C%AC"><span class="nav-number">5.</span> <span class="nav-text">解密脚本</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#xff-%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">0xFF 前置知识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">0x00 准备工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E5%AE%9A%E4%BD%8D%E8%A7%A3%E5%AF%86%E9%80%BB%E8%BE%91"><span class="nav-number">3.</span> <span class="nav-text">0x01 定位解密逻辑</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x02-%E8%A7%A3%E5%AF%86%E9%80%BB%E8%BE%91%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">0x02 解密逻辑分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A2%AB%E4%BC%A0%E5%85%A5%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">4.0.1.</span> <span class="nav-text">被传入的参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%8A%9F%E8%83%BD"><span class="nav-number">4.0.2.</span> <span class="nav-text">参数功能</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%AF%86%E8%84%9A%E6%9C%AC"><span class="nav-number">5.</span> <span class="nav-text">解密脚本</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -469,7 +559,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
