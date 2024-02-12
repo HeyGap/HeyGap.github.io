@@ -28,7 +28,7 @@
 <meta property="og:description" content="总结一下逆向中有关密码学的相关内容，便于后续调用">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-02-06T15:32:00.000Z">
-<meta property="article:modified_time" content="2024-02-08T09:06:55.241Z">
+<meta property="article:modified_time" content="2024-02-11T12:21:59.479Z">
 <meta property="article:author" content="Gap">
 <meta property="article:tag" content="REVERSE">
 <meta name="twitter:card" content="summary">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-08 17:02:24" itemprop="dateModified" datetime="2024-02-08T17:06:55+08:00">2024-02-08</time>
+                <time title="修改时间：2024-02-11 20:02:47" itemprop="dateModified" datetime="2024-02-11T20:21:59+08:00">2024-02-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -252,11 +252,16 @@
 总结一下逆向中有关密码学的相关内容，便于后续调用
 </blockquote>
 <span id="more"></span>
-<h1 id="tea-系列">TEA 系列</h1>
-<h2 id="tea-decrypt">Tea decrypt</h2>
+<h1 id="section">[0]</h1>
+<h1 id="stream-cipher">[1] Stream Cipher</h1>
+<h2 id="rc4">[1-1] RC4</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="group-cipher">[2] Group Cipher</h1>
+<h2 id="teaxteaxxtea">[2-1] Tea/xTea/xxTea</h2>
+<h3 id="tea-decrypt">[2-1-1] Tea decrypt</h3>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="type">uint32_t</span> key[<span class="number">4</span>] = &#123;<span class="number">1234</span>,<span class="number">2341</span>,<span class="number">3412</span>,<span class="number">4123</span>&#125;;</span><br><span class="line"><span class="type">uint32_t</span> delta = <span class="number">0xDEADBEEF</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">tea_decrypt</span><span class="params">(<span class="type">uint32_t</span> *encrypted)</span> </span>&#123;</span><br><span class="line">    <span class="type">uint32_t</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="type">uint32_t</span> enc_tmp1 = encrypted[<span class="number">0</span>],enc_tmp2 = encrypted[<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">32</span>;i++) &#123;</span><br><span class="line">        sum += delta;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">32</span>;i++) &#123;</span><br><span class="line">        enc_tmp2 -= (sum + enc_tmp1) ^ (<span class="number">16</span> * enc_tmp1 + key[<span class="number">2</span>]) ^ (<span class="number">32</span> * enc_tmp1 + key[<span class="number">3</span>]);</span><br><span class="line">        enc_tmp1 -= (sum + enc_tmp2) ^ (<span class="number">16</span> * enc_tmp2 + key[<span class="number">0</span>]) ^ (<span class="number">32</span> * enc_tmp2 + key[<span class="number">1</span>]);</span><br><span class="line">        sum -= delta;</span><br><span class="line">    &#125;</span><br><span class="line">    encrypted[<span class="number">0</span>] = enc_tmp1;</span><br><span class="line">    encrypted[<span class="number">1</span>] = enc_tmp2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> encflag[] = &#123;</span><br><span class="line">        <span class="number">0</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="built_in">tea_decrypt</span>((<span class="type">uint32_t</span> *)encflag+<span class="number">0</span>);</span><br><span class="line">    <span class="built_in">tea_decrypt</span>((<span class="type">uint32_t</span> *)encflag+<span class="number">2</span>);</span><br><span class="line">    <span class="built_in">tea_decrypt</span>((<span class="type">uint32_t</span> *)encflag+<span class="number">4</span>);</span><br><span class="line">    <span class="built_in">tea_decrypt</span>((<span class="type">uint32_t</span> *)encflag+<span class="number">6</span>);</span><br><span class="line">    cout&lt;&lt;(<span class="type">char</span> *)encflag&lt;&lt;endl;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="xtea-decrypt">xTea decrypt</h2>
-<h2 id="xxtea-decrypt">xxTea decrypt</h2>
+<h3 id="xtea-decrypt">[2-1-2] xTea decrypt</h3>
+<h3 id="xxtea-decrypt">[2-1-3] xxTea decrypt</h3>
 
     </div>
 
@@ -367,7 +372,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#tea-%E7%B3%BB%E5%88%97"><span class="nav-number">1.</span> <span class="nav-text">TEA 系列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#tea-decrypt"><span class="nav-number">1.1.</span> <span class="nav-text">Tea decrypt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#xtea-decrypt"><span class="nav-number">1.2.</span> <span class="nav-text">xTea decrypt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#xxtea-decrypt"><span class="nav-number">1.3.</span> <span class="nav-text">xxTea decrypt</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#section"><span class="nav-number">1.</span> <span class="nav-text">[0]</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stream-cipher"><span class="nav-number">2.</span> <span class="nav-text">[1] Stream Cipher</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#rc4"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] RC4</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#group-cipher"><span class="nav-number">3.</span> <span class="nav-text">[2] Group Cipher</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#teaxteaxxtea"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] Tea&#x2F;xTea&#x2F;xxTea</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tea-decrypt"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] Tea decrypt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xtea-decrypt"><span class="nav-number">3.1.2.</span> <span class="nav-text">[2-1-2] xTea decrypt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xxtea-decrypt"><span class="nav-number">3.1.3.</span> <span class="nav-text">[2-1-3] xxTea decrypt</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
