@@ -24,12 +24,12 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Pwn - Shellcode Summary">
 <meta property="og:url" content="http://heygap.github.io/2024/02/08/Pwn%20-%20Shellcode%20Summary/index.html">
-<meta property="og:site_name" content="Gap&#39;s_Blog">
+<meta property="og:site_name" content="HeyGap&#39;s_Blog">
 <meta property="og:description" content="Shellcode 也是十分核心的技术🤔">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-02-08T02:10:00.000Z">
-<meta property="article:modified_time" content="2024-02-14T02:44:46.070Z">
-<meta property="article:author" content="Gap">
+<meta property="article:modified_time" content="2024-02-14T04:31:32.313Z">
+<meta property="article:author" content="HeyGap">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Shellcode">
 <meta name="twitter:card" content="summary">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>Pwn - Shellcode Summary | Gap's_Blog</title>
+  <title>Pwn - Shellcode Summary | HeyGap's_Blog</title>
   
 
 
@@ -98,10 +98,10 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Gap's_Blog</h1>
+      <h1 class="site-title">HeyGap's_Blog</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
-      <p class="site-subtitle" itemprop="description">靡不有初 鲜克有终</p>
+      <p class="site-subtitle" itemprop="description">Be a positive learner</p>
   </div>
 
   <div class="site-nav-right">
@@ -193,12 +193,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Gap">
+      <meta itemprop="name" content="HeyGap">
       <meta itemprop="description" content="An undergraduate student of Cybersecurity at SDU.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Gap's_Blog">
+      <meta itemprop="name" content="HeyGap's_Blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -219,7 +219,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-14 10:02:07" itemprop="dateModified" datetime="2024-02-14T10:44:46+08:00">2024-02-14</time>
+                <time title="修改时间：2024-02-14 12:02:31" itemprop="dateModified" datetime="2024-02-14T12:31:32+08:00">2024-02-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -253,47 +253,32 @@
 Shellcode 也是十分核心的技术🤔
 </blockquote>
 <span id="more"></span>
+<h1 id="manual">Manual</h1>
+<p><a
+target="_blank" rel="noopener" href="https://blog.csdn.net/qq_29343201/article/details/52209588">linux
+系统调用号表</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.pwntools.com/en/stable/shellcraft.html">manual:
+pwntools.shellcraft</a></p>
 <h1 id="目录">[0] 目录</h1>
 <ol type="1">
 <li><a href="#1-编写-shellcode">编写 shellcode</a>
 <ul>
 <li><a href="#1-1-shellcode-板子">shellcode 板子</a></li>
-<li><a href="#1-2-现有工具">现有工具</a>
-<ul>
-<li><a href="#1-2-1-pwntools">Pwntools</a></li>
-</ul></li>
+<li><a href="#1-2-现有工具">现有工具</a></li>
 <li><a href="#1-3-板子">板子</a></li>
 </ul></li>
-</ol>
-<ul>
 <li><a href="#2-shellcode-restrictions--bypass-限制与绕过">shellcode
 restrictions &amp; bypass (限制与绕过)</a>
 <ul>
 <li><a href="#2-1-length-restrictions-长度约束">Length restrictions
-(长度约束)</a>
-<ul>
-<li><a href="#2-1-1-restriction">restriction</a></li>
-<li><a href="#2-1-2-bypass1---压缩-shellcode">bypass1 - 压缩
-shellcode</a></li>
-<li><a href="#2-1-3-bypass2---二次-read">bypass2 - 二次 read</a></li>
-</ul></li>
-<li><a href="#2-2-seccomp-禁用">seccomp 禁用</a>
-<ul>
-<li><a href="#2-2-1-restriction">restriction</a></li>
-<li><a href="#2-2-2-bypass">bypass</a></li>
-</ul></li>
+(长度约束)</a></li>
+<li><a href="#2-2-seccomp-禁用">seccomp 禁用</a></li>
 <li><a href="#2-3-alphanumeric-shellcode-字母数字构成">alphanumeric
-shellcode (字母+数字构成)</a>
-<ul>
-<li><a href="#2-3-1-manual">Manual</a></li>
-<li><a href="#2-3-2-restriction-1">restriction</a></li>
-<li><a href="#2-3-3-shellcode-生成">shellcode 生成:</a></li>
-<li><a href="#2-3-4-示例">示例：</a></li>
-</ul></li>
+shellcode (字母+数字构成)</a></li>
 </ul></li>
 <li><a href="#3-例题">例题</a></li>
 <li><a href="#4-参考资料">参考资料</a></li>
-</ul>
+</ol>
 <h1 id="编写-shellcode">[1] 编写 shellcode</h1>
 <h2 id="shellcode-板子">[1-1] shellcode 板子</h2>
 <ol type="1">
@@ -311,7 +296,7 @@ shellcode</li>
 <ul>
 <li><p><a
 target="_blank" rel="noopener" href="https://docs.pwntools.com/en/stable/shellcraft.html">Manual</a></p></li>
-<li><p>速成 (更多请 RTFM) <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">shellcode = <span class="string">&#x27;&#x27;</span></span><br><span class="line">shellcode += shellcraft.<span class="built_in">open</span>(<span class="string">&#x27;./flag&#x27;</span>)</span><br><span class="line">shellcode += shellcraft.read(<span class="string">&#x27;eax&#x27;</span>,<span class="string">&#x27;esp&#x27;</span>,<span class="number">0x100</span>)</span><br><span class="line"><span class="comment"># amd64.linux: 架构 + os</span></span><br><span class="line"><span class="comment"># shellcode += shellcraft.amd64.linux.read(3,addr,0x100)</span></span><br><span class="line">shellcode += shellcraft.write(<span class="number">1</span>,<span class="string">&#x27;esp&#x27;</span>,<span class="number">0x100</span>)</span><br><span class="line">payload1  = asm(shellcode)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>速成 (更多请 RTFM 或查看 [1-3] ) <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch: i386 / amd64</span></span><br><span class="line"><span class="comment"># os: linux</span></span><br><span class="line"><span class="comment"># func: open / read / write / mmap</span></span><br><span class="line">shellcode = shellcraft.arch.os.func(args)</span><br></pre></td></tr></table></figure></p></li>
 </ul>
 <h4 id="asm">[1-2-1-2] asm</h4>
 <ul>
@@ -319,8 +304,10 @@ target="_blank" rel="noopener" href="https://docs.pwntools.com/en/stable/shellcr
 </ul>
 <h2 id="板子">[1-3] 板子</h2>
 <ol type="1">
-<li>不用堆栈的 <code>orw</code>，字符串"flag"需要提前布置好.
-<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">shellcode1 = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">mov rdi,0x2333008     # 指向&quot;flag\x00\x00\x00\x00&quot;的指针</span></span><br><span class="line"><span class="string">xor esi,esi</span></span><br><span class="line"><span class="string">mov rax,2</span></span><br><span class="line"><span class="string">syscall               # open(&#x27;./flag&#x27;)</span></span><br><span class="line"><span class="string">xor edx,edx</span></span><br><span class="line"><span class="string">mov rdi,3             # fd = 3</span></span><br><span class="line"><span class="string">mov rdx,0x50          # nbytes = 0x50</span></span><br><span class="line"><span class="string">mov esi,0x2333100     # address = 0x2333100</span></span><br><span class="line"><span class="string">mov rax,0</span></span><br><span class="line"><span class="string">syscall               # read(3,0x2333100,0x50)</span></span><br><span class="line"><span class="string">mov rdi,1             # stdin = 1</span></span><br><span class="line"><span class="string">mov rdx,0x50          # nbytes = 0x50</span></span><br><span class="line"><span class="string">mov esi,0x2333100     # address = 0x2333100</span></span><br><span class="line"><span class="string">mov rax,1</span></span><br><span class="line"><span class="string">syscall               # write(1,0x2333100,0x50)</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>常用 shellcraft</p>
+<p><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># open(&#x27;./flag&#x27;)</span></span><br><span class="line">shellcode_open = shellcraft.read()</span><br><span class="line"></span><br><span class="line"><span class="comment"># read(fd,addr,nbytes)</span></span><br><span class="line">shellcode_read = shellcraft.read(<span class="number">0</span>,<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>)</span><br><span class="line"><span class="comment"># 其他用法: shellcraft.read(&#x27;eax&#x27;,&#x27;esp&#x27;,0x100)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># write(fd,addr,nbytes)</span></span><br><span class="line">shellcode_read = shellcraft.write(<span class="number">1</span>,<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># mmap(addr,len,prot,flags,fd,offset)</span></span><br><span class="line">shellcode_mmap = shellcraft.mmap(<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>,<span class="number">7</span>,<span class="number">34</span>,<span class="number">0</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>不用堆栈的 <code>orw</code>，字符串"flag"需要提前布置好.
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">shellcode1 = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">mov rdi,0x2333008     # 指向&quot;flag\x00\x00\x00\x00&quot;的指针</span></span><br><span class="line"><span class="string">xor esi,esi</span></span><br><span class="line"><span class="string">mov rax,2</span></span><br><span class="line"><span class="string">syscall               # open(&#x27;./flag&#x27;)</span></span><br><span class="line"><span class="string">xor edx,edx</span></span><br><span class="line"><span class="string">mov rdi,3             # fd = 3</span></span><br><span class="line"><span class="string">mov rdx,0x50          # nbytes = 0x50</span></span><br><span class="line"><span class="string">mov esi,0x2333100     # address = 0x2333100</span></span><br><span class="line"><span class="string">mov rax,0</span></span><br><span class="line"><span class="string">syscall               # read(3,0x2333100,0x50)</span></span><br><span class="line"><span class="string">mov rdi,1             # stdin = 1</span></span><br><span class="line"><span class="string">mov rdx,0x50          # nbytes = 0x50</span></span><br><span class="line"><span class="string">mov esi,0x2333100     # address = 0x2333100</span></span><br><span class="line"><span class="string">mov rax,1</span></span><br><span class="line"><span class="string">syscall               # write(1,0x2333100,0x50)</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure></p></li>
 </ol>
 <h2 id="在线网站">[1-4] 在线网站</h2>
 <ol type="1">
@@ -337,6 +324,10 @@ shellcode 数据库</p></li>
 生成反弹 shell 的命令</p></li>
 </ol>
 <h2 id="手搓-shellcode">[1-5] 手搓 shellcode</h2>
+<p>传参顺序: rdi,rsi,rdx,rcx,r8,r9</p>
+<p>存<a
+target="_blank" rel="noopener" href="https://blog.csdn.net/qq_29343201/article/details/52209588">系统调用号</a>的寄存器:
+rax</p>
 <h1 id="shellcode-restrictions-bypass-限制与绕过">[2] shellcode
 restrictions &amp; bypass (限制与绕过)</h1>
 <h2 id="length-restrictions-长度约束">[2-1] Length restrictions
@@ -372,7 +363,8 @@ context（上下文），用上下文的一些寄存器来初始化</li>
 <h3 id="bypass2---二次-read">[2-1-3] bypass2 - 二次 read</h3>
 <h2 id="seccomp-禁用">[2-2] seccomp 禁用</h2>
 <h3 id="restriction-1">[2-2-1] restriction</h3>
-<p>shellcode 中不允许出现 execve 等</p>
+<p>程序调用 <code>seccomp</code> 或 <code>prctl</code>
+禁用了某些系统调用</p>
 <h3 id="bypass">[2-2-2] bypass</h3>
 <p>使用 <code>seccomp-tools dump ./pwn</code> 来查看 elf
 文件被禁用了哪些调用</p>
@@ -380,9 +372,21 @@ context（上下文），用上下文的一些寄存器来初始化</li>
 <ul>
 <li>bypass: orw</li>
 </ul>
+<h4 id="or-没有-w-prctl-禁用-open-但不禁用-fstat">[2-2-2-2] OR 没有 W (
+prctl 禁用 <code>open</code> 但不禁用 <code>fstat</code>)</h4>
+<blockquote>
+<p>注：由于下面的绕过方式需要在64位与32位之间切换，所以建议不要在 exp
+开头设置 <code>context(arch='i386/amd64')</code> ，而是选择
+<code>asm(shellcode,arch='i386/amd64')</code></p>
+</blockquote>
+<ul>
+<li>bypass: 由于64位下 <code>fstat</code> 函数的调用号为 5，而在32位中
+<code>open</code> 的系统调用号为 5，所以我们可以利用 <code>retfq</code>
+切换到 32 位执行 <code>open</code></li>
+</ul>
 <h2 id="alphanumeric-shellcode-字母数字构成">[2-3] alphanumeric
 shellcode (字母+数字构成)</h2>
-<h3 id="manual">[2-3-1] Manual</h3>
+<h3 id="manual-1">[2-3-1] Manual</h3>
 <p><a target="_blank" rel="noopener" href="https://nets.ec/Ascii_shellcode">ascii -&gt; asm
 手册</a></p>
 <h3 id="restriction-2">[2-3-2] restriction</h3>
@@ -421,7 +425,7 @@ blog - shellcode</a></p>
 限制只允许几种字符的shellcode</a></p>
 <p><a
 target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6645?time__1311=n4%2BxnD0DRDBGitN47KDsA3xCqbulD9iiABoD&amp;alichlgref=https%3A%2F%2Fwww.bing.com%2F">shellcode
-的艺术 - by ex</a></p>
+的艺术 - by n0va</a></p>
 
     </div>
 
@@ -433,7 +437,7 @@ target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6645?time__1311=n4%
 <div>
 <ul class="post-copyright">
   <li class="post-copyright-author">
-    <strong>本文作者： </strong>Gap
+    <strong>本文作者： </strong>HeyGap
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
@@ -533,18 +537,19 @@ target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6645?time__1311=n4%
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">[0] 目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E5%86%99-shellcode"><span class="nav-number">2.</span> <span class="nav-text">[1] 编写 shellcode</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#shellcode-%E6%9D%BF%E5%AD%90"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] shellcode 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E5%B7%A5%E5%85%B7"><span class="nav-number">2.2.</span> <span class="nav-text">[1-2] 现有工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pwntools"><span class="nav-number">2.2.1.</span> <span class="nav-text">[1-2-1] Pwntools</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#shellcraft"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">[1-2-1-1] shellcraft</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#asm"><span class="nav-number">2.2.1.2.</span> <span class="nav-text">[1-2-1-2] asm</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%BF%E5%AD%90"><span class="nav-number">2.3.</span> <span class="nav-text">[1-3] 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E7%BA%BF%E7%BD%91%E7%AB%99"><span class="nav-number">2.4.</span> <span class="nav-text">[1-4] 在线网站</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%8B%E6%90%93-shellcode"><span class="nav-number">2.5.</span> <span class="nav-text">[1-5] 手搓 shellcode</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#shellcode-restrictions-bypass-%E9%99%90%E5%88%B6%E4%B8%8E%E7%BB%95%E8%BF%87"><span class="nav-number">3.</span> <span class="nav-text">[2] shellcode
-restrictions &amp; bypass (限制与绕过)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#length-restrictions-%E9%95%BF%E5%BA%A6%E7%BA%A6%E6%9D%9F"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] Length restrictions
-(长度约束)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass1---%E5%8E%8B%E7%BC%A9-shellcode"><span class="nav-number">3.1.2.</span> <span class="nav-text">[2-1-2] bypass1 - 压缩 shellcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass2---%E4%BA%8C%E6%AC%A1-read"><span class="nav-number">3.1.3.</span> <span class="nav-text">[2-1-3] bypass2 - 二次 read</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#seccomp-%E7%A6%81%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">[2-2] seccomp 禁用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">[2-2-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass"><span class="nav-number">3.2.2.</span> <span class="nav-text">[2-2-2] bypass</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%81%E7%94%A8-execve"><span class="nav-number">3.2.2.1.</span> <span class="nav-text">[2-2-2-1] 禁用 execve</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#alphanumeric-shellcode-%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97%E6%9E%84%E6%88%90"><span class="nav-number">3.3.</span> <span class="nav-text">[2-3] alphanumeric
-shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#manual"><span class="nav-number">3.3.1.</span> <span class="nav-text">[2-3-1] Manual</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-2"><span class="nav-number">3.3.2.</span> <span class="nav-text">[2-3-2] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shellcode-%E7%94%9F%E6%88%90"><span class="nav-number">3.3.3.</span> <span class="nav-text">[2-3-3] shellcode 生成:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.3.4.</span> <span class="nav-text">[2-3-4] 示例：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">[3] 例题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">[4] 参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#manual"><span class="nav-number">1.</span> <span class="nav-text">Manual</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">[0] 目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E5%86%99-shellcode"><span class="nav-number">3.</span> <span class="nav-text">[1] 编写 shellcode</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#shellcode-%E6%9D%BF%E5%AD%90"><span class="nav-number">3.1.</span> <span class="nav-text">[1-1] shellcode 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E5%B7%A5%E5%85%B7"><span class="nav-number">3.2.</span> <span class="nav-text">[1-2] 现有工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pwntools"><span class="nav-number">3.2.1.</span> <span class="nav-text">[1-2-1] Pwntools</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#shellcraft"><span class="nav-number">3.2.1.1.</span> <span class="nav-text">[1-2-1-1] shellcraft</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#asm"><span class="nav-number">3.2.1.2.</span> <span class="nav-text">[1-2-1-2] asm</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%BF%E5%AD%90"><span class="nav-number">3.3.</span> <span class="nav-text">[1-3] 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E7%BA%BF%E7%BD%91%E7%AB%99"><span class="nav-number">3.4.</span> <span class="nav-text">[1-4] 在线网站</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%8B%E6%90%93-shellcode"><span class="nav-number">3.5.</span> <span class="nav-text">[1-5] 手搓 shellcode</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#shellcode-restrictions-bypass-%E9%99%90%E5%88%B6%E4%B8%8E%E7%BB%95%E8%BF%87"><span class="nav-number">4.</span> <span class="nav-text">[2] shellcode
+restrictions &amp; bypass (限制与绕过)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#length-restrictions-%E9%95%BF%E5%BA%A6%E7%BA%A6%E6%9D%9F"><span class="nav-number">4.1.</span> <span class="nav-text">[2-1] Length restrictions
+(长度约束)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction"><span class="nav-number">4.1.1.</span> <span class="nav-text">[2-1-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass1---%E5%8E%8B%E7%BC%A9-shellcode"><span class="nav-number">4.1.2.</span> <span class="nav-text">[2-1-2] bypass1 - 压缩 shellcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass2---%E4%BA%8C%E6%AC%A1-read"><span class="nav-number">4.1.3.</span> <span class="nav-text">[2-1-3] bypass2 - 二次 read</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#seccomp-%E7%A6%81%E7%94%A8"><span class="nav-number">4.2.</span> <span class="nav-text">[2-2] seccomp 禁用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">[2-2-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass"><span class="nav-number">4.2.2.</span> <span class="nav-text">[2-2-2] bypass</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%81%E7%94%A8-execve"><span class="nav-number">4.2.2.1.</span> <span class="nav-text">[2-2-2-1] 禁用 execve</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#or-%E6%B2%A1%E6%9C%89-w-prctl-%E7%A6%81%E7%94%A8-open-%E4%BD%86%E4%B8%8D%E7%A6%81%E7%94%A8-fstat"><span class="nav-number">4.2.2.2.</span> <span class="nav-text">[2-2-2-2] OR 没有 W (
+prctl 禁用 open 但不禁用 fstat)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#alphanumeric-shellcode-%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97%E6%9E%84%E6%88%90"><span class="nav-number">4.3.</span> <span class="nav-text">[2-3] alphanumeric
+shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#manual-1"><span class="nav-number">4.3.1.</span> <span class="nav-text">[2-3-1] Manual</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-2"><span class="nav-number">4.3.2.</span> <span class="nav-text">[2-3-2] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shellcode-%E7%94%9F%E6%88%90"><span class="nav-number">4.3.3.</span> <span class="nav-text">[2-3-3] shellcode 生成:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.3.4.</span> <span class="nav-text">[2-3-4] 示例：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">[3] 例题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">[4] 参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Gap"
+    <img class="site-author-image" itemprop="image" alt="HeyGap"
       src="/images/avatar.png">
-  <p class="site-author-name" itemprop="name">Gap</p>
+  <p class="site-author-name" itemprop="name">HeyGap</p>
   <div class="site-description" itemprop="description">An undergraduate student of Cybersecurity at SDU.</div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -552,7 +557,7 @@ shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-i
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-count">17</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -609,7 +614,7 @@ shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-i
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Gap</span>
+  <span class="author" itemprop="copyrightHolder">HeyGap</span>
 </div>
 
         
