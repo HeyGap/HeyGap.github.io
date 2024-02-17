@@ -28,7 +28,7 @@
 <meta property="og:description" content="Shellcode 也是十分核心的技术🤔">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-02-08T02:10:00.000Z">
-<meta property="article:modified_time" content="2024-02-14T04:31:32.313Z">
+<meta property="article:modified_time" content="2024-02-17T15:33:24.360Z">
 <meta property="article:author" content="HeyGap">
 <meta property="article:tag" content="Pwn">
 <meta property="article:tag" content="Shellcode">
@@ -219,7 +219,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-14 12:02:31" itemprop="dateModified" datetime="2024-02-14T12:31:32+08:00">2024-02-14</time>
+                <time title="修改时间：2024-02-17 23:02:36" itemprop="dateModified" datetime="2024-02-17T23:33:24+08:00">2024-02-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -252,180 +252,130 @@
         <blockquote class="blockquote-center">
 Shellcode 也是十分核心的技术🤔
 </blockquote>
+
 <span id="more"></span>
-<h1 id="manual">Manual</h1>
-<p><a
-target="_blank" rel="noopener" href="https://blog.csdn.net/qq_29343201/article/details/52209588">linux
-系统调用号表</a></p>
-<p><a target="_blank" rel="noopener" href="https://docs.pwntools.com/en/stable/shellcraft.html">manual:
-pwntools.shellcraft</a></p>
-<h1 id="目录">[0] 目录</h1>
-<ol type="1">
-<li><a href="#1-编写-shellcode">编写 shellcode</a>
-<ul>
+<h1 id="Manual"><a href="#Manual" class="headerlink" title="Manual"></a>Manual</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_29343201/article/details/52209588">linux 系统调用号表</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.pwntools.com/en/stable/shellcraft.html">manual: pwntools.shellcraft</a></p>
+<h1 id="0-目录"><a href="#0-目录" class="headerlink" title="[0] 目录"></a>[0] 目录</h1><ol>
+<li><a href="#1-编写-shellcode">编写 shellcode</a><ul>
 <li><a href="#1-1-shellcode-板子">shellcode 板子</a></li>
 <li><a href="#1-2-现有工具">现有工具</a></li>
 <li><a href="#1-3-板子">板子</a></li>
-</ul></li>
-<li><a href="#2-shellcode-restrictions--bypass-限制与绕过">shellcode
-restrictions &amp; bypass (限制与绕过)</a>
-<ul>
-<li><a href="#2-1-length-restrictions-长度约束">Length restrictions
-(长度约束)</a></li>
+</ul>
+</li>
+<li><a href="#2-shellcode-restrictions--bypass-限制与绕过">shellcode restrictions &amp; bypass (限制与绕过)</a><ul>
+<li><a href="#2-1-length-restrictions-长度约束">Length restrictions (长度约束)</a></li>
 <li><a href="#2-2-seccomp-禁用">seccomp 禁用</a></li>
-<li><a href="#2-3-alphanumeric-shellcode-字母数字构成">alphanumeric
-shellcode (字母+数字构成)</a></li>
-</ul></li>
+<li><a href="#2-3-alphanumeric-shellcode-字母数字构成">alphanumeric shellcode (字母+数字构成)</a></li>
+</ul>
+</li>
 <li><a href="#3-例题">例题</a></li>
 <li><a href="#4-参考资料">参考资料</a></li>
 </ol>
-<h1 id="编写-shellcode">[1] 编写 shellcode</h1>
-<h2 id="shellcode-板子">[1-1] shellcode 板子</h2>
-<ol type="1">
-<li><p><a target="_blank" rel="noopener" href="https://www.exploit-db.com/">exploit-db</a></p></li>
-<li><p><a target="_blank" rel="noopener" href="https://shell-storm.org/shellcode/index.html">Shellcodes
-database for study cases(已停止更新)</a></p>
+<h1 id="1-编写-shellcode"><a href="#1-编写-shellcode" class="headerlink" title="[1] 编写 shellcode"></a>[1] 编写 shellcode</h1><h2 id="1-1-shellcode-板子"><a href="#1-1-shellcode-板子" class="headerlink" title="[1-1] shellcode 板子"></a>[1-1] shellcode 板子</h2><ol>
+<li><p><a target="_blank" rel="noopener" href="https://www.exploit-db.com/">exploit-db</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://shell-storm.org/shellcode/index.html">Shellcodes database for study cases(已停止更新)</a></p>
 <ul>
-<li>这个虽然停更了但是挺好用的，很适合找一些 length restrictions 的
-shellcode</li>
-</ul></li>
-</ol>
-<h2 id="现有工具">[1-2] 现有工具</h2>
-<h3 id="pwntools">[1-2-1] Pwntools</h3>
-<h4 id="shellcraft">[1-2-1-1] shellcraft</h4>
-<ul>
-<li><p><a
-target="_blank" rel="noopener" href="https://docs.pwntools.com/en/stable/shellcraft.html">Manual</a></p></li>
-<li><p>速成 (更多请 RTFM 或查看 [1-3] ) <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch: i386 / amd64</span></span><br><span class="line"><span class="comment"># os: linux</span></span><br><span class="line"><span class="comment"># func: open / read / write / mmap</span></span><br><span class="line">shellcode = shellcraft.arch.os.func(args)</span><br></pre></td></tr></table></figure></p></li>
+<li>这个虽然停更了但是挺好用的，很适合找一些 length restrictions 的 shellcode</li>
 </ul>
-<h4 id="asm">[1-2-1-2] asm</h4>
-<ul>
+</li>
+</ol>
+<h2 id="1-2-现有工具"><a href="#1-2-现有工具" class="headerlink" title="[1-2] 现有工具"></a>[1-2] 现有工具</h2><h3 id="1-2-1-Pwntools"><a href="#1-2-1-Pwntools" class="headerlink" title="[1-2-1] Pwntools"></a>[1-2-1] Pwntools</h3><h4 id="1-2-1-1-shellcraft"><a href="#1-2-1-1-shellcraft" class="headerlink" title="[1-2-1-1] shellcraft"></a>[1-2-1-1] shellcraft</h4><ul>
+<li><p><a target="_blank" rel="noopener" href="https://docs.pwntools.com/en/stable/shellcraft.html">Manual</a></p>
+</li>
+<li><p>速成 (更多请 RTFM 或查看 [1-3] )</p>
+  <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch: i386 / amd64</span></span><br><span class="line"><span class="comment"># os: linux</span></span><br><span class="line"><span class="comment"># func: open / read / write / mmap</span></span><br><span class="line">shellcode = shellcraft.arch.os.func(args)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="1-2-1-2-asm"><a href="#1-2-1-2-asm" class="headerlink" title="[1-2-1-2] asm"></a>[1-2-1-2] asm</h4><ul>
 <li>定义: <code>def asm(str) -&gt; bytes</code></li>
 </ul>
-<h2 id="板子">[1-3] 板子</h2>
-<ol type="1">
+<h2 id="1-3-板子"><a href="#1-3-板子" class="headerlink" title="[1-3] 板子"></a>[1-3] 板子</h2><ol>
 <li><p>常用 shellcraft</p>
-<p><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># open(&#x27;./flag&#x27;)</span></span><br><span class="line">shellcode_open = shellcraft.read()</span><br><span class="line"></span><br><span class="line"><span class="comment"># read(fd,addr,nbytes)</span></span><br><span class="line">shellcode_read = shellcraft.read(<span class="number">0</span>,<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>)</span><br><span class="line"><span class="comment"># 其他用法: shellcraft.read(&#x27;eax&#x27;,&#x27;esp&#x27;,0x100)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># write(fd,addr,nbytes)</span></span><br><span class="line">shellcode_read = shellcraft.write(<span class="number">1</span>,<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># mmap(addr,len,prot,flags,fd,offset)</span></span><br><span class="line">shellcode_mmap = shellcraft.mmap(<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>,<span class="number">7</span>,<span class="number">34</span>,<span class="number">0</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure></p></li>
-<li><p>不用堆栈的 <code>orw</code>，字符串"flag"需要提前布置好.
-<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">shellcode1 = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">mov rdi,0x2333008     # 指向&quot;flag\x00\x00\x00\x00&quot;的指针</span></span><br><span class="line"><span class="string">xor esi,esi</span></span><br><span class="line"><span class="string">mov rax,2</span></span><br><span class="line"><span class="string">syscall               # open(&#x27;./flag&#x27;)</span></span><br><span class="line"><span class="string">xor edx,edx</span></span><br><span class="line"><span class="string">mov rdi,3             # fd = 3</span></span><br><span class="line"><span class="string">mov rdx,0x50          # nbytes = 0x50</span></span><br><span class="line"><span class="string">mov esi,0x2333100     # address = 0x2333100</span></span><br><span class="line"><span class="string">mov rax,0</span></span><br><span class="line"><span class="string">syscall               # read(3,0x2333100,0x50)</span></span><br><span class="line"><span class="string">mov rdi,1             # stdin = 1</span></span><br><span class="line"><span class="string">mov rdx,0x50          # nbytes = 0x50</span></span><br><span class="line"><span class="string">mov esi,0x2333100     # address = 0x2333100</span></span><br><span class="line"><span class="string">mov rax,1</span></span><br><span class="line"><span class="string">syscall               # write(1,0x2333100,0x50)</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure></p></li>
+ <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment"># open(&#x27;./flag&#x27;)</span></span><br><span class="line">shellcode_open = shellcraft.<span class="built_in">open</span>(<span class="string">&#x27;./flag&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># read(fd,addr,nbytes)</span></span><br><span class="line">shellcode_read = shellcraft.read(<span class="number">0</span>,<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>)</span><br><span class="line"><span class="comment"># 其他用法: shellcraft.read(&#x27;eax&#x27;,&#x27;esp&#x27;,0x100)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># write(fd,addr,nbytes)</span></span><br><span class="line">shellcode_read = shellcraft.write(<span class="number">1</span>,<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># mmap(addr,len,prot,flags,fd,offset)</span></span><br><span class="line">shellcode_mmap = shellcraft.mmap(<span class="number">0xBABECAFE</span>,<span class="number">0x80</span>,<span class="number">7</span>,<span class="number">34</span>,<span class="number">0</span>,<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>不用堆栈的 <code>orw</code>，字符串”flag\x00\x00\x00\x00”需要提前布置好.</p>
+ <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">shellcode1 = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">mov rdi,0x2333008     # 指向&quot;flag\x00\x00\x00\x00&quot;的指针</span></span><br><span class="line"><span class="string">xor esi,esi</span></span><br><span class="line"><span class="string">mov rax,2</span></span><br><span class="line"><span class="string">syscall               # open(&#x27;./flag&#x27;)</span></span><br><span class="line"><span class="string">xor edx,edx</span></span><br><span class="line"><span class="string">mov rdi,3             # fd = 3</span></span><br><span class="line"><span class="string">mov rdx,0x50          # nbytes = 0x50</span></span><br><span class="line"><span class="string">mov esi,0x2333100     # address = 0x2333100</span></span><br><span class="line"><span class="string">mov rax,0</span></span><br><span class="line"><span class="string">syscall               # read(3,0x2333100,0x50)</span></span><br><span class="line"><span class="string">mov rdi,1             # stdin = 1</span></span><br><span class="line"><span class="string">mov rdx,0x50          # nbytes = 0x50</span></span><br><span class="line"><span class="string">mov esi,0x2333100     # address = 0x2333100</span></span><br><span class="line"><span class="string">mov rax,1</span></span><br><span class="line"><span class="string">syscall               # write(1,0x2333100,0x50)</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+</li>
 </ol>
-<h2 id="在线网站">[1-4] 在线网站</h2>
-<ol type="1">
-<li><p><a href="defuse.ca">Online x86 and x64 Intel Instruction
-Assembler</a>: 在线编写 shellcode 和反汇编 shellcode，目前只支持
-x86/x64</p></li>
-<li><p><a href="shell-storm.org">Online Assembler and Disassembler</a>:
-另一个更全的在线编写 shellcode 和反汇编 shellcode 网站</p></li>
-<li><p><a href="shell-storm.org">Shellcodes database for study
-cases</a>: shellcode 数据库，支持很多指令集与操作系统</p></li>
-<li><p><a href="exploit-db.com">Exploit Database Shellcodes</a>: 另一个
-shellcode 数据库</p></li>
-<li><p><a href="revshells.com">Online - Reverse Shell Generator</a>:
-生成反弹 shell 的命令</p></li>
+<h2 id="1-4-在线网站"><a href="#1-4-在线网站" class="headerlink" title="[1-4] 在线网站"></a>[1-4] 在线网站</h2><ol>
+<li><p><a href="defuse.ca">Online x86 and x64 Intel Instruction Assembler</a>: 在线编写 shellcode 和反汇编 shellcode，目前只支持 x86/x64</p>
+</li>
+<li><p><a href="shell-storm.org">Online Assembler and Disassembler</a>: 另一个更全的在线编写 shellcode 和反汇编 shellcode 网站</p>
+</li>
+<li><p><a href="shell-storm.org">Shellcodes database for study cases</a>: shellcode 数据库，支持很多指令集与操作系统</p>
+</li>
+<li><p><a href="exploit-db.com">Exploit Database Shellcodes</a>: 另一个 shellcode 数据库</p>
+</li>
+<li><p><a href="revshells.com">Online - Reverse Shell Generator</a>: 生成反弹 shell 的命令</p>
+</li>
 </ol>
-<h2 id="手搓-shellcode">[1-5] 手搓 shellcode</h2>
-<p>传参顺序: rdi,rsi,rdx,rcx,r8,r9</p>
-<p>存<a
-target="_blank" rel="noopener" href="https://blog.csdn.net/qq_29343201/article/details/52209588">系统调用号</a>的寄存器:
-rax</p>
-<h1 id="shellcode-restrictions-bypass-限制与绕过">[2] shellcode
-restrictions &amp; bypass (限制与绕过)</h1>
-<h2 id="length-restrictions-长度约束">[2-1] Length restrictions
-(长度约束)</h2>
-<h3 id="restriction">[2-1-1] restriction</h3>
-<p>shellcode 限制在 xx bytes 以内</p>
-<h3 id="bypass1---压缩-shellcode">[2-1-2] bypass1 - 压缩 shellcode</h3>
-<ol type="1">
-<li><p>可以去 <a
-target="_blank" rel="noopener" href="https://shell-storm.org/shellcode/index.html">Shellcodes database
-for study cases(已停止更新)</a> 找比较小的 shellcode</p></li>
+<h2 id="1-5-手搓-shellcode"><a href="#1-5-手搓-shellcode" class="headerlink" title="[1-5] 手搓 shellcode"></a>[1-5] 手搓 shellcode</h2><p>传参顺序: rdi,rsi,rdx,rcx,r8,r9</p>
+<p>存<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_29343201/article/details/52209588">系统调用号</a>的寄存器: rax</p>
+<h2 id="1-6-C-代码提取-shellcode"><a href="#1-6-C-代码提取-shellcode" class="headerlink" title="[1-6] C 代码提取 shellcode"></a>[1-6] C 代码提取 shellcode</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5d1b1eafca21">看这篇</a></p>
+<h1 id="2-shellcode-restrictions-amp-bypass-限制与绕过"><a href="#2-shellcode-restrictions-amp-bypass-限制与绕过" class="headerlink" title="[2] shellcode restrictions &amp; bypass (限制与绕过)"></a>[2] shellcode restrictions &amp; bypass (限制与绕过)</h1><h2 id="2-1-Length-restrictions-长度约束"><a href="#2-1-Length-restrictions-长度约束" class="headerlink" title="[2-1] Length restrictions (长度约束)"></a>[2-1] Length restrictions (长度约束)</h2><h3 id="2-1-1-restriction"><a href="#2-1-1-restriction" class="headerlink" title="[2-1-1] restriction"></a>[2-1-1] restriction</h3><p>shellcode 限制在 xx bytes 以内</p>
+<h3 id="2-1-2-bypass1-压缩-shellcode"><a href="#2-1-2-bypass1-压缩-shellcode" class="headerlink" title="[2-1-2] bypass1 - 压缩 shellcode"></a>[2-1-2] bypass1 - 压缩 shellcode</h3><ol>
+<li><p>可以去 <a target="_blank" rel="noopener" href="https://shell-storm.org/shellcode/index.html">Shellcodes database for study cases(已停止更新)</a> 找比较小的 shellcode</p>
+</li>
 <li><p>常用压缩方式</p>
-<ol type="1">
-<li><p>⚠ 观察 <code>寄存器 + 栈</code> 的状态</p></li>
-<li><p>长寄存器改为短寄存器 <code>rax(8bytes)</code> -&gt;
-<code>eax(4bytes)</code> -&gt; <code>ax(2bytes)</code> -&gt;
-<code>ah/al(1byte)</code></p></li>
+<ol>
+<li><p>⚠ 观察 <code>寄存器 + 栈</code> 的状态</p>
+</li>
+<li><p>长寄存器改为短寄存器 <code>rax(8bytes)</code> -&gt; <code>eax(4bytes)</code> -&gt; <code>ax(2bytes)</code> -&gt; <code>ah/al(1byte)</code></p>
+</li>
 <li><p>置零</p>
-<ol type="1">
-<li><p><code>mov reg, 0</code> -&gt; <code>xor reg, reg</code></p></li>
-<li><p>多用 <code>push / pop</code></p></li>
-<li><p>多用 <code>cdq</code> 来将 <code>rdx</code> 置零</p></li>
-<li><p>多用 <code>xchg</code> 交换 <code>reg1</code> 和
-<code>reg2</code></p>
+<ol>
+<li><p><code>mov reg, 0</code> -&gt; <code>xor reg, reg</code></p>
+</li>
+<li><p>多用 <code>push / pop</code></p>
+</li>
+<li><p>多用 <code>cdq</code> 来将 <code>rdx</code> 置零</p>
+</li>
+<li><p>多用 <code>xchg</code> 交换 <code>reg1</code> 和 <code>reg2</code></p>
 <ul>
-<li>观察执行 shellcode 时的
-context（上下文），用上下文的一些寄存器来初始化</li>
-</ul></li>
-</ol></li>
-</ol></li>
-<li><p>没什么用的积累 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov edx,7   ---&gt;   cdq; mov dl,7</span><br></pre></td></tr></table></figure></p></li>
+<li>观察执行 shellcode 时的 context（上下文），用上下文的一些寄存器来初始化</li>
+</ul>
+</li>
 </ol>
-<h3 id="bypass2---二次-read">[2-1-3] bypass2 - 二次 read</h3>
-<h2 id="seccomp-禁用">[2-2] seccomp 禁用</h2>
-<h3 id="restriction-1">[2-2-1] restriction</h3>
-<p>程序调用 <code>seccomp</code> 或 <code>prctl</code>
-禁用了某些系统调用</p>
-<h3 id="bypass">[2-2-2] bypass</h3>
-<p>使用 <code>seccomp-tools dump ./pwn</code> 来查看 elf
-文件被禁用了哪些调用</p>
-<h4 id="禁用-execve">[2-2-2-1] 禁用 <code>execve</code></h4>
-<ul>
-<li>bypass: orw</li>
-</ul>
-<h4 id="or-没有-w-prctl-禁用-open-但不禁用-fstat">[2-2-2-2] OR 没有 W (
-prctl 禁用 <code>open</code> 但不禁用 <code>fstat</code>)</h4>
-<blockquote>
-<p>注：由于下面的绕过方式需要在64位与32位之间切换，所以建议不要在 exp
-开头设置 <code>context(arch='i386/amd64')</code> ，而是选择
-<code>asm(shellcode,arch='i386/amd64')</code></p>
+</li>
+</ol>
+</li>
+<li><p>没什么用的积累</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov edx,7   ---&gt;   cdq; mov dl,7</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="2-1-3-bypass2-二次-read"><a href="#2-1-3-bypass2-二次-read" class="headerlink" title="[2-1-3] bypass2 - 二次 read"></a>[2-1-3] bypass2 - 二次 read</h3><h2 id="2-2-seccomp-禁用"><a href="#2-2-seccomp-禁用" class="headerlink" title="[2-2] seccomp 禁用"></a>[2-2] seccomp 禁用</h2><h3 id="2-2-1-restriction"><a href="#2-2-1-restriction" class="headerlink" title="[2-2-1] restriction"></a>[2-2-1] restriction</h3><p>程序调用 <code>seccomp</code> 或 <code>prctl</code> 禁用了某些系统调用</p>
+<h3 id="2-2-2-bypass"><a href="#2-2-2-bypass" class="headerlink" title="[2-2-2] bypass"></a>[2-2-2] bypass</h3><blockquote>
+<p>本质是对 IO stream 的汇编考察，学习这一部分应当积累足够多的相关知识。</p>
 </blockquote>
-<ul>
-<li>bypass: 由于64位下 <code>fstat</code> 函数的调用号为 5，而在32位中
-<code>open</code> 的系统调用号为 5，所以我们可以利用 <code>retfq</code>
-切换到 32 位执行 <code>open</code></li>
-</ul>
-<h2 id="alphanumeric-shellcode-字母数字构成">[2-3] alphanumeric
-shellcode (字母+数字构成)</h2>
-<h3 id="manual-1">[2-3-1] Manual</h3>
-<p><a target="_blank" rel="noopener" href="https://nets.ec/Ascii_shellcode">ascii -&gt; asm
-手册</a></p>
-<h3 id="restriction-2">[2-3-2] restriction</h3>
-<p>shellcode 只能由字母和数字组成</p>
-<h3 id="shellcode-生成">[2-3-3] shellcode 生成:</h3>
-<p>这种 shellcode 可以由工具 <a
-target="_blank" rel="noopener" href="https://github.com/SkyLined/alpha3">ALPHA3</a> 直接生成，</p>
-<p>但 alpha3 的 build 有点儿麻烦，不如直接用杭电一位师傅写的 <a
-target="_blank" rel="noopener" href="https://github.com/veritas501/ae64">AE64</a>，</p>
-<p>AE64 可以将任何 <code>AMD64</code> 架构的 shellcode 转换为
-alphanumeric shellcode</p>
-<h3 id="示例">[2-3-4] 示例：</h3>
-<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_54218833/article/details/134205383">顶级 seccomp 文章</a></p>
+<h4 id="open"><a href="#open" class="headerlink" title="open"></a>open</h4><h4 id="read"><a href="#read" class="headerlink" title="read"></a>read</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">GPT 有关 read 的拓展</span><br><span class="line"></span><br><span class="line">如果 `read`、`pread64` 和 `readv` 等系统调用被禁用了，你可能可以考虑使用其他的系统调用来读取文件。以下是一些可能的替代方案：</span><br><span class="line"></span><br><span class="line">1. **mmap**: 使用 `mmap` 系统调用映射文件到内存中，然后通过内存访问来读取文件内容。</span><br><span class="line"></span><br><span class="line">2. **open + read**: 可以使用 `open` 系统调用打开文件，然后使用 `read` 或者 `pread64` 等系统调用来读取文件内容。</span><br><span class="line"></span><br><span class="line">3. **fopen + fread**: 使用标准 C 库函数 `fopen` 和 `fread` 来打开和读取文件内容。</span><br><span class="line"></span><br><span class="line">4. **openat + read**: 使用 `openat` 系统调用打开文件，然后使用 `read` 或者 `pread64` 等系统调用来读取文件内容。</span><br><span class="line"></span><br><span class="line">5. **pipe + fork + exec**: 创建一个管道，在子进程中执行命令来读取文件内容，父进程通过管道读取子进程的输出。</span><br><span class="line"></span><br><span class="line">6. **recv + recvfrom**: 如果你可以通过网络传输文件，你可以使用 `recv` 或 `recvfrom` 等网络套接字函数来接收文件数据。</span><br><span class="line"></span><br><span class="line">7. **其他文件操作函数**: 还有一些其他的文件操作函数，比如 `lseek` 可以用于移动文件指针，`preadv` 可以用于原子地读取多个文件描述符指定的文件内容等。</span><br><span class="line"></span><br><span class="line">要选择合适的替代方案，需要考虑到具体的情况和环境限制。</span><br></pre></td></tr></table></figure>
+<h4 id="write"><a href="#write" class="headerlink" title="write"></a>write</h4><h4 id="废弃，待整理"><a href="#废弃，待整理" class="headerlink" title="废弃，待整理"></a>废弃，待整理</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">使用 `seccomp-tools dump ./pwn` 来查看 elf 文件被禁用了哪些调用</span><br><span class="line"></span><br><span class="line">#### [2-2-2-1] 禁用 `execve`</span><br><span class="line"></span><br><span class="line">- bypass: orw</span><br><span class="line"></span><br><span class="line">#### [2-2-2-2] OR 没有 W ( prctl 禁用 `open` 但不禁用 `fstat`)</span><br><span class="line"></span><br><span class="line">&gt; 注：由于下面的绕过方式需要在64位与32位之间切换，所以建议不要在 exp 开头设置 `context(arch=&#x27;i386/amd64&#x27;)` ，而是选择 `asm(shellcode,arch=&#x27;i386/amd64&#x27;)`</span><br><span class="line"></span><br><span class="line">- bypass: 由于64位下 `fstat` 函数的调用号为 5，而在32位中 `open` 的系统调用号为 5，所以我们可以利用 `retfq` 切换到 32 位执行 `open`</span><br></pre></td></tr></table></figure>
+<h2 id="2-3-alphanumeric-shellcode-字母-数字构成"><a href="#2-3-alphanumeric-shellcode-字母-数字构成" class="headerlink" title="[2-3] alphanumeric shellcode (字母+数字构成)"></a>[2-3] alphanumeric shellcode (字母+数字构成)</h2><h3 id="2-3-1-Manual"><a href="#2-3-1-Manual" class="headerlink" title="[2-3-1] Manual"></a>[2-3-1] Manual</h3><p><a target="_blank" rel="noopener" href="https://nets.ec/Ascii_shellcode">ascii -&gt; asm 手册</a></p>
+<h3 id="2-3-2-restriction"><a href="#2-3-2-restriction" class="headerlink" title="[2-3-2] restriction"></a>[2-3-2] restriction</h3><p>shellcode 只能由字母和数字组成</p>
+<h3 id="2-3-3-shellcode-生成"><a href="#2-3-3-shellcode-生成" class="headerlink" title="[2-3-3] shellcode 生成:"></a>[2-3-3] shellcode 生成:</h3><p>这种 shellcode 可以由工具 <a target="_blank" rel="noopener" href="https://github.com/SkyLined/alpha3">ALPHA3</a> 直接生成，</p>
+<p>但 alpha3 的 build 有点儿麻烦，不如直接用杭电一位师傅写的 <a target="_blank" rel="noopener" href="https://github.com/veritas501/ae64">AE64</a>，</p>
+<p>AE64 可以将任何 <code>AMD64</code> 架构的 shellcode 转换为 alphanumeric shellcode</p>
+<h3 id="2-3-4-示例："><a href="#2-3-4-示例：" class="headerlink" title="[2-3-4] 示例："></a>[2-3-4] 示例：</h3><blockquote>
 <p>AE64 在 github 的 README 有更详细的介绍</p>
 </blockquote>
-<p>简单示例 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ae64 <span class="keyword">import</span> AE64</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.arch=<span class="string">&#x27;amd64&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get bytes format shellcode</span></span><br><span class="line">shellcode = asm(shellcraft.sh())</span><br><span class="line"></span><br><span class="line"><span class="comment"># get alphanumeric shellcode</span></span><br><span class="line">enc_shellcode = AE64().encode(shellcode)</span><br><span class="line"><span class="built_in">print</span>(enc_shellcode.decode(<span class="string">&#x27;latin-1&#x27;</span>))</span><br></pre></td></tr></table></figure></p>
-<p>进阶选项 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">enc_shellcode = AE64().encode(shellcode)</span><br><span class="line"><span class="comment"># equal to </span></span><br><span class="line">enc_shellcode = AE64().encode(shellcode, <span class="string">&#x27;rax&#x27;</span>, <span class="number">0</span>, <span class="string">&#x27;fast&#x27;</span>)</span><br><span class="line"><span class="comment"># And we can use &#x27;small&#x27; strategy to generate smaller alphanumeric shellcode</span></span><br><span class="line">enc_shellcode = AE64().encode(shellcode, <span class="string">&#x27;rax&#x27;</span>, <span class="number">0</span>, <span class="string">&#x27;small&#x27;</span>)</span><br></pre></td></tr></table></figure></p>
-<h1 id="例题">[3] 例题</h1>
-<ol type="1">
-<li><p><a href="">hgame2024 Week1 ezshellcode</a></p></li>
-<li><p><a href="">hgame2024 week2 ShellcodeMaster</a></p></li>
+<p>简单示例<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> ae64 <span class="keyword">import</span> AE64</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.arch=<span class="string">&#x27;amd64&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get bytes format shellcode</span></span><br><span class="line">shellcode = asm(shellcraft.sh())</span><br><span class="line"></span><br><span class="line"><span class="comment"># get alphanumeric shellcode</span></span><br><span class="line">enc_shellcode = AE64().encode(shellcode)</span><br><span class="line"><span class="built_in">print</span>(enc_shellcode.decode(<span class="string">&#x27;latin-1&#x27;</span>))</span><br></pre></td></tr></table></figure></p>
+<p>进阶选项<br><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">enc_shellcode = AE64().encode(shellcode)</span><br><span class="line"><span class="comment"># equal to </span></span><br><span class="line">enc_shellcode = AE64().encode(shellcode, <span class="string">&#x27;rax&#x27;</span>, <span class="number">0</span>, <span class="string">&#x27;fast&#x27;</span>)</span><br><span class="line"><span class="comment"># And we can use &#x27;small&#x27; strategy to generate smaller alphanumeric shellcode</span></span><br><span class="line">enc_shellcode = AE64().encode(shellcode, <span class="string">&#x27;rax&#x27;</span>, <span class="number">0</span>, <span class="string">&#x27;small&#x27;</span>)</span><br></pre></td></tr></table></figure></p>
+<h1 id="3-例题"><a href="#3-例题" class="headerlink" title="[3] 例题"></a>[3] 例题</h1><ol>
+<li><p><a href="">hgame2024 Week1 ezshellcode</a></p>
+</li>
+<li><p><a href="">hgame2024 week2 ShellcodeMaster</a></p>
+</li>
 </ol>
-<h1 id="参考资料">[4] 参考资料</h1>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/onpGzz2uzSYKf09yvgb3uA">⭐ The
-art of shellcode</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/237300.html">简单获取shellcode的几种方式</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://pullp.github.io/tips/2021/01/30/shellcode-tips.html">wxk1997's
-blog - shellcode tips</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://hkhanbing.github.io/2023/09/25/brics-ctf-pwn-paint%E9%A2%98%E8%A7%A3/">hkbin's
-blog - shellcode</a></p>
-<p>冲浪找到但还一点儿没看</p>
-<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/note/set/1876">Bsahfuck:
-限制只允许几种字符的shellcode</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6645?time__1311=n4%2BxnD0DRDBGitN47KDsA3xCqbulD9iiABoD&amp;alichlgref=https%3A%2F%2Fwww.bing.com%2F">shellcode
-的艺术 - by n0va</a></p>
+<h1 id="4-参考资料"><a href="#4-参考资料" class="headerlink" title="[4] 参考资料"></a>[4] 参考资料</h1><p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/onpGzz2uzSYKf09yvgb3uA">⭐ The art of shellcode</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/237300.html">简单获取shellcode的几种方式</a></p>
+<p><a target="_blank" rel="noopener" href="https://pullp.github.io/tips/2021/01/30/shellcode-tips.html">wxk1997’s blog - shellcode tips</a></p>
+<p><a target="_blank" rel="noopener" href="https://hkhanbing.github.io/2023/09/25/brics-ctf-pwn-paint%E9%A2%98%E8%A7%A3/">hkbin’s blog - shellcode</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/219077">关于 seccomp 绕过的更深方法</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_54218833/article/details/134205383">顶级 seccomp 文章</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/note/set/1876">Bsahfuck: 限制只允许几种字符的shellcode</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6645?time__1311=n4%2BxnD0DRDBGitN47KDsA3xCqbulD9iiABoD&amp;alichlgref=https%3A%2F%2Fwww.bing.com%2F">shellcode 的艺术 - by n0va</a></p>
 
     </div>
 
@@ -537,11 +487,7 @@ target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6645?time__1311=n4%
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#manual"><span class="nav-number">1.</span> <span class="nav-text">Manual</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">[0] 目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E5%86%99-shellcode"><span class="nav-number">3.</span> <span class="nav-text">[1] 编写 shellcode</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#shellcode-%E6%9D%BF%E5%AD%90"><span class="nav-number">3.1.</span> <span class="nav-text">[1-1] shellcode 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E6%9C%89%E5%B7%A5%E5%85%B7"><span class="nav-number">3.2.</span> <span class="nav-text">[1-2] 现有工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pwntools"><span class="nav-number">3.2.1.</span> <span class="nav-text">[1-2-1] Pwntools</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#shellcraft"><span class="nav-number">3.2.1.1.</span> <span class="nav-text">[1-2-1-1] shellcraft</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#asm"><span class="nav-number">3.2.1.2.</span> <span class="nav-text">[1-2-1-2] asm</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%BF%E5%AD%90"><span class="nav-number">3.3.</span> <span class="nav-text">[1-3] 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E7%BA%BF%E7%BD%91%E7%AB%99"><span class="nav-number">3.4.</span> <span class="nav-text">[1-4] 在线网站</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%8B%E6%90%93-shellcode"><span class="nav-number">3.5.</span> <span class="nav-text">[1-5] 手搓 shellcode</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#shellcode-restrictions-bypass-%E9%99%90%E5%88%B6%E4%B8%8E%E7%BB%95%E8%BF%87"><span class="nav-number">4.</span> <span class="nav-text">[2] shellcode
-restrictions &amp; bypass (限制与绕过)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#length-restrictions-%E9%95%BF%E5%BA%A6%E7%BA%A6%E6%9D%9F"><span class="nav-number">4.1.</span> <span class="nav-text">[2-1] Length restrictions
-(长度约束)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction"><span class="nav-number">4.1.1.</span> <span class="nav-text">[2-1-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass1---%E5%8E%8B%E7%BC%A9-shellcode"><span class="nav-number">4.1.2.</span> <span class="nav-text">[2-1-2] bypass1 - 压缩 shellcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass2---%E4%BA%8C%E6%AC%A1-read"><span class="nav-number">4.1.3.</span> <span class="nav-text">[2-1-3] bypass2 - 二次 read</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#seccomp-%E7%A6%81%E7%94%A8"><span class="nav-number">4.2.</span> <span class="nav-text">[2-2] seccomp 禁用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">[2-2-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bypass"><span class="nav-number">4.2.2.</span> <span class="nav-text">[2-2-2] bypass</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%81%E7%94%A8-execve"><span class="nav-number">4.2.2.1.</span> <span class="nav-text">[2-2-2-1] 禁用 execve</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#or-%E6%B2%A1%E6%9C%89-w-prctl-%E7%A6%81%E7%94%A8-open-%E4%BD%86%E4%B8%8D%E7%A6%81%E7%94%A8-fstat"><span class="nav-number">4.2.2.2.</span> <span class="nav-text">[2-2-2-2] OR 没有 W (
-prctl 禁用 open 但不禁用 fstat)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#alphanumeric-shellcode-%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97%E6%9E%84%E6%88%90"><span class="nav-number">4.3.</span> <span class="nav-text">[2-3] alphanumeric
-shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#manual-1"><span class="nav-number">4.3.1.</span> <span class="nav-text">[2-3-1] Manual</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#restriction-2"><span class="nav-number">4.3.2.</span> <span class="nav-text">[2-3-2] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shellcode-%E7%94%9F%E6%88%90"><span class="nav-number">4.3.3.</span> <span class="nav-text">[2-3-3] shellcode 生成:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.3.4.</span> <span class="nav-text">[2-3-4] 示例：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">[3] 例题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">[4] 参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Manual"><span class="nav-number">1.</span> <span class="nav-text">Manual</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0-%E7%9B%AE%E5%BD%95"><span class="nav-number">2.</span> <span class="nav-text">[0] 目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E7%BC%96%E5%86%99-shellcode"><span class="nav-number">3.</span> <span class="nav-text">[1] 编写 shellcode</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-shellcode-%E6%9D%BF%E5%AD%90"><span class="nav-number">3.1.</span> <span class="nav-text">[1-1] shellcode 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-%E7%8E%B0%E6%9C%89%E5%B7%A5%E5%85%B7"><span class="nav-number">3.2.</span> <span class="nav-text">[1-2] 现有工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-Pwntools"><span class="nav-number">3.2.1.</span> <span class="nav-text">[1-2-1] Pwntools</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-1-1-shellcraft"><span class="nav-number">3.2.1.1.</span> <span class="nav-text">[1-2-1-1] shellcraft</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-1-2-asm"><span class="nav-number">3.2.1.2.</span> <span class="nav-text">[1-2-1-2] asm</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-%E6%9D%BF%E5%AD%90"><span class="nav-number">3.3.</span> <span class="nav-text">[1-3] 板子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-%E5%9C%A8%E7%BA%BF%E7%BD%91%E7%AB%99"><span class="nav-number">3.4.</span> <span class="nav-text">[1-4] 在线网站</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-%E6%89%8B%E6%90%93-shellcode"><span class="nav-number">3.5.</span> <span class="nav-text">[1-5] 手搓 shellcode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-6-C-%E4%BB%A3%E7%A0%81%E6%8F%90%E5%8F%96-shellcode"><span class="nav-number">3.6.</span> <span class="nav-text">[1-6] C 代码提取 shellcode</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-shellcode-restrictions-amp-bypass-%E9%99%90%E5%88%B6%E4%B8%8E%E7%BB%95%E8%BF%87"><span class="nav-number">4.</span> <span class="nav-text">[2] shellcode restrictions &amp; bypass (限制与绕过)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-Length-restrictions-%E9%95%BF%E5%BA%A6%E7%BA%A6%E6%9D%9F"><span class="nav-number">4.1.</span> <span class="nav-text">[2-1] Length restrictions (长度约束)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-restriction"><span class="nav-number">4.1.1.</span> <span class="nav-text">[2-1-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-2-bypass1-%E5%8E%8B%E7%BC%A9-shellcode"><span class="nav-number">4.1.2.</span> <span class="nav-text">[2-1-2] bypass1 - 压缩 shellcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-3-bypass2-%E4%BA%8C%E6%AC%A1-read"><span class="nav-number">4.1.3.</span> <span class="nav-text">[2-1-3] bypass2 - 二次 read</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-seccomp-%E7%A6%81%E7%94%A8"><span class="nav-number">4.2.</span> <span class="nav-text">[2-2] seccomp 禁用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-restriction"><span class="nav-number">4.2.1.</span> <span class="nav-text">[2-2-1] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-bypass"><span class="nav-number">4.2.2.</span> <span class="nav-text">[2-2-2] bypass</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#open"><span class="nav-number">4.2.2.1.</span> <span class="nav-text">open</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#read"><span class="nav-number">4.2.2.2.</span> <span class="nav-text">read</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#write"><span class="nav-number">4.2.2.3.</span> <span class="nav-text">write</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%9F%E5%BC%83%EF%BC%8C%E5%BE%85%E6%95%B4%E7%90%86"><span class="nav-number">4.2.2.4.</span> <span class="nav-text">废弃，待整理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-alphanumeric-shellcode-%E5%AD%97%E6%AF%8D-%E6%95%B0%E5%AD%97%E6%9E%84%E6%88%90"><span class="nav-number">4.3.</span> <span class="nav-text">[2-3] alphanumeric shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-1-Manual"><span class="nav-number">4.3.1.</span> <span class="nav-text">[2-3-1] Manual</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-2-restriction"><span class="nav-number">4.3.2.</span> <span class="nav-text">[2-3-2] restriction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-3-shellcode-%E7%94%9F%E6%88%90"><span class="nav-number">4.3.3.</span> <span class="nav-text">[2-3-3] shellcode 生成:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-4-%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="nav-number">4.3.4.</span> <span class="nav-text">[2-3-4] 示例：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E4%BE%8B%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">[3] 例题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">[4] 参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -557,7 +503,7 @@ shellcode (字母+数字构成)</span></a><ol class="nav-child"><li class="nav-i
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

