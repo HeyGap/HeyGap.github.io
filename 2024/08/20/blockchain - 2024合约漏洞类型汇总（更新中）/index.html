@@ -20,21 +20,21 @@
     var CONFIG = {"hostname":"heygap.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="总结一下 QEMUescape 的相关内容，便于后续调用">
+  <meta name="description" content="汇总一下迄今为止所有的智能合约漏洞">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Pwn - QEMUescape">
-<meta property="og:url" content="http://heygap.github.io/2024/02/18/Pwn%20-%20QEMUescape/index.html">
+<meta property="og:title" content="blockchain - 2024合约漏洞类型汇总（更新中）">
+<meta property="og:url" content="http://heygap.github.io/2024/08/20/blockchain%20-%202024%E5%90%88%E7%BA%A6%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B%E6%B1%87%E6%80%BB%EF%BC%88%E6%9B%B4%E6%96%B0%E4%B8%AD%EF%BC%89/index.html">
 <meta property="og:site_name" content="HeyGap&#39;s_Blog">
-<meta property="og:description" content="总结一下 QEMUescape 的相关内容，便于后续调用">
+<meta property="og:description" content="汇总一下迄今为止所有的智能合约漏洞">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-02-18T07:18:00.000Z">
-<meta property="article:modified_time" content="2024-02-27T13:32:41.317Z">
+<meta property="article:published_time" content="2024-08-20T14:06:00.000Z">
+<meta property="article:modified_time" content="2024-08-21T14:32:55.764Z">
 <meta property="article:author" content="HeyGap">
-<meta property="article:tag" content="Pwn">
-<meta property="article:tag" content="QEMU escape">
+<meta property="article:tag" content="Blockchain">
+<meta property="article:tag" content="Smart Contract">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://heygap.github.io/2024/02/18/Pwn%20-%20QEMUescape/">
+<link rel="canonical" href="http://heygap.github.io/2024/08/20/blockchain%20-%202024%E5%90%88%E7%BA%A6%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B%E6%B1%87%E6%80%BB%EF%BC%88%E6%9B%B4%E6%96%B0%E4%B8%AD%EF%BC%89/">
 
 
 <script id="page-configurations">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>Pwn - QEMUescape | HeyGap's_Blog</title>
+  <title>blockchain - 2024合约漏洞类型汇总（更新中） | HeyGap's_Blog</title>
   
 
 
@@ -189,7 +189,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/02/18/Pwn%20-%20QEMUescape/">
+    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/08/20/blockchain%20-%202024%E5%90%88%E7%BA%A6%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B%E6%B1%87%E6%80%BB%EF%BC%88%E6%9B%B4%E6%96%B0%E4%B8%AD%EF%BC%89/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -202,7 +202,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Pwn - QEMUescape
+          blockchain - 2024合约漏洞类型汇总（更新中）
         </h1>
 
         <div class="post-meta">
@@ -212,14 +212,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2024-02-18 15:02:00" itemprop="dateCreated datePublished" datetime="2024-02-18T15:18:00+08:00">2024-02-18</time>
+              <time title="创建时间：2024-08-20 22:08:00" itemprop="dateCreated datePublished" datetime="2024-08-20T22:06:00+08:00">2024-08-20</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-27 21:02:31" itemprop="dateModified" datetime="2024-02-27T21:32:41+08:00">2024-02-27</time>
+                <time title="修改时间：2024-08-21 22:08:76" itemprop="dateModified" datetime="2024-08-21T22:32:55+08:00">2024-08-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -227,7 +227,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CTF-Theory/" itemprop="url" rel="index"><span itemprop="name">CTF_Theory</span></a>
+                  <a href="/categories/Blockchain/" itemprop="url" rel="index"><span itemprop="name">Blockchain</span></a>
                 </span>
             </span>
 
@@ -250,61 +250,43 @@
 
       
         <blockquote class="blockquote-center">
-总结一下 QEMUescape 的相关内容，便于后续调用
+汇总一下迄今为止所有的智能合约漏洞
 </blockquote>
 <span id="more"></span>
-<p>我打 pwn 题的配置是 x86-64 | Win11 | WSL2:
-kali-linux，所以本篇内容主要以此为基础.</p>
-<h1 id="目录">[0] 目录</h1>
-<h1 id="docker">[1] Docker</h1>
-<h2 id="installation">[1-1] Installation</h2>
-<p><a target="_blank" rel="noopener" href="https://docs.docker.com/desktop/wsl/">Installation: HOW to
-use docker in WSL 2?</a></p>
-<h2 id="utils">[1-2] Utils</h2>
-<h3 id="常用命令">[1-2-1] 常用命令</h3>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 搭建 docker 环境</span></span><br><span class="line"><span class="comment"># 以下三条命令均在 docker-compose.yml 同目录下执行</span></span><br><span class="line">docker-compose build</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动 docker 容器</span></span><br><span class="line">docker-compose up</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭 docker 容器</span></span><br><span class="line">docker-compose down</span><br><span class="line"></span><br><span class="line"><span class="comment"># 若已经执行 docker-compose build</span></span><br><span class="line"><span class="comment"># 则可以在任意目录执行以下命令</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看容器</span></span><br><span class="line">docker ps -a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动容器</span></span><br><span class="line">docker start 容器ID/名称</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入容器</span></span><br><span class="line">docker <span class="built_in">exec</span> -ti 容器ID /bin/bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从主机拷贝到 docker</span></span><br><span class="line">docker <span class="built_in">cp</span> /path/to/rootfs.cpio &lt;container_name_or_id&gt;:/tmp/rootfs.cpio</span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭容器</span></span><br><span class="line">docker stop 容器ID/名称</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理不需要的 images</span></span><br><span class="line">docker system <span class="built_in">df</span>   <span class="comment"># 查看 docker 占用空间</span></span><br><span class="line">docker image prune <span class="comment"># 清理未被任何容器使用的镜像</span></span><br></pre></td></tr></table></figure>
-<h1 id="qemu">[2] QEMU</h1>
-<h2 id="args">[2-1] Args</h2>
-<ol type="1">
-<li><p><code>qemu-system-x86_64 -help</code></p></li>
-<li><p><a
-target="_blank" rel="noopener" href="https://www.qemu.org/docs/master/system/introduction.html">官方
-docs</a></p></li>
-<li><p>GPT</p></li>
-</ol>
-<h1 id="escape">[3] Escape</h1>
-<h2 id="阅读dockerfile">[3-1] 阅读Dockerfile</h2>
-<h2 id="确认存在漏洞的设备">[3-2] 确认存在漏洞的设备</h2>
-<p>QEMU 逃逸的题目一般都是通过某个设备的读写来进行，我们需要查看启动
-qemu 时 -device 参数是什么，从而确定设备名称</p>
-<h2 id="section">[3-3]</h2>
-<h1 id="nan-reference">[NaN] REFERENCE</h1>
-<p><a
-target="_blank" rel="noopener" href="https://www.cnblogs.com/LynneHuan/p/17822138.html">使用docker调试和部署pwn题</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/614513965">宸极实验室—『杂项』Docker
-逃逸方法汇总</a></p>
-<p><a target="_blank" rel="noopener" href="https://l0tus.vip/cn/qemu_escape/">qemu_escape by
-I0tus</a></p>
-<p><a
-target="_blank" rel="noopener" href="http://www.cynosure.top/2022/01/25/RWCTF2022-be-a-docker-escaper/">RWCTF
-2022</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://pig-007.github.io/2021/08/14/qemu%E9%80%83%E9%80%B8-pwn%E8%A7%A3%E9%A2%98/">QEMU漏洞详细分析
-PIG007</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://eqqie.cn/index.php/archives/1834">经典题型存档</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f08e34cf08ad">调试 与
-exp.py传远程</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://xuanxuanblingbling.github.io/ctf/pwn/2022/06/09/qemu/">不附加exp的调试</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/254906">很好的分析文章</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://www.giantbranch.cn/2020/01/15/CTF%20QEMU%20%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%80%83%E9%80%B8%E6%80%BB%E7%BB%93/">好多题好多题好多题</a></p>
-<p><a
-target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5773?time__1311=n4%2BxnD07DtKxyjFD%2FiTY8xmx7u4Wuq0QYeY4D&amp;alichlgref=https%3A%2F%2Fwww.bing.com%2F">比较高级的利用方式</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/57526565">出题</a></p>
+<p>按照 2023 年的这篇 A survey on smart contract vulnerabilities Data
+sources, detection and repair，将漏洞类型分为三类：solidity
+语言漏洞、EVM漏洞和区块链漏洞</p>
+<h1 id="术语规范">[0] 术语规范</h1>
+<p>由于中英互译带来的一系列问题，笔者在本处规范一些术语的常见用法，便于读者查看。</p>
+<ul>
+<li><p>被攻击合约 Victim</p></li>
+<li><p>攻击合约 Attacker</p></li>
+</ul>
+<h1 id="solidity-语言漏洞">[1] solidity 语言漏洞</h1>
+<h2 id="re-entrancy">[1-1] Re-entrancy</h2>
+<h3 id="原理">原理</h3>
+<p>从最著名的重入攻击开始。首先，我们先铺垫一些基础知识。任何合约如果要在部署后接收以太币，都会调用
+<code>receive</code> 函数或者 <code>fallback</code>
+函数来处理，如果一个合约既没有 receive 函数，也没有 fallback
+函数，那么就无法接收 ether 了。</p>
+<p>而重入漏洞的本质是：Victim
+先处理了真币，再处理合约账本上记录的内容。为什么这样的顺序会导致漏洞呢？</p>
+<p>比如 attacker 调用 victim 向自己转 0.001 wei，在 victim transfer
+之后，attacker 收到了 0.001 wei，但同时 attacker 也会调用 fallback
+函数。而恶意攻击者可以在 attacker 的 fallback 函数中再次调用 victim
+转账函数。</p>
+<p>这样，victim 账本记录的内容并没有发生改变，但该合约下存储的 ether
+就会一点一点被转干净。</p>
+<h3 id="样例">样例</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">// SPDX-License-Identifier: MIT</span><br><span class="line">pragma solidity ^0.6.12;</span><br><span class="line"></span><br><span class="line">import &quot;openzeppelin-contracts-06/math/SafeMath.sol&quot;;</span><br><span class="line"></span><br><span class="line">contract Reentrance &#123;</span><br><span class="line">    using SafeMath for uint256;</span><br><span class="line"></span><br><span class="line">    mapping(address =&gt; uint256) public balances;</span><br><span class="line"></span><br><span class="line">    function donate(address _to) public payable &#123;</span><br><span class="line">        balances[_to] = balances[_to].add(msg.value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function balanceOf(address _who) public view returns (uint256 balance) &#123;</span><br><span class="line">        return balances[_who];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function withdraw(uint256 _amount) public &#123;</span><br><span class="line">        if (balances[msg.sender] &gt;= _amount) &#123;</span><br><span class="line">            (bool result,) = msg.sender.call&#123;value: _amount&#125;(&quot;&quot;);</span><br><span class="line">            if (result) &#123;</span><br><span class="line">                _amount;</span><br><span class="line">            &#125;</span><br><span class="line">            balances[msg.sender] -= _amount;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    receive() external payable &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="错别字漏洞">[1-2] 错别字漏洞</h2>
+<p>今天跑完步回来比较晚了。。摸个鱼写个简单一点的漏洞。</p>
+<p>这种漏洞显而易见，就是重要的函数的名称写的不对，比如 constructor 写成
+construct0r，fallback 写成 fal1back（当然很扯但不是不可能。。）</p>
+<p>如果要检测的话可以扫描合约，然后查找里面是否有'constr'/'constru'/'onstruc'/'nstruct'/...这样的字符片段，然后提取出来与正常函数名对比。</p>
+<p>总之可以在这里记录一下重要的变量名或者函数</p>
+<p>constructor,receive,fallback,transfer,...</p>
+<h2 id="section">[1-3]</h2>
 
     </div>
 
@@ -320,7 +302,7 @@ target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5773?time__1311=n4%
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://heygap.github.io/2024/02/18/Pwn%20-%20QEMUescape/" title="Pwn - QEMUescape">http://heygap.github.io/2024/02/18/Pwn - QEMUescape/</a>
+    <a href="http://heygap.github.io/2024/08/20/blockchain%20-%202024%E5%90%88%E7%BA%A6%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B%E6%B1%87%E6%80%BB%EF%BC%88%E6%9B%B4%E6%96%B0%E4%B8%AD%EF%BC%89/" title="blockchain - 2024合约漏洞类型汇总（更新中）">http://heygap.github.io/2024/08/20/blockchain - 2024合约漏洞类型汇总（更新中）/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -341,8 +323,8 @@ target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5773?time__1311=n4%
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Pwn/" rel="tag"># Pwn</a>
-              <a href="/tags/QEMU-escape/" rel="tag"># QEMU escape</a>
+              <a href="/tags/Blockchain/" rel="tag"># Blockchain</a>
+              <a href="/tags/Smart-Contract/" rel="tag"># Smart Contract</a>
           </div>
 
         
@@ -351,13 +333,10 @@ target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5773?time__1311=n4%
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2024/02/17/comp%20-%202024VNCTF_pwn_wp/" rel="prev" title="comp - 2024VNCTF_pwn_wp">
-      <i class="fa fa-chevron-left"></i> comp - 2024VNCTF_pwn_wp
+    <a href="/2024/07/19/blockchain%20-%20%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6%E6%BC%8F%E6%B4%9E%E9%9D%B6%E5%9C%BA%E5%A4%8D%E7%8E%B0/" rel="prev" title="blockchain - Ethernaut智能合约漏洞靶场复现">
+      <i class="fa fa-chevron-left"></i> blockchain - Ethernaut智能合约漏洞靶场复现
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2024/03/10/OS%20-%20NJUOS_LabNote/" rel="next" title="OS - NJUOS_Note">
-      OS - NJUOS_Note <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -416,7 +395,7 @@ target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5773?time__1311=n4%
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">[0] 目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#docker"><span class="nav-number">2.</span> <span class="nav-text">[1] Docker</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#installation"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] Installation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#utils"><span class="nav-number">2.2.</span> <span class="nav-text">[1-2] Utils</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">2.2.1.</span> <span class="nav-text">[1-2-1] 常用命令</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#qemu"><span class="nav-number">3.</span> <span class="nav-text">[2] QEMU</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#args"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] Args</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#escape"><span class="nav-number">4.</span> <span class="nav-text">[3] Escape</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%85%E8%AF%BBdockerfile"><span class="nav-number">4.1.</span> <span class="nav-text">[3-1] 阅读Dockerfile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AE%E8%AE%A4%E5%AD%98%E5%9C%A8%E6%BC%8F%E6%B4%9E%E7%9A%84%E8%AE%BE%E5%A4%87"><span class="nav-number">4.2.</span> <span class="nav-text">[3-2] 确认存在漏洞的设备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section"><span class="nav-number">4.3.</span> <span class="nav-text">[3-3]</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nan-reference"><span class="nav-number">5.</span> <span class="nav-text">[NaN] REFERENCE</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AF%E8%AF%AD%E8%A7%84%E8%8C%83"><span class="nav-number">1.</span> <span class="nav-text">[0] 术语规范</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#solidity-%E8%AF%AD%E8%A8%80%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.</span> <span class="nav-text">[1] solidity 语言漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#re-entrancy"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] Re-entrancy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">2.1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B7%E4%BE%8B"><span class="nav-number">2.1.2.</span> <span class="nav-text">样例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%99%E5%88%AB%E5%AD%97%E6%BC%8F%E6%B4%9E"><span class="nav-number">2.2.</span> <span class="nav-text">[1-2] 错别字漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section"><span class="nav-number">2.3.</span> <span class="nav-text">[1-3]</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
