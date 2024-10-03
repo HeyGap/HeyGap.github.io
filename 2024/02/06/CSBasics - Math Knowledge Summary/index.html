@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"heygap.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="总结一下逆向中有关密码学的相关内容，便于后续调用">
+  <meta name="description" content="总结一下计算机中的数学相关内容，便于后续调用">
 <meta property="og:type" content="article">
-<meta property="og:title" content="REV - Crypto Knowledge Summary">
-<meta property="og:url" content="http://heygap.github.io/2024/02/06/REV%20-%20Crypto%20Knowledge%20Summary/index.html">
+<meta property="og:title" content="Math Knowledge Summary">
+<meta property="og:url" content="http://heygap.github.io/2024/02/06/CSBasics%20-%20Math%20Knowledge%20Summary/index.html">
 <meta property="og:site_name" content="HeyGap&#39;s_Blog">
-<meta property="og:description" content="总结一下逆向中有关密码学的相关内容，便于后续调用">
+<meta property="og:description" content="总结一下计算机中的数学相关内容，便于后续调用">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-02-06T15:32:00.000Z">
-<meta property="article:modified_time" content="2024-02-13T14:55:27.207Z">
+<meta property="article:modified_time" content="2024-09-21T07:04:36.700Z">
 <meta property="article:author" content="HeyGap">
-<meta property="article:tag" content="REVERSE">
+<meta property="article:tag" content="Math">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://heygap.github.io/2024/02/06/REV%20-%20Crypto%20Knowledge%20Summary/">
+<link rel="canonical" href="http://heygap.github.io/2024/02/06/CSBasics%20-%20Math%20Knowledge%20Summary/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>REV - Crypto Knowledge Summary | HeyGap's_Blog</title>
+  <title>Math Knowledge Summary | HeyGap's_Blog</title>
   
 
 
@@ -188,7 +188,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/02/06/REV%20-%20Crypto%20Knowledge%20Summary/">
+    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/02/06/CSBasics%20-%20Math%20Knowledge%20Summary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -201,7 +201,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          REV - Crypto Knowledge Summary
+          Math Knowledge Summary
         </h1>
 
         <div class="post-meta">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-02-13 22:02:20" itemprop="dateModified" datetime="2024-02-13T22:55:27+08:00">2024-02-13</time>
+                <time title="修改时间：2024-09-21 15:09:70" itemprop="dateModified" datetime="2024-09-21T15:04:36+08:00">2024-09-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -226,7 +226,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CTF-Theory/" itemprop="url" rel="index"><span itemprop="name">CTF_Theory</span></a>
+                  <a href="/categories/CS-Basics/" itemprop="url" rel="index"><span itemprop="name">CS Basics</span></a>
                 </span>
             </span>
 
@@ -249,10 +249,13 @@
 
       
         <blockquote class="blockquote-center">
-总结一下逆向中有关密码学的相关内容，便于后续调用
+总结一下计算机中的数学相关内容，便于后续调用
 </blockquote>
 <span id="more"></span>
 <h1 id="目录">[0] 目录</h1>
+<ol type="1">
+<li><p><a href="">数学算法</a></p></li>
+<li><p><a href="">密码学</a></p>
 <ol type="1">
 <li><p><a href="#1-stream-cipher">Stream Cipher</a></p>
 <ul>
@@ -262,7 +265,16 @@
 <ul>
 <li><a href="#2-1-teaxteaxxtea">2-1 tea/xtea/xxtea</a></li>
 </ul></li>
+</ol></li>
 </ol>
+<h1 id="math">[1] MATH</h1>
+<h2 id="模乘">[1-1] 模乘</h2>
+<h3 id="蒙哥马利算法">[1-1-1] 蒙哥马利算法</h3>
+<p>按照笔算的思维，计算模乘需要进行一次乘法，再进行一次除法。但除法对计算来说不是很友好，我们希望减少除法的次数（其实除法模块就是乘法/加法/减法的组合），因此我们可以使用蒙哥马利模乘(MMF)，蒙哥马利模乘就是一次乘法+两次蒙哥马利约简(REDC)</p>
+<p>假设我们要计算 <span class="math inline">\(a*b \mod N\)</span>，</p>
+<p>，<span class="math inline">\(aR^{-1} = REDC(x)\)</span>，R
+满足GCD</p>
+<p>而蒙哥马利模乘其实就是，下文将记 x 的蒙哥马利约简为 REDC(x)</p>
 <h1 id="stream-cipher">[1] Stream Cipher</h1>
 <h2 id="rc4">[1-1] RC4</h2>
 <h3 id="基本原理">[1-1-1] 基本原理</h3>
@@ -302,7 +314,7 @@ cyberchef 里再加密一次就能得到原文</p>
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="http://heygap.github.io/2024/02/06/REV%20-%20Crypto%20Knowledge%20Summary/" title="REV - Crypto Knowledge Summary">http://heygap.github.io/2024/02/06/REV - Crypto Knowledge Summary/</a>
+    <a href="http://heygap.github.io/2024/02/06/CSBasics%20-%20Math%20Knowledge%20Summary/" title="Math Knowledge Summary">http://heygap.github.io/2024/02/06/CSBasics - Math Knowledge Summary/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -323,7 +335,7 @@ cyberchef 里再加密一次就能得到原文</p>
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/REVERSE/" rel="tag"># REVERSE</a>
+              <a href="/tags/Math/" rel="tag"># Math</a>
           </div>
 
         
@@ -397,7 +409,7 @@ cyberchef 里再加密一次就能得到原文</p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">[0] 目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stream-cipher"><span class="nav-number">2.</span> <span class="nav-text">[1] Stream Cipher</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#rc4"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] RC4</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">2.1.1.</span> <span class="nav-text">[1-1-1] 基本原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%AF%86%E9%92%A5%E6%B5%81keystream"><span class="nav-number">2.1.2.</span> <span class="nav-text">[1-1-2] 生成密钥流（keystream）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">2.1.3.</span> <span class="nav-text">[1-1-3] 完整代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#block-cipher"><span class="nav-number">3.</span> <span class="nav-text">[2] Block Cipher</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#teaxteaxxtea"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] Tea&#x2F;xTea&#x2F;xxTea</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tea-decrypt"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] Tea decrypt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xtea-decrypt"><span class="nav-number">3.1.2.</span> <span class="nav-text">[2-1-2] xTea decrypt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xxtea-decrypt"><span class="nav-number">3.1.3.</span> <span class="nav-text">[2-1-3] xxTea decrypt</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">[0] 目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#math"><span class="nav-number">2.</span> <span class="nav-text">[1] MATH</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E4%B9%98"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] 模乘</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%92%99%E5%93%A5%E9%A9%AC%E5%88%A9%E7%AE%97%E6%B3%95"><span class="nav-number">2.1.1.</span> <span class="nav-text">[1-1-1] 蒙哥马利算法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#stream-cipher"><span class="nav-number">3.</span> <span class="nav-text">[1] Stream Cipher</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#rc4"><span class="nav-number">3.1.</span> <span class="nav-text">[1-1] RC4</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">3.1.1.</span> <span class="nav-text">[1-1-1] 基本原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%AF%86%E9%92%A5%E6%B5%81keystream"><span class="nav-number">3.1.2.</span> <span class="nav-text">[1-1-2] 生成密钥流（keystream）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">3.1.3.</span> <span class="nav-text">[1-1-3] 完整代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#block-cipher"><span class="nav-number">4.</span> <span class="nav-text">[2] Block Cipher</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#teaxteaxxtea"><span class="nav-number">4.1.</span> <span class="nav-text">[2-1] Tea&#x2F;xTea&#x2F;xxTea</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tea-decrypt"><span class="nav-number">4.1.1.</span> <span class="nav-text">[2-1-1] Tea decrypt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xtea-decrypt"><span class="nav-number">4.1.2.</span> <span class="nav-text">[2-1-2] xTea decrypt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#xxtea-decrypt"><span class="nav-number">4.1.3.</span> <span class="nav-text">[2-1-3] xxTea decrypt</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -424,7 +436,7 @@ cyberchef 里再加密一次就能得到原文</p>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
