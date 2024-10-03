@@ -251,61 +251,91 @@
         <blockquote class="blockquote-center">
 记录一下上课+做实验时产生的问题、思考与收获
 </blockquote>
-
 <span id="more"></span>
-<h1 id="1-Lecture1-Introduction"><a href="#1-Lecture1-Introduction" class="headerlink" title="[1] Lecture1 Introduction"></a>[1] Lecture1 Introduction</h1><h2 id="1-1-what-is-Static-Analysis？"><a href="#1-1-what-is-Static-Analysis？" class="headerlink" title="[1-1] what is Static Analysis？"></a>[1-1] what is Static Analysis？</h2><p>Static Analysis is different with dynamic analysis, analyzers need to construct static bird’s view of the whole workflows. Besides, static analyzers usually focus on the consequence of the analysis rather than the process.</p>
-<h2 id="1-2-What-is-a-good-Static-Analysis"><a href="#1-2-What-is-a-good-Static-Analysis" class="headerlink" title="[1-2] What is a good Static Analysis?"></a>[1-2] What is a good Static Analysis?</h2><p>Before introducing what is a good static analysis, we need to find out what is ‘sound’ and what is ‘complete’.</p>
-<p>sound: We describe a result is sound when it’s reasonable. When a result is sound, its false negative is low.</p>
-<p>complete: We describe a result is complete because it’s definitely correct. When a result is complete, its false positive is low.</p>
-<p>And in static analysis, we usually focus on <code>soundness</code> rather than. I think it’s probably because we’d rather manually check the result than leave any posibility away.</p>
-<h2 id="1-3-Rice’s-Theory"><a href="#1-3-Rice’s-Theory" class="headerlink" title="[1-3] Rice’s Theory"></a>[1-3] Rice’s Theory</h2><p>Unfortunately, Rice has proved (maybe? I forgot) that we can’t give a <code>perfect</code> static analysis to prove non-trivial properties on a re programming language.</p>
-<h2 id="1-4-Example-Bird’s-view-of-techniques"><a href="#1-4-Example-Bird’s-view-of-techniques" class="headerlink" title="[1-4] Example(Bird’s view of techniques)"></a>[1-4] Example(Bird’s view of techniques)</h2><h3 id="1-4-1-Abstract"><a href="#1-4-1-Abstract" class="headerlink" title="[1-4-1] Abstract"></a>[1-4-1] Abstract</h3><p>1, 0, -1 respectively represent [+] ,[0] and [-]</p>
-<p><code>x &lt; y ? 1 : -1</code> represents [top] which means unknown</p>
+<h1 id="lecture1-introduction">[1] Lecture1 Introduction</h1>
+<h2 id="what-is-static-analysis">[1-1] what is Static Analysis？</h2>
+<p>Static Analysis is different with dynamic analysis, analyzers need to
+construct static bird's view of the whole workflows. Besides, static
+analyzers usually focus on the consequence of the analysis rather than
+the process.</p>
+<h2 id="what-is-a-good-static-analysis">[1-2] What is a good Static
+Analysis?</h2>
+<p>Before introducing what is a good static analysis, we need to find
+out what is 'sound' and what is 'complete'.</p>
+<p>sound: We describe a result is sound when it's reasonable. When a
+result is sound, its false negative is low.</p>
+<p>complete: We describe a result is complete because it's definitely
+correct. When a result is complete, its false positive is low.</p>
+<p>And in static analysis, we usually focus on <code>soundness</code>
+rather than. I think it's probably because we'd rather manually check
+the result than leave any posibility away.</p>
+<h2 id="rices-theory">[1-3] Rice's Theory</h2>
+<p>Unfortunately, Rice has proved (maybe? I forgot) that we can't give a
+<code>perfect</code> static analysis to prove non-trivial properties on
+a re programming language.</p>
+<h2 id="examplebirds-view-of-techniques">[1-4] Example(Bird's view of
+techniques)</h2>
+<h3 id="abstract">[1-4-1] Abstract</h3>
+<p>1, 0, -1 respectively represent [+] ,[0] and [-]</p>
+<p><code>x &lt; y ? 1 : -1</code> represents [top] which means
+unknown</p>
 <p><code>1 / 0</code> represents [down] which means undefined</p>
-<h3 id="1-4-2-Over-Approximation"><a href="#1-4-2-Over-Approximation" class="headerlink" title="[1-4-2] Over-Approximation"></a>[1-4-2] Over-Approximation</h3><ol>
-<li><p>considering of condition</p>
-</li>
-<li><p>considering of control flow</p>
-</li>
+<h3 id="over-approximation">[1-4-2] Over-Approximation</h3>
+<ol type="1">
+<li><p>considering of condition</p></li>
+<li><p>considering of control flow</p></li>
 </ol>
-<h1 id="2-Lecture2-Intermediate-Representation"><a href="#2-Lecture2-Intermediate-Representation" class="headerlink" title="[2] Lecture2 Intermediate Representation"></a>[2] Lecture2 Intermediate Representation</h1><h2 id="2-1-What’s-the-difference-between-compiler-amp-static-analyzer"><a href="#2-1-What’s-the-difference-between-compiler-amp-static-analyzer" class="headerlink" title="[2-1] What’s the difference between compiler &amp; static analyzer?"></a>[2-1] What’s the difference between compiler &amp; static analyzer?</h2><p>Compiler: source code -(Lexical analysis)-&gt; Tokens -(Syntax analysis)-&gt; AST -(Semantic analysis)-&gt; Decorated AST -(Translator)-&gt; IR -(Code generator)-&gt; Binary</p>
+<h1 id="lecture2-intermediate-representation">[2] Lecture2 Intermediate
+Representation</h1>
+<h2 id="whats-the-difference-between-compiler-static-analyzer">[2-1]
+What's the difference between compiler &amp; static analyzer?</h2>
+<p>Compiler: source code -(Lexical analysis)-&gt; Tokens -(Syntax
+analysis)-&gt; AST -(Semantic analysis)-&gt; Decorated AST
+-(Translator)-&gt; IR -(Code generator)-&gt; Binary</p>
 <p>And static analyzers are usually based on IR layer.</p>
-<h2 id="2-2-3AC-3-Address-Code"><a href="#2-2-3AC-3-Address-Code" class="headerlink" title="[2-2] 3AC: 3-Address-Code"></a>[2-2] 3AC: 3-Address-Code</h2><p>A common form of IR is 3AC. There is only one operator at the right side of the equation. For example:</p>
+<h2 id="ac-3-address-code">[2-2] 3AC: 3-Address-Code</h2>
+<p>A common form of IR is 3AC. There is only one operator at the right
+side of the equation. For example:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">p = a + c</span><br><span class="line">q = a * p</span><br><span class="line">p = q - d</span><br></pre></td></tr></table></figure>
-<h2 id="2-3-Control-Flow-Graph-CFG"><a href="#2-3-Control-Flow-Graph-CFG" class="headerlink" title="[2-3] Control Flow Graph(CFG)"></a>[2-3] Control Flow Graph(CFG)</h2><p>Control Flow Graph is constructed with nodes and edges. Nodes in graph is called Basic blocks(BB), and edges in graph is just called edge.</p>
-<h3 id="2-3-1-Basic-Blocks-BB"><a href="#2-3-1-Basic-Blocks-BB" class="headerlink" title="[2-3-1] Basic Blocks(BB)"></a>[2-3-1] Basic Blocks(BB)</h3><p>properties:</p>
-<ul>
-<li>BB can be entered only at the start instructions.</li>
-<li>BB can be ended only by jump instructions</li>
-</ul>
-<p>construct algorithm:</p>
-<ul>
-<li>Input: list of IR instructions</li>
-<li>Output: list of BBs</li>
-<li>Algo:<ul>
-<li>find the leader of a block<ol>
-<li>startpoint of the instruction list</li>
-<li>endpoint of a jump instruction</li>
-<li>sequent instruction of a jump instrcution</li>
-</ol>
-</li>
-<li>break at the jump instructions</li>
-</ul>
-</li>
-</ul>
-<h3 id="2-3-2-When-should-we-add-edges"><a href="#2-3-2-When-should-we-add-edges" class="headerlink" title="[2-3-2] When should we add edges?"></a>[2-3-2] When should we add edges?</h3><ol>
-<li>2 edges follow branch instruction </li>
+<h2 id="control-flow-graphcfg">[2-3] Control Flow Graph(CFG)</h2>
+<p>Control Flow Graph is constructed with nodes and edges. Nodes in
+graph is called Basic blocks(BB), and edges in graph is just called
+edge.</p>
+<h3 id="basic-blocksbb">[2-3-1] Basic Blocks(BB)</h3>
+<p>properties: - BB can be entered only at the start instructions. - BB
+can be ended only by jump instructions</p>
+<p>construct algorithm: - Input: list of IR instructions - Output: list
+of BBs - Algo: - find the leader of a block 1. startpoint of the
+instruction list 2. endpoint of a jump instruction 3. sequent
+instruction of a jump instrcution - break at the jump instructions</p>
+<h3 id="when-should-we-add-edges">[2-3-2] When should we add edges?</h3>
+<ol type="1">
+<li>2 edges follow branch instruction</li>
 <li>1 edge follows jump instr without condition</li>
 </ol>
-<h1 id="3-Lecture3-Data-Flow-Analysis-I-Overview-amp-Applications"><a href="#3-Lecture3-Data-Flow-Analysis-I-Overview-amp-Applications" class="headerlink" title="[3] Lecture3 Data Flow Analysis I (Overview &amp; Applications)"></a>[3] Lecture3 Data Flow Analysis I (Overview &amp; Applications)</h1><h2 id="3-1-Overview-of-Data-flow-analysis"><a href="#3-1-Overview-of-Data-flow-analysis" class="headerlink" title="[3-1] Overview of Data flow analysis"></a>[3-1] Overview of Data flow analysis</h2><h3 id="3-1-1-what-is-data-flow-analysis"><a href="#3-1-1-what-is-data-flow-analysis" class="headerlink" title="[3-1-1] what is data flow analysis?"></a>[3-1-1] what is data flow analysis?</h3><p>How _ Data(Abstraction) Flow(Safe-approximation) through the _ of CFG</p>
-<p>Node: Transfer function </p>
+<h1 id="lecture3-data-flow-analysis-i-overview-applications">[3]
+Lecture3 Data Flow Analysis I (Overview &amp; Applications)</h1>
+<h2 id="overview-of-data-flow-analysis">[3-1] Overview of Data flow
+analysis</h2>
+<h3 id="what-is-data-flow-analysis">[3-1-1] what is data flow
+analysis?</h3>
+<p>How _ Data(Abstraction) Flow(Safe-approximation) through the _ of
+CFG</p>
+<p>Node: Transfer function</p>
 <p>Edge: Control flow function(union the signs at merges)</p>
-<h3 id="3-1-2-what’s-the-difference-between-may-analysis-amp-must-analysis"><a href="#3-1-2-what’s-the-difference-between-may-analysis-amp-must-analysis" class="headerlink" title="[3-1-2] what’s the difference between may-analysis &amp; must-analysis?"></a>[3-1-2] what’s the difference between may-analysis &amp; must-analysis?</h3><p>may:</p>
+<h3 id="whats-the-difference-between-may-analysis-must-analysis">[3-1-2]
+what's the difference between may-analysis &amp; must-analysis?</h3>
+<p>may:</p>
 <p>must:</p>
-<h2 id="3-2-Preliminaries"><a href="#3-2-Preliminaries" class="headerlink" title="[3-2] Preliminaries"></a>[3-2] Preliminaries</h2><h3 id="3-2-1-Input-amp-Output-state"><a href="#3-2-1-Input-amp-Output-state" class="headerlink" title="[3-2-1] Input &amp; Output state"></a>[3-2-1] Input &amp; Output state</h3><p>property 1: Every execution of an IR statement transforms</p>
-<p>property 2: The Input/output state is associated with a program point(from view of state-machine)</p>
-<h2 id="3-2-2-Symbols"><a href="#3-2-2-Symbols" class="headerlink" title="[3-2-2] Symbols"></a>[3-2-2] Symbols</h2><p>meet operator: ∩</p>
-<h2 id="3-3"><a href="#3-3" class="headerlink" title="[3-3]"></a>[3-3]</h2>
+<h2 id="preliminaries">[3-2] Preliminaries</h2>
+<h3 id="input-output-state">[3-2-1] Input &amp; Output state</h3>
+<p>property 1: Every execution of an IR statement transforms</p>
+<p>property 2: The Input/output state is associated with a program
+point(from view of state-machine)</p>
+<h2 id="symbols">[3-2-2] Symbols</h2>
+<p>meet operator: ∩</p>
+<h2 id="section">[3-3]</h2>
+
     </div>
 
     
@@ -415,7 +445,15 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Lecture1-Introduction"><span class="nav-number">1.</span> <span class="nav-text">[1] Lecture1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-what-is-Static-Analysis%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">[1-1] what is Static Analysis？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-What-is-a-good-Static-Analysis"><span class="nav-number">1.2.</span> <span class="nav-text">[1-2] What is a good Static Analysis?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-Rice%E2%80%99s-Theory"><span class="nav-number">1.3.</span> <span class="nav-text">[1-3] Rice’s Theory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-Example-Bird%E2%80%99s-view-of-techniques"><span class="nav-number">1.4.</span> <span class="nav-text">[1-4] Example(Bird’s view of techniques)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-1-Abstract"><span class="nav-number">1.4.1.</span> <span class="nav-text">[1-4-1] Abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-2-Over-Approximation"><span class="nav-number">1.4.2.</span> <span class="nav-text">[1-4-2] Over-Approximation</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Lecture2-Intermediate-Representation"><span class="nav-number">2.</span> <span class="nav-text">[2] Lecture2 Intermediate Representation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-What%E2%80%99s-the-difference-between-compiler-amp-static-analyzer"><span class="nav-number">2.1.</span> <span class="nav-text">[2-1] What’s the difference between compiler &amp; static analyzer?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-3AC-3-Address-Code"><span class="nav-number">2.2.</span> <span class="nav-text">[2-2] 3AC: 3-Address-Code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-Control-Flow-Graph-CFG"><span class="nav-number">2.3.</span> <span class="nav-text">[2-3] Control Flow Graph(CFG)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-1-Basic-Blocks-BB"><span class="nav-number">2.3.1.</span> <span class="nav-text">[2-3-1] Basic Blocks(BB)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-2-When-should-we-add-edges"><span class="nav-number">2.3.2.</span> <span class="nav-text">[2-3-2] When should we add edges?</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Lecture3-Data-Flow-Analysis-I-Overview-amp-Applications"><span class="nav-number">3.</span> <span class="nav-text">[3] Lecture3 Data Flow Analysis I (Overview &amp; Applications)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-Overview-of-Data-flow-analysis"><span class="nav-number">3.1.</span> <span class="nav-text">[3-1] Overview of Data flow analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-1-what-is-data-flow-analysis"><span class="nav-number">3.1.1.</span> <span class="nav-text">[3-1-1] what is data flow analysis?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-2-what%E2%80%99s-the-difference-between-may-analysis-amp-must-analysis"><span class="nav-number">3.1.2.</span> <span class="nav-text">[3-1-2] what’s the difference between may-analysis &amp; must-analysis?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-Preliminaries"><span class="nav-number">3.2.</span> <span class="nav-text">[3-2] Preliminaries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-1-Input-amp-Output-state"><span class="nav-number">3.2.1.</span> <span class="nav-text">[3-2-1] Input &amp; Output state</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-2-Symbols"><span class="nav-number">3.3.</span> <span class="nav-text">[3-2-2] Symbols</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3"><span class="nav-number">3.4.</span> <span class="nav-text">[3-3]</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#lecture1-introduction"><span class="nav-number">1.</span> <span class="nav-text">[1] Lecture1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#what-is-static-analysis"><span class="nav-number">1.1.</span> <span class="nav-text">[1-1] what is Static Analysis？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#what-is-a-good-static-analysis"><span class="nav-number">1.2.</span> <span class="nav-text">[1-2] What is a good Static
+Analysis?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rices-theory"><span class="nav-number">1.3.</span> <span class="nav-text">[1-3] Rice&#39;s Theory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#examplebirds-view-of-techniques"><span class="nav-number">1.4.</span> <span class="nav-text">[1-4] Example(Bird&#39;s view of
+techniques)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#abstract"><span class="nav-number">1.4.1.</span> <span class="nav-text">[1-4-1] Abstract</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#over-approximation"><span class="nav-number">1.4.2.</span> <span class="nav-text">[1-4-2] Over-Approximation</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lecture2-intermediate-representation"><span class="nav-number">2.</span> <span class="nav-text">[2] Lecture2 Intermediate
+Representation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#whats-the-difference-between-compiler-static-analyzer"><span class="nav-number">2.1.</span> <span class="nav-text">[2-1]
+What&#39;s the difference between compiler &amp; static analyzer?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ac-3-address-code"><span class="nav-number">2.2.</span> <span class="nav-text">[2-2] 3AC: 3-Address-Code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#control-flow-graphcfg"><span class="nav-number">2.3.</span> <span class="nav-text">[2-3] Control Flow Graph(CFG)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#basic-blocksbb"><span class="nav-number">2.3.1.</span> <span class="nav-text">[2-3-1] Basic Blocks(BB)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#when-should-we-add-edges"><span class="nav-number">2.3.2.</span> <span class="nav-text">[2-3-2] When should we add edges?</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lecture3-data-flow-analysis-i-overview-applications"><span class="nav-number">3.</span> <span class="nav-text">[3]
+Lecture3 Data Flow Analysis I (Overview &amp; Applications)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#overview-of-data-flow-analysis"><span class="nav-number">3.1.</span> <span class="nav-text">[3-1] Overview of Data flow
+analysis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#what-is-data-flow-analysis"><span class="nav-number">3.1.1.</span> <span class="nav-text">[3-1-1] what is data flow
+analysis?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#whats-the-difference-between-may-analysis-must-analysis"><span class="nav-number">3.1.2.</span> <span class="nav-text">[3-1-2]
+what&#39;s the difference between may-analysis &amp; must-analysis?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#preliminaries"><span class="nav-number">3.2.</span> <span class="nav-text">[3-2] Preliminaries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#input-output-state"><span class="nav-number">3.2.1.</span> <span class="nav-text">[3-2-1] Input &amp; Output state</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#symbols"><span class="nav-number">3.3.</span> <span class="nav-text">[3-2-2] Symbols</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#section"><span class="nav-number">3.4.</span> <span class="nav-text">[3-3]</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

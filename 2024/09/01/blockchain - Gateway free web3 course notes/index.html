@@ -246,32 +246,28 @@
         <blockquote class="blockquote-center">
 Hard to only solve challenges, I need some foundemental knowledge
 </blockquote>
-
 <span id="more"></span>
-<h1 id="1-Security-Basics"><a href="#1-Security-Basics" class="headerlink" title="[1] Security Basics"></a>[1] Security Basics</h1><h2 id="1-1-Design-Pinciples"><a href="#1-1-Design-Pinciples" class="headerlink" title="[1-1] Design Pinciples"></a>[1-1] Design Pinciples</h2><ol>
-<li><p>Less Code by Less Storage Variables</p>
-</li>
-<li><p>More Logic happens off-chain</p>
-</li>
-<li><p>Loops often ends up with DoS attack or sth else. So we need to avoid any event/algorithm and so on</p>
-</li>
-<li><p>When auditing contract, we can focus on the input position where devs want users to input.(审计合约的时候可以关注这个合约希望用户怎样操作，但有哪些是非预期操作) FOCUS ON EDGE CASES, and limit expected inputs!</p>
-</li>
-<li><p>HANDLE ALL CASES</p>
-</li>
-<li><p>post check</p>
-</li>
+<h1 id="security-basics">[1] Security Basics</h1>
+<h2 id="design-pinciples">[1-1] Design Pinciples</h2>
+<ol type="1">
+<li><p>Less Code by Less Storage Variables</p></li>
+<li><p>More Logic happens off-chain</p></li>
+<li><p>Loops often ends up with DoS attack or sth else. So we need to
+avoid any event/algorithm and so on</p></li>
+<li><p>When auditing contract, we can focus on the input position where
+devs want users to
+input.(审计合约的时候可以关注这个合约希望用户怎样操作，但有哪些是非预期操作)
+FOCUS ON EDGE CASES, and limit expected inputs!</p></li>
+<li><p>HANDLE ALL CASES</p></li>
+<li><p>post check</p></li>
 </ol>
-<h3 id="1-1-1-External-call"><a href="#1-1-1-External-call" class="headerlink" title="[1-1-1] External call"></a>[1-1-1] External call</h3><p>Consider them from high levels?</p>
-<ol>
-<li><p>Reentrancy</p>
-</li>
-<li><p>DoS                                                     </p>
-</li>
-<li><p>Return values</p>
-</li>
-<li><p>Gas</p>
-</li>
+<h3 id="external-call">[1-1-1] External call</h3>
+<p>Consider them from high levels?</p>
+<ol type="1">
+<li><p>Reentrancy</p></li>
+<li><p>DoS</p></li>
+<li><p>Return values</p></li>
+<li><p>Gas</p></li>
 </ol>
 
     </div>
@@ -384,7 +380,7 @@ Hard to only solve challenges, I need some foundemental knowledge
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Security-Basics"><span class="nav-number">1.</span> <span class="nav-text">[1] Security Basics</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Design-Pinciples"><span class="nav-number">1.1.</span> <span class="nav-text">[1-1] Design Pinciples</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-External-call"><span class="nav-number">1.1.1.</span> <span class="nav-text">[1-1-1] External call</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#security-basics"><span class="nav-number">1.</span> <span class="nav-text">[1] Security Basics</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#design-pinciples"><span class="nav-number">1.1.</span> <span class="nav-text">[1-1] Design Pinciples</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#external-call"><span class="nav-number">1.1.1.</span> <span class="nav-text">[1-1-1] External call</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
