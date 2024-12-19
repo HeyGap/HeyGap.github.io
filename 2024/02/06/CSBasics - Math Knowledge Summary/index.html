@@ -28,7 +28,7 @@
 <meta property="og:description" content="总结一下计算机中的数学相关内容，便于后续调用">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-02-06T15:32:00.000Z">
-<meta property="article:modified_time" content="2024-09-21T07:04:36.700Z">
+<meta property="article:modified_time" content="2024-10-26T09:08:14.234Z">
 <meta property="article:author" content="HeyGap">
 <meta property="article:tag" content="Math">
 <meta name="twitter:card" content="summary">
@@ -218,7 +218,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-09-21 15:09:70" itemprop="dateModified" datetime="2024-09-21T15:04:36+08:00">2024-09-21</time>
+                <time title="修改时间：2024-10-26 17:10:23" itemprop="dateModified" datetime="2024-10-26T17:08:14+08:00">2024-10-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -255,6 +255,13 @@
 <span id="more"></span>
 <h1 id="0-目录"><a href="#0-目录" class="headerlink" title="[0] 目录"></a>[0] 目录</h1><ol>
 <li><p><a href="">数学算法</a></p>
+<ol>
+<li><p>[模乘]</p>
+<ul>
+<li>[1-1-1 蒙哥马利算法]</li>
+</ul>
+</li>
+</ol>
 </li>
 <li><p><a href="">密码学</a></p>
 <ol>
@@ -271,10 +278,14 @@
 </ol>
 </li>
 </ol>
-<h1 id="1-MATH"><a href="#1-MATH" class="headerlink" title="[1] MATH"></a>[1] MATH</h1><h2 id="1-1-模乘"><a href="#1-1-模乘" class="headerlink" title="[1-1] 模乘"></a>[1-1] 模乘</h2><h3 id="1-1-1-蒙哥马利算法"><a href="#1-1-1-蒙哥马利算法" class="headerlink" title="[1-1-1] 蒙哥马利算法"></a>[1-1-1] 蒙哥马利算法</h3><p>按照笔算的思维，计算模乘需要进行一次乘法，再进行一次除法。但除法对计算来说不是很友好，我们希望减少除法的次数（其实除法模块就是乘法/加法/减法的组合），因此我们可以使用蒙哥马利模乘(MMF)，蒙哥马利模乘就是一次乘法+两次蒙哥马利约简(REDC)</p>
-<p>假设我们要计算 $a*b \mod N$，</p>
-<p>，$aR^{-1} = REDC(x)$，R 满足GCD</p>
-<p>而蒙哥马利模乘其实就是，下文将记 x 的蒙哥马利约简为 REDC(x)</p>
+<h1 id="1-MATH"><a href="#1-MATH" class="headerlink" title="[1] MATH"></a>[1] MATH</h1><h2 id="1-1-模乘"><a href="#1-1-模乘" class="headerlink" title="[1-1] 模乘"></a>[1-1] 模乘</h2><h3 id="1-1-1-蒙哥马利算法"><a href="#1-1-1-蒙哥马利算法" class="headerlink" title="[1-1-1] 蒙哥马利算法"></a>[1-1-1] 蒙哥马利算法</h3><p>蒙哥马利算法能够提高类似模幂运算的速度而实现的，主要是因为蒙哥马利算法巧妙地避免了大量模运算（除法），极大地降低了运算时间，下面介绍如何减少x*y mod N的模运算数目。</p>
+<p>首先，蒙哥马利算法引入了REDC函数，该函数以大数T，模数N，模数N的逆元的负数N’和整数R（如果N为素数，R一般选取$2^{n_bit}$，这样就可以在整除前提下用移位运算代替除法运算，也就是将下面代码第三行的整除运算换成移位运算）作为输入，在不使用模运算的情况下输出$TR^{-1} mod N$。该函数减少了模运算的数目，同时将T的蒙哥马利形式恢复成了普通形式。该函数的低效版python实现如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def REDC(R, N, N_inverse, T):</span><br><span class="line">    m = ((T % R) * N_inverse) % R</span><br><span class="line">    t = (T + m * N) // R</span><br><span class="line">    if t &gt;= N:</span><br><span class="line">        return t - N</span><br><span class="line">    return t</span><br></pre></td></tr></table></figure>
+<p>可以看到m的预计算使得t处于(0,2N)之间，我们可以用一次比较和一次减法代替模运算。如果想要进一步提升效率，可以将m提出这个函数放入查找表中，进一步减少模运算的数目。</p>
+<p>接下来介绍大数T的蒙哥马利形式：假设我们有模数N，大整数T。其实T的蒙哥马利形式$\overline{T}$就是TR.其中 R ，且R与模数N互素，这样我们可以通过REDC函数来恢复T mod N。</p>
+<p>假设我们有模数N，大数a和大数b，蒙哥马利模乘就是：先将a和b转化为蒙哥马利形式，然后计算$\overline{a} <em> \overline{b}$，也就是$a</em>b<em>R^2$，最后求解$\overline{c} = REDC(\overline{a} </em> \overline{b})$即可求得乘积c的蒙哥马利形式。我们可以将$\overline{c}$再丢进REDC函数即可获得c，也可以用$\overline{c}$进行之后的运算。</p>
+<p>到目前为止，除了预计算m和求R的模逆元需要几次模运算外，所有运算均不涉及模运算，还保证了所有乘法运算都维持在modN的量级进行。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">extended_gcd</span>(<span class="params">a, b</span>):</span><br><span class="line">    <span class="keyword">if</span> a == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> b, <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    gcd, x1, y1 = extended_gcd(b % a, a)</span><br><span class="line">    x = y1 - (b // a) * x1</span><br><span class="line">    y = x1</span><br><span class="line">    <span class="keyword">return</span> gcd, x, y</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">mod_inverse</span>(<span class="params">a, m</span>):</span><br><span class="line">    gcd, x, y = extended_gcd(a, m)</span><br><span class="line">    <span class="keyword">if</span> gcd != <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;Inverse doesn&#x27;t exist&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> x % m</span><br><span class="line">    </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">calc_n_bit</span>(<span class="params">N</span>):</span><br><span class="line">    n_bit = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> N &gt; <span class="number">0</span>:</span><br><span class="line">        N &gt;&gt;= <span class="number">1</span></span><br><span class="line">        n_bit += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> n_bit</span><br><span class="line">        </span><br><span class="line"><span class="comment"># 找到满足 N*N_inverse = -1 modR 的 N_inverse</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">find_N_inverse</span>(<span class="params">N, R</span>):</span><br><span class="line">    N_inv =  mod_inverse(N, R)</span><br><span class="line">    N_inverse = (R - N_inv) % R</span><br><span class="line">    <span class="keyword">return</span> N_inverse</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 计算 TR^&#123;-1&#125; mod N，也就是把 T 的蒙哥马利形式转换回普通形式</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">REDC</span>(<span class="params">R, N, N_inverse, T</span>):</span><br><span class="line">    n_bit = calc_n_bit(N)</span><br><span class="line">    m = ((T % R) * N_inverse) % R</span><br><span class="line">    <span class="comment"># print(&quot;t:&quot; ,(T + m * N) / R)</span></span><br><span class="line">    t = (T + m * N) &gt;&gt; n_bit</span><br><span class="line">    <span class="keyword">if</span> t &gt;= N:</span><br><span class="line">        <span class="keyword">return</span> t - N</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 T 的普通形式转换为蒙哥马利形式</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">convert_to_montgomery</span>(<span class="params">R, N, T</span>):</span><br><span class="line">    <span class="keyword">return</span> (T * R) % N</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算 T1 * T2 的蒙哥马利形式</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">montgomery_multiply</span>(<span class="params">T1, T2, N, R</span>):</span><br><span class="line">    product = T1 * T2</span><br><span class="line">    N_inv = find_N_inverse(N, R)</span><br><span class="line">    <span class="keyword">return</span> REDC(R, N, N_inv, product)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    N = <span class="number">2</span>**<span class="number">4096</span> - <span class="number">1</span></span><br><span class="line">    n_bit = calc_n_bit(N)</span><br><span class="line">    R = <span class="number">1</span> &lt;&lt; n_bit</span><br><span class="line">    T1 = <span class="number">231735531420147883</span></span><br><span class="line">    T2 = <span class="number">8270984215581679609</span></span><br><span class="line">    <span class="comment"># mont_T1 = T1 * R mod N</span></span><br><span class="line">    mont_T1 = convert_to_montgomery(R, N, T1)</span><br><span class="line">    <span class="comment"># mont_T2 = T2 * R mod N</span></span><br><span class="line">    mont_T2 = convert_to_montgomery(R, N, T2)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;montgomery_multiply: &quot;</span>, REDC(R, N, find_N_inverse(N, R), montgomery_multiply(mont_T1, mont_T2, N, R)))</span><br></pre></td></tr></table></figure>
 <h1 id="1-Stream-Cipher"><a href="#1-Stream-Cipher" class="headerlink" title="[1] Stream Cipher"></a>[1] Stream Cipher</h1><h2 id="1-1-RC4"><a href="#1-1-RC4" class="headerlink" title="[1-1] RC4"></a>[1-1] RC4</h2><h3 id="1-1-1-基本原理"><a href="#1-1-1-基本原理" class="headerlink" title="[1-1-1] 基本原理"></a>[1-1-1] 基本原理</h3><p>加密: 明文与 keystream 异或得到密文</p>
 <p>密文: 密文与 keystream 异或得到明文</p>
 <p>keystream 与明文等长</p>
@@ -416,18 +427,18 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">25</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>

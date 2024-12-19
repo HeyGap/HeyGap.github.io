@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"heygap.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录一下这学期最难的一次网络安全实验，恰逢期末，之后回来填坑">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web - DNS Poisoning">
+<meta property="og:url" content="http://heygap.github.io/2024/12/06/Web%20-%20DNS%20poisoning/index.html">
+<meta property="og:site_name" content="HeyGap&#39;s_Blog">
+<meta property="og:description" content="记录一下这学期最难的一次网络安全实验，恰逢期末，之后回来填坑">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-12-06T08:52:00.000Z">
+<meta property="article:modified_time" content="2024-12-19T15:28:40.476Z">
+<meta property="article:author" content="HeyGap">
+<meta property="article:tag" content="DNS poisoning">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://heygap.github.io/2024/12/06/Web%20-%20DNS%20poisoning/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Web - DNS Poisoning | HeyGap's_Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HeyGap's_Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Be a positive learner</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/HeyGap" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/12/06/Web%20-%20DNS%20poisoning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="HeyGap">
+      <meta itemprop="description" content="An undergraduate student of Cybersecurity at SDU.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HeyGap's_Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Web - DNS Poisoning
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-12-06 16:12:00" itemprop="dateCreated datePublished" datetime="2024-12-06T16:52:00+08:00">2024-12-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-12-19 23:12:47" itemprop="dateModified" datetime="2024-12-19T23:28:40+08:00">2024-12-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WEB/" itemprop="url" rel="index"><span itemprop="name">WEB</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote class="blockquote-center">
+记录一下这学期最难的一次网络安全实验，恰逢期末，之后回来填坑
+</blockquote>
+
+<span id="more"></span>
+<h1 id="1-虚拟机-virtualbox-配置"><a href="#1-虚拟机-virtualbox-配置" class="headerlink" title="[1] 虚拟机 virtualbox 配置"></a>[1] 虚拟机 virtualbox 配置</h1><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/luo15242208310/article/details/121581827">如何便捷地 copy 虚拟机</a>(直到写这篇 wp 才想起来可以 STFW，我最开始用的 vdi…还需要用 <code>VBoxManage internalcommands sethduuid /path/to/your.vdi</code> 重新解绑uuid)</p>
+<p>由于此次打开的虚拟机较多，所以每个虚拟机内存只分配2GB即可</p>
+<p>之后，把双向粘贴板和双向拖放打开，再把“显示 -&gt; 屏幕”中扩展特性的“启用3D加速”打开（要不然会花屏）</p>
+<p>之后再在“网络 -&gt; 网卡1”栏目中，将连接方式改为“内部网络”，然后名称改为intnet0/1/2（这里根据自己需求来写，比如我配的权威DNS就是intnet1）</p>
+<p>最后进入虚拟机中，在上方栏目的“设备”中点击安装增强功能，它会自动打开一个文件夹，在终端里运行autorun.sh即可自动安装，之后重启虚拟机就可以启用双向粘贴板和拖放了</p>
+<h1 id="2-虚拟机网络配置"><a href="#2-虚拟机网络配置" class="headerlink" title="[2] 虚拟机网络配置"></a>[2] 虚拟机网络配置</h1><p>IP 分配为：</p>
+<p>攻击者——192.168.3.200</p>
+<p>受害者——192.168.3.100</p>
+<p>权威服务器——192.168.4.105</p>
+<p>正常网站——192.168.4.100</p>
+<p>递归服务器——192.168.5.53</p>
+<p>钓鱼网站——192.168.5.80</p>
+<h2 id="2-1-openwrt"><a href="#2-1-openwrt" class="headerlink" title="[2-1] openwrt"></a>[2-1] openwrt</h2><h3 id="2-1-1-network"><a href="#2-1-1-network" class="headerlink" title="[2-1-1] network"></a>[2-1-1] network</h3><p>通过 <code>vi /etc/config/network</code> 为每个⽹络接⼝配置相应的设置。这通常包括设置IP地址、⽹关、⼦⽹掩码等，这里我配置为以下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">config interface &#x27;loopback&#x27; </span><br><span class="line">  option device &#x27;lo&#x27;</span><br><span class="line">  option proto &#x27;static&#x27;</span><br><span class="line">  option ipaddr &#x27;127.0.0.1&#x27;</span><br><span class="line">  option netmask &#x27;255.0.0.0&#x27;</span><br><span class="line"></span><br><span class="line">config interface &#x27;wan&#x27;</span><br><span class="line">  option device &#x27;eth0&#x27;</span><br><span class="line">  option proto &#x27;dhcp&#x27;</span><br><span class="line"></span><br><span class="line">config interface &#x27;lan1&#x27; </span><br><span class="line">  option ifname &#x27;eth1&#x27; </span><br><span class="line">  option proto &#x27;static&#x27; </span><br><span class="line">  option ipaddr &#x27;192.168.3.1&#x27; </span><br><span class="line">  option netmask &#x27;255.255.255.0&#x27; </span><br><span class="line"> </span><br><span class="line">config interface &#x27;lan2&#x27; </span><br><span class="line">  option ifname &#x27;eth2&#x27; </span><br><span class="line">  option proto &#x27;static&#x27; </span><br><span class="line">  option ipaddr &#x27;192.168.4.1&#x27; </span><br><span class="line">  option netmask &#x27;255.255.255.0&#x27; </span><br><span class="line"></span><br><span class="line">config interface &#x27;lan3&#x27; </span><br><span class="line">  option ifname &#x27;eth3&#x27; </span><br><span class="line">  option proto &#x27;static&#x27; </span><br><span class="line">  option ipaddr &#x27;192.168.5.1&#x27; </span><br><span class="line">  option netmask &#x27;255.255.255.0&#x27; </span><br></pre></td></tr></table></figure>
+<p>其中，wan与virtualbox‘网络’配置中的网卡1(网络地址转换)是对应的，device是eth0。lan1与virtualbox‘网络’配置中的网卡2(intnet0)是对应的，device是eth1，ipaddr192.168.3.1是网关ip，netmask是子网掩码，以此类推lan2和lan3。</p>
+<p>配置好之后，我们需要使用 <code>/etc/init.d/network restart</code> 重启服务</p>
+<h3 id="2-1-2-firewall"><a href="#2-1-2-firewall" class="headerlink" title="[2-1-2] firewall"></a>[2-1-2] firewall</h3><p>通过 <code>vi /etc/config/firewall</code> 添加或修改防⽕墙规则，这里 firewall 的文件太长，我就不贴在这里了，可以自行gpt。编辑好之后，可以通过 <code>/etc/init.d/firewall restart</code> 重启防火墙</p>
+<h3 id="2-1-3-测试网络"><a href="#2-1-3-测试网络" class="headerlink" title="[2-1-3] 测试网络"></a>[2-1-3] 测试网络</h3><p>可以通过 <code>ping www.baidu.com</code> 和 <code>ping 8.8.8.8</code> 来测试路由器是否可以访问互联网。</p>
+<h2 id="2-2-ubuntu"><a href="#2-2-ubuntu" class="headerlink" title="[2-2] ubuntu"></a>[2-2] ubuntu</h2><p>可以通过 <code>sudo vim /etc/netplan/01-network-manager-all.yaml</code> 来配置 ubuntu 虚拟机的网络设置，以权威域名服务器为例，配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># Let NetworkManager manage all devices on this system</span><br><span class="line">network:</span><br><span class="line">  version: 2</span><br><span class="line">  renderer: networkd</span><br><span class="line">  ethernets:</span><br><span class="line">    enp0s3:</span><br><span class="line">      dhcp4: no</span><br><span class="line">      addresses:</span><br><span class="line">        - 192.168.4.105/24</span><br><span class="line">      routes:</span><br><span class="line">        - to: default</span><br><span class="line">          via: 192.168.4.1</span><br><span class="line">      nameservers:</span><br><span class="line">        addresses:</span><br><span class="line">          - 8.8.8.8</span><br><span class="line">          - 8.8.4.4</span><br></pre></td></tr></table></figure>
+<p>然后通过 <code>sudo netplan apply</code> 重启网络配置，其他几个虚拟机也如法炮制</p>
+<p>重启之后，可以通过 <code>ping www.baidu.com</code> 来判断是否可以通过路由器访问外网，如果成功则网络配置完毕；如果失败则使用 <code>ping 192.168.4.1</code> 来判断路由器与虚拟机之间的网络是否连接正常，如果成功则说明路由器无法访问互联网，如果失败则说明虚拟机和路由器间链接不正常，检查virtualbox网卡配置、虚拟机网络配置和路由器网关、防火墙配置。</p>
+<h1 id="3-域名服务器"><a href="#3-域名服务器" class="headerlink" title="[3] 域名服务器"></a>[3] 域名服务器</h1><p>在本实验中，我们使用 bind9 来配置 DNS，首先通过以下命令下载 bind9</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt update</span><br><span class="line">sudo apt install bind9 bind9utils bind9-doc</span><br></pre></td></tr></table></figure>
+<h2 id="3-1-权威域名服务器"><a href="#3-1-权威域名服务器" class="headerlink" title="[3-1] 权威域名服务器"></a>[3-1] 权威域名服务器</h2><p>权威域名服务器存储了完整的域名，直接通过访问数据库获取最新的域名和ip对应关系</p>
+<h3 id="3-1-1-配置-zone-文件"><a href="#3-1-1-配置-zone-文件" class="headerlink" title="[3-1-1] 配置 zone 文件"></a>[3-1-1] 配置 zone 文件</h3><p>首先，我们需要编辑 bind9 的配置文件。bind9 的主配置文件通常是 <code>/etc/bind/named.conf.local</code>，我们在这个文件中添加下述内容，等价于为 bind9 添加了一个 zone</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zone &quot;test.seclab.online&quot; &#123;</span><br><span class="line">    type master;</span><br><span class="line">    file &quot;/etc/bind/zones/db.test.seclab.online&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>其次，我们需要创建区域数据文件。我们先使用 <code>sudo mkdir /etc/bind/zones</code> 创建目录，再使用 <code>sudo vim /etc/bind/zones/db.test.seclab.online</code> 向该数据文件中加入下面内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$TTL    10 ; 以下NS、A等记录如果不指定生存期，默认10s的ttl</span><br><span class="line">@       IN      SOA     ns1.test.seclab.online. admin.test.seclab.online. (</span><br><span class="line">                     2024120601 ; 每次更新 DNS 区域文件时都需要更新序列号，通常是 YYYYMMDDNN</span><br><span class="line">                     604800     ; Refresh</span><br><span class="line">                     86400      ; Retry</span><br><span class="line">                     2419200    ; Expire</span><br><span class="line">                     10 )   ; 如果没有找到该域名，NXDOMAIN在递归DNS服务器中的ttl是10秒</span><br><span class="line"></span><br><span class="line">; Name servers</span><br><span class="line">        IN      NS      ns1.test.seclab.online.</span><br><span class="line"></span><br><span class="line">; NS 记录指向 权威域名服务器</span><br><span class="line">; A  记录定义了主机名到 IP 地址的映射</span><br><span class="line">; 权威域名服务器是 .4.105</span><br><span class="line">ns1     IN      A       192.168.4.105</span><br><span class="line"></span><br><span class="line">; test.seclab.online 的对应 ip 是 .4.100</span><br><span class="line">@       IN      A       192.168.4.100</span><br><span class="line"></span><br><span class="line">; www.test.seclab.online 的对应 ip 是 .4.100</span><br><span class="line">www     IN      A       192.168.4.100</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-2-配置-BIND-监听-IP-地址"><a href="#3-1-2-配置-BIND-监听-IP-地址" class="headerlink" title="[3-1-2] 配置 BIND 监听 IP 地址"></a>[3-1-2] 配置 BIND 监听 IP 地址</h3><p>编辑 BIND 的主配置文件 <code>/etc/bind/named.conf.options</code>，设置 BIND 监听的 IP 地址和端口。确保该文件中存在:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">options &#123;</span><br><span class="line">    directory &quot;/var/cache/bind&quot;;</span><br><span class="line"></span><br><span class="line">    recursion no;  # 禁止递归查询，只作为权威 DNS 服务器</span><br><span class="line">    allow-query &#123; any; &#125;;  # 允许任何人查询</span><br><span class="line">    listen-on &#123; 192.168.4.105; &#125;;  # 监听特定的 IP 地址</span><br><span class="line">    listen-on-v6 &#123; none; &#125;;  # 禁止 IPv6</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-3-启动服务"><a href="#3-1-3-启动服务" class="headerlink" title="[3-1-3] 启动服务"></a>[3-1-3] 启动服务</h3><p>使用以下命令重启 BIND9 服务并使防火墙允许 DNS 请求通过 53 端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl restart bind9</span><br><span class="line"></span><br><span class="line">sudo ufw allow 53</span><br><span class="line">sudo ufw reload</span><br></pre></td></tr></table></figure>
+<h3 id="3-1-4-测试"><a href="#3-1-4-测试" class="headerlink" title="[3-1-4] 测试"></a>[3-1-4] 测试</h3><p>在客户端上通过 <code>dig @192.168.4.105 test.seclab.online</code> 命令，如果 DNS 配置正确，我们可以看到如下输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">; &lt;&lt;&gt;&gt; DiG 9.18.28-0ubuntu0.22.04.1-Ubuntu &lt;&lt;&gt;&gt; @192.168.4.105 test.seclab.online</span><br><span class="line">; (1 server found)</span><br><span class="line">;; global options: +cmd</span><br><span class="line">;; Got answer:</span><br><span class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 41596</span><br><span class="line">;; flags: qr aa rd; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1</span><br><span class="line">;; WARNING: recursion requested but not available</span><br><span class="line"></span><br><span class="line">;; OPT PSEUDOSECTION:</span><br><span class="line">; EDNS: version: 0, flags:; udp: 1232</span><br><span class="line">; COOKIE: 5e30601cfcf185d8010000006752e9109d77d9b6c83e4824 (good)</span><br><span class="line">;; QUESTION SECTION:</span><br><span class="line">;test.seclab.online.		IN	A</span><br><span class="line"></span><br><span class="line">;; ANSWER SECTION:</span><br><span class="line">test.seclab.online.	604800	IN	A	192.168.4.100</span><br><span class="line"></span><br><span class="line">;; Query time: 3 msec</span><br><span class="line">;; SERVER: 192.168.4.105#53(192.168.4.105) (UDP)</span><br><span class="line">;; WHEN: Fri Dec 06 20:07:44 CST 2024</span><br><span class="line">;; MSG SIZE  rcvd: 91</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3-2-递归域名服务器"><a href="#3-2-递归域名服务器" class="headerlink" title="[3-2] 递归域名服务器"></a>[3-2] 递归域名服务器</h2><h3 id="3-2-1-options文件"><a href="#3-2-1-options文件" class="headerlink" title="[3-2-1] options文件"></a>[3-2-1] options文件</h3><p>首先通过 <code>sudo vim /etc/bind/named.conf.options</code> 编辑 bind9 的主配置文件，在其中放入以下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">options &#123;</span><br><span class="line">    directory &quot;/var/cache/bind&quot;;</span><br><span class="line"></span><br><span class="line">    // 启用递归查询</span><br><span class="line">    recursion yes;</span><br><span class="line"></span><br><span class="line">    // 设置允许进行递归查询的客户端 IP 范围</span><br><span class="line">    allow-recursion &#123; any; &#125;;</span><br><span class="line"></span><br><span class="line">    // 监听所有网络接口上的 DNS 请求</span><br><span class="line">    listen-on &#123; any; &#125;;</span><br><span class="line">    listen-on-v6 &#123; any; &#125;;</span><br><span class="line"></span><br><span class="line">    // 允许使用非官方 DNS 服务器数据 -&gt; 我们的权威 DNS 服务器是非官方的</span><br><span class="line">    dnssec-validation no;</span><br><span class="line"></span><br><span class="line">    // Forwarders 指定上游 DNS 服务器，我们没配置根域名服务器等，因此需要指定上游 DNS 服务器。</span><br><span class="line">    forwarders &#123;</span><br><span class="line">        192.168.4.105</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    // 默认行为是允许所有查询</span><br><span class="line">    allow-query &#123; any; &#125;;</span><br><span class="line"></span><br><span class="line">    // 禁止递归查询从非本地网络发起（提高安全性）</span><br><span class="line">    allow-query-cache &#123; any; &#125;;</span><br><span class="line"></span><br><span class="line">    // 默认端口 10001，减少后续攻击难度</span><br><span class="line">    query-source port 10001;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>完成配置后，我们使用 <code>sudo systemctl restart bind9</code> 重启配置，并通过以下命令设置防火墙</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ufw allow 53</span><br><span class="line">sudo ufw reload</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-2-客户端设置"><a href="#3-2-2-客户端设置" class="headerlink" title="[3-2-2] 客户端设置"></a>[3-2-2] 客户端设置</h3><p>由于客户端虚拟机默认的 nameserver 不是 192.168.5.53，因此我们需要使用 <code>sudo vim /etc/resolv.conf</code> 将 <code>nameserver 127.0.0.53</code> 改为我们自己的递归域名服务器，即 192.168.5.53</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>HeyGap
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://heygap.github.io/2024/12/06/Web%20-%20DNS%20poisoning/" title="Web - DNS Poisoning">http://heygap.github.io/2024/12/06/Web - DNS poisoning/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------文章就到这里啦！<i class="fa fa-paw"></i>感谢您的阅读XD-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DNS-poisoning/" rel="tag"># DNS poisoning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/11/26/ML%20-%20machine_learning%20notes/" rel="prev" title="ML - machine_learning notes">
+      <i class="fa fa-chevron-left"></i> ML - machine_learning notes
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/12/09/CSBasics%20-%20Algorithm%20Design%20And%20Analysis/" rel="next" title="Algorithm Design And Analysis">
+      Algorithm Design And Analysis <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E8%99%9A%E6%8B%9F%E6%9C%BA-virtualbox-%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">[1] 虚拟机 virtualbox 配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">[2] 虚拟机网络配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-openwrt"><span class="nav-number">2.1.</span> <span class="nav-text">[2-1] openwrt</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-network"><span class="nav-number">2.1.1.</span> <span class="nav-text">[2-1-1] network</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-2-firewall"><span class="nav-number">2.1.2.</span> <span class="nav-text">[2-1-2] firewall</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-3-%E6%B5%8B%E8%AF%95%E7%BD%91%E7%BB%9C"><span class="nav-number">2.1.3.</span> <span class="nav-text">[2-1-3] 测试网络</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-ubuntu"><span class="nav-number">2.2.</span> <span class="nav-text">[2-2] ubuntu</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">[3] 域名服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E6%9D%83%E5%A8%81%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">[3-1] 权威域名服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-1-%E9%85%8D%E7%BD%AE-zone-%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.1.</span> <span class="nav-text">[3-1-1] 配置 zone 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-2-%E9%85%8D%E7%BD%AE-BIND-%E7%9B%91%E5%90%AC-IP-%E5%9C%B0%E5%9D%80"><span class="nav-number">3.1.2.</span> <span class="nav-text">[3-1-2] 配置 BIND 监听 IP 地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-3-%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1"><span class="nav-number">3.1.3.</span> <span class="nav-text">[3-1-3] 启动服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-4-%E6%B5%8B%E8%AF%95"><span class="nav-number">3.1.4.</span> <span class="nav-text">[3-1-4] 测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E9%80%92%E5%BD%92%E5%9F%9F%E5%90%8D%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">3.2.</span> <span class="nav-text">[3-2] 递归域名服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-1-options%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.1.</span> <span class="nav-text">[3-2-1] options文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-2-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%BE%E7%BD%AE"><span class="nav-number">3.2.2.</span> <span class="nav-text">[3-2-2] 客户端设置</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HeyGap"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">HeyGap</p>
+  <div class="site-description" itemprop="description">An undergraduate student of Cybersecurity at SDU.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HeyGap" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HeyGap" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/2310769056@qq.com" title="E-Mail → 2310769056@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HeyGap</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
