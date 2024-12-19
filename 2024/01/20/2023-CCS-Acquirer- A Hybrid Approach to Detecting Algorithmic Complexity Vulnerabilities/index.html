@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"heygap.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在做项目，记录一篇论文的阅读笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2023CCS-Acquirer 算法复杂性漏洞论文阅读笔记">
+<meta property="og:url" content="http://heygap.github.io/2024/01/20/2023-CCS-Acquirer-%20A%20Hybrid%20Approach%20to%20Detecting%20Algorithmic%20Complexity%20Vulnerabilities/index.html">
+<meta property="og:site_name" content="HeyGap&#39;s_Blog">
+<meta property="og:description" content="在做项目，记录一篇论文的阅读笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-20T04:16:00.000Z">
+<meta property="article:modified_time" content="2024-12-19T15:37:21.147Z">
+<meta property="article:author" content="HeyGap">
+<meta property="article:tag" content="papers">
+<meta property="article:tag" content="symbolic execution">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://heygap.github.io/2024/01/20/2023-CCS-Acquirer-%20A%20Hybrid%20Approach%20to%20Detecting%20Algorithmic%20Complexity%20Vulnerabilities/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>2023CCS-Acquirer 算法复杂性漏洞论文阅读笔记 | HeyGap's_Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HeyGap's_Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Be a positive learner</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/HeyGap" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/01/20/2023-CCS-Acquirer-%20A%20Hybrid%20Approach%20to%20Detecting%20Algorithmic%20Complexity%20Vulnerabilities/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="HeyGap">
+      <meta itemprop="description" content="An undergraduate student of Cybersecurity at SDU.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HeyGap's_Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2023CCS-Acquirer 算法复杂性漏洞论文阅读笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-01-20 12:01:00" itemprop="dateCreated datePublished" datetime="2024-01-20T12:16:00+08:00">2024-01-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-12-19 23:12:14" itemprop="dateModified" datetime="2024-12-19T23:37:21+08:00">2024-12-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Software-analysis-technology/" itemprop="url" rel="index"><span itemprop="name">Software analysis technology</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote class="blockquote-center">
+在做项目，记录一篇论文的阅读笔记
+</blockquote>
+<span id="more"></span>
+<h1 id="摘要">摘要</h1>
+<p>JAVA程序中的AC漏洞</p>
+<h1 id="一.-引言">一. 引言</h1>
+<ul>
+<li><p><strong>一些AC漏洞例子</strong> Decompression Bombs:
+https://en.wikipedia.org/wiki/Zip_bomb Bilion Laughs Attach:
+https://en.wikipedia.org/wiki/Billion_laughs_attack ReDoS:
+https://en.wikipedia.org/wiki/ReDoS Hash-table DoS Attack:
+https://fahrplan.events.ccc.de/congress/2011/Fahrplan/events/4680.en.html
+Zip Bomb:
+https://www.theregister.com/2001/07/23/dos_risk_from_zip/</p></li>
+<li><p><strong>目前存在的一些问题</strong> state explosions</p></li>
+<li><p><strong>ACQIRER的优势</strong></p>
+<ol type="1">
+<li>继承静态分析器</li>
+<li>构建必要的调用上下文和目标程序仪器，自动生成动态符号执行的测试线束，以此来验证漏洞，然后使用注入的程序，执行的测试线束。然后，它使用注入的程序，在从这些模式中学到的分支策略指导下执行选择性动态符号执行，从而高效地验证是否存在两条具有显著成本差异的路径。这种动态验证器有助于ACQIRER排除误报。</li>
+<li>它报告的路径约束还能帮助开发人员分析和修复漏洞。</li>
+</ol></li>
+</ul>
+<h1 id="二.-背景">二. 背景</h1>
+<ul>
+<li><strong>AC DOS</strong> AC DOS attack是一种新的low-bandwidth DoS
+attack，它利用了程序中的算法缺陷，具体地说，对于目标程序中接受用户输入的函数，存在两个大小相似的输入，他们的运行时间可能大不相同。</li>
+</ul>
+<blockquote>
+<p>问题一：整理常见的、具有时间复杂度缺陷的算法，并理解为什么会造成这些缺陷</p>
+</blockquote>
+<ul>
+<li><strong>常见诱发AC DOS的算法</strong>
+<ol type="1">
+<li>排序
+<ol type="1">
+<li>插入排序</li>
+</ol></li>
+<li>树遍历</li>
+</ol></li>
+<li>AC DOS自动/半自动检测方法
+<ol type="1">
+<li>代码结构分析：识别执行时间可变的程序结构
+<ol type="1">
+<li>举例：循环/递归</li>
+<li>工具：DISCOVER 最先进的静态分析工具
+<ol type="1">
+<li>定义并收集了一个“循环特征”列表</li>
+<li>只能分析基本循环，不能分析包含其他控制结构（条件、跳转和内循环）的复杂循环，因为它们的控制流很难静态确定</li>
+</ol></li>
+</ol></li>
+<li>计算成本分析
+<ol type="1">
+<li>Fuzz：生成不同的测试输入，以测试不同的程序路径，从而检测高成本路径
+<ol type="1">
+<li>需要大量工程工作来开发测试线束</li>
+<li>自动测试生成功能，要么需要人类定义的现有测试线束，要么为单个方法生成不考虑其调用上下文的人工测试线束</li>
+</ol></li>
+<li>SE：这块没读明白，之前没了解过SE</li>
+</ol></li>
+</ol></li>
+</ul>
+<blockquote>
+<p>问题二：了解Fuzz工作原理，了解AC漏洞建模是什么，了解SE，</p>
+</blockquote>
+<h1 id="三.-问题陈述">三. 问题陈述</h1>
+<ul>
+<li><strong>研究目标与挑战</strong>
+<ol type="1">
+<li>AC漏洞建模：提出适用于具有不同计算成本的不同程序的易受攻击代码模式</li>
+<li>Path Explosion：找到潜在的易受攻击路径</li>
+<li>自动测试：为每个程序自动生成兼容的测试数据</li>
+</ol></li>
+<li><strong>定义</strong>
+<ol type="1">
+<li>定义了绝对和相对计算成本，通过测量JVM中已执行指令的数量来估算计算成本，假定所有指令的计算成本顺序大致相同，真正成本取决于具体架构</li>
+<li>条件和分支策略生成器</li>
+</ol></li>
+</ul>
+<h1 id="四.-成本差异代码模式-modeling-ac-vulnerability">四.
+成本差异代码模式-modeling AC vulnerability</h1>
+<ul>
+<li>Vulnerable Conditional Patterns
+<ol type="1">
+<li>概述：生成分支策略的决策依据</li>
+<li>分类
+<ol type="1">
+<li>Non-Determined Loops：没看明白</li>
+<li>Single-Branch Conditionals in
+Loops：只有一个分支的条件语句，采用该分支会增加计算成本</li>
+<li>Termination-Branch Conditionals in
+Loops：return/exception，不进入return/exit/异常，就会增加计算成本，但有时异常处理代码的成本也可能会更高(tru-catch)</li>
+</ol></li>
+</ol></li>
+</ul>
+<h1 id="五.-acquirer">五. ACQUIRER</h1>
+<ul>
+<li><p><strong>5.1 功能简介</strong>
+按照第四部分介绍的模式来静态分析代码漏洞，并且生成接下来要讲的branch
+policies。
+然后按照policies，通过动态符号执行，来找出一条快速路径和一条慢速路径，并得出他们的计算开销。
+并且还可以为每一个潜在的漏洞生成test harness。
+有选择性地过滤非漏洞循环</p></li>
+<li><p><strong>5.2 Branch Policy(分支策略)</strong></p></li>
+</ul>
+<ol type="1">
+<li>概述
+<ol type="1">
+<li>目的：确定快慢路径</li>
+<li>程序内静态分析通过全局CFG(控制流图)
+<ol type="1">
+<li>全局CFG是目标程序的字节码来分析的</li>
+<li>We enhance the global CFG with a call graph, where the call target
+at a call site includes all the possible callees for polymorphic
+calls.这句没读懂</li>
+<li>将一些调用函数视作内联函数</li>
+</ol></li>
+<li>支持通过用户注释来分析external methods</li>
+</ol></li>
+<li>Determining Branch Choices
+<ol type="1">
+<li>终止条件：有一条边连到循环外的代码块 /
+包含return或throw的代码块</li>
+<li>单分支（没太读懂）：</li>
+<li>决策(参考listing
+1)：绕过结束分支，然后根据单分支的两条路径，选择计算开销大的那个，并继续迭代</li>
+</ol></li>
+<li>Resolving Branch CHoice Conflicts
+<ol type="1">
+<li>Conditional in Loop：终止分支 &gt; 未确定循环 &gt; 单分支条件,</li>
+<li>Alternative Loops：</li>
+<li>Nested Loops：内层循环 &lt; 外层循环</li>
+</ol></li>
+<li>Loop-level Policy
+<ol type="1">
+<li>概述：循环级策略，构造了一个循环的“条件-值”的映射</li>
+</ol></li>
+<li>Function-level Policy
+<ol type="1">
+<li>概述：函数级策略，我们先通过函数内包含的循环来生成慢速策略，然后通过合并慢速策略来生成函数级策略</li>
+<li>Reaching Vulnerable Loops：没看懂</li>
+<li>Generating Function Policy：没看懂</li>
+</ol></li>
+</ol>
+<ul>
+<li><strong>5.3Selective Dynamic Symbolic Execution</strong></li>
+</ul>
+<ol type="1">
+<li>概述：依据5.2生成的分支策略，通过符号执行来测试快慢分支的绝对和相对计算开销，进而为后续报告漏洞提供数据。</li>
+<li>Selective Path
+Exploration：没太看懂路径约束是啥，路径约束器求解的又是啥</li>
+<li>Vulnerability Validation：有点抽象</li>
+</ol>
+<ul>
+<li>5.4 Test Harness Generation</li>
+</ul>
+<ol type="1">
+<li>概述：包含一个测试执行程序和相关测试脚本，测试脚本应指定要调用的函数/方法，并提供必要的调用上下文（如参数、对象等）</li>
+<li>calling context
+<ol type="1">
+<li>出现目的：当代码量巨大时，编译代码并运行到漏洞位置将会耗费相当长的时间，所以我们希望能够自动生成上下文，然后通过测试脚本来针对这一小段代码进行测试</li>
+<li>注意上下文只包含必要的函数/语句，因为有些传进来的参数可能经过”消毒“，已经变得不可控</li>
+</ol></li>
+</ol>
+<p>5.5 Non-Vulnerable Code Block Filtering 1.
+概述：过滤不可能利用的循环，进而减少分析时间。该论文采取的策略相对保守
+2. 分类 1. Unreachable Loops：过滤绝对无法调用的函数 2. (Almost) -
+Constant Cost
+Loops：迭代器/计数器以常量为界，或者以”以常量为界“的变量为界的循环，迭代次数可以确定，过滤。
+3. Determined Loops：有点没理解</p>
+<h1 id="六.-implementation">六. Implementation</h1>
+<ul>
+<li><strong>6.1 Calling Context Construction</strong>
+<ol type="1">
+<li>有点晕乎，跟符号执行有关，应该就是生成一段代码，这段代码截取了程序的一个慢速路径和该路径上的所有的传参过程。目的是尽快测试出这条路径的计算开销。</li>
+</ol></li>
+</ul>
+<ol start="2" type="1">
+<li>Code Instrumentation
+<ol type="1">
+<li>更懵了...看起来像是拿自己写的工具里面的一些自己做的类，替换了原来的数据类型，方便在自己的工具里面进行下一步的操作？</li>
+</ol></li>
+<li>Dynamic Symbolic Execution
+<ol type="1">
+<li>没读懂</li>
+</ol></li>
+</ol>
+<blockquote>
+<p>问题三：了解一下符号执行</p>
+</blockquote>
+<h1 id="nan.-一些想法">NaN. 一些想法</h1>
+<ul>
+<li>程序主体
+<ol type="1">
+<li>我们也要构建CFG的话，首先要对二进制程序的字节码进行反汇编，并且根据反汇编的一些跳转语句，来生成CFG</li>
+<li>根据CFG来决策Branch，是否需要一些图论的知识？</li>
+<li>modeling AC vulnerability 需要我们人工设定一些路径选择</li>
+</ol></li>
+<li>扩展
+<ol type="1">
+<li>可以耦合一些反混淆工具</li>
+<li>论文5.4中说”想要静态分析任意代码段的可执行性十分困难“，这个可以作为我们一个进步点来用</li>
+</ol></li>
+<li>全局问题
+<ol type="1">
+<li>有什么应用呢？服务器上有什么服务可以让我们通过AC DoS来打一下？</li>
+<li>架构不同，机器码不同，反汇编不同。怎么保证都可以用？</li>
+</ol></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>HeyGap
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://heygap.github.io/2024/01/20/2023-CCS-Acquirer-%20A%20Hybrid%20Approach%20to%20Detecting%20Algorithmic%20Complexity%20Vulnerabilities/" title="2023CCS-Acquirer 算法复杂性漏洞论文阅读笔记">http://heygap.github.io/2024/01/20/2023-CCS-Acquirer- A Hybrid Approach to Detecting Algorithmic Complexity Vulnerabilities/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------文章就到这里啦！<i class="fa fa-paw"></i>感谢您的阅读XD-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/papers/" rel="tag"># papers</a>
+              <a href="/tags/symbolic-execution/" rel="tag"># symbolic execution</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/19/comp%20-%202023HwsSDU%E4%B8%93%E5%9C%BACTF-wp/" rel="prev" title="comp - 2023HwsSDU专场CTF-wp">
+      <i class="fa fa-chevron-left"></i> comp - 2023HwsSDU专场CTF-wp
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/01/21/Pwn%20-%20Format%20String%20Summary/" rel="next" title="Pwn - Format String Summary">
+      Pwn - Format String Summary <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80.-%E5%BC%95%E8%A8%80"><span class="nav-number">2.</span> <span class="nav-text">一. 引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C.-%E8%83%8C%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">二. 背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89.-%E9%97%AE%E9%A2%98%E9%99%88%E8%BF%B0"><span class="nav-number">4.</span> <span class="nav-text">三. 问题陈述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B.-%E6%88%90%E6%9C%AC%E5%B7%AE%E5%BC%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E5%BC%8F-modeling-ac-vulnerability"><span class="nav-number">5.</span> <span class="nav-text">四.
+成本差异代码模式-modeling AC vulnerability</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94.-acquirer"><span class="nav-number">6.</span> <span class="nav-text">五. ACQUIRER</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD.-implementation"><span class="nav-number">7.</span> <span class="nav-text">六. Implementation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nan.-%E4%B8%80%E4%BA%9B%E6%83%B3%E6%B3%95"><span class="nav-number">8.</span> <span class="nav-text">NaN. 一些想法</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HeyGap"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">HeyGap</p>
+  <div class="site-description" itemprop="description">An undergraduate student of Cybersecurity at SDU.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HeyGap" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HeyGap" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/2310769056@qq.com" title="E-Mail → 2310769056@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HeyGap</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>
