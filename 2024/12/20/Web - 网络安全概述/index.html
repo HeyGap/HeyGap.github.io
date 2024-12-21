@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"heygap.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="12.24网络安全期末，用这篇文章来梳理一下对相关知识的理解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web - 网络安全概述">
+<meta property="og:url" content="http://heygap.github.io/2024/12/20/Web%20-%20%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="HeyGap&#39;s_Blog">
+<meta property="og:description" content="12.24网络安全期末，用这篇文章来梳理一下对相关知识的理解">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-12-20T08:27:00.000Z">
+<meta property="article:modified_time" content="2024-12-21T07:54:46.664Z">
+<meta property="article:author" content="HeyGap">
+<meta property="article:tag" content="web">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://heygap.github.io/2024/12/20/Web%20-%20%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%A6%82%E8%BF%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Web - 网络安全概述 | HeyGap's_Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">HeyGap's_Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Be a positive learner</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/HeyGap" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://heygap.github.io/2024/12/20/Web%20-%20%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%A6%82%E8%BF%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="HeyGap">
+      <meta itemprop="description" content="An undergraduate student of Cybersecurity at SDU.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="HeyGap's_Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Web - 网络安全概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-12-20 16:12:00" itemprop="dateCreated datePublished" datetime="2024-12-20T16:27:00+08:00">2024-12-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-12-21 15:12:66" itemprop="dateModified" datetime="2024-12-21T15:54:46+08:00">2024-12-21</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WEB/" itemprop="url" rel="index"><span itemprop="name">WEB</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote class="blockquote-center">
+12.24网络安全期末，用这篇文章来梳理一下对相关知识的理解
+</blockquote>
+<span id="more"></span>
+<p>这篇文章主要从TCP/IP五层模型的层次来讲网络安全的攻击。众所周知，TCP/IP五层模型将网络架构分为物理层、数据链路层、网络层、运输层和应用层。针对物理层的攻击我不是很懂，因此不在本篇文章的描述范围内，而应用层出现的app漏洞和防御技术比较广泛，会用几章分别叙述。</p>
+<blockquote>
+<p>每一章大概分为"协议-攻击方式-防御措施"三部分。常见攻击可以分为"DoS,投毒,劫持"，其中，劫持一般是劫持有状态的协议。</p>
+</blockquote>
+<h1 id="数据链路层局域网">[1] 数据链路层(局域网)</h1>
+<h2 id="协议">[1-1] 协议</h2>
+<p>这部分讲述的协议不只是设计数据链路层的协议，而是涉及到局域网通信的协议。</p>
+<p>由于物理媒介的不同，我们可以把网络分为有线网络和无线网络。无线网络涉及AP、信道等内容，不利于基础攻防技术的学习，因此本文主要基于有线网络进行讲述。根据IEEE
+802.3 的规定，有线网络使用的数据传输策略是CSMA/CD(carrier sensation
+multiple access/collision
+detection)，即带有碰撞检测的载波监听多点接入技术，该技术的细节就不在这里过多描述。在数据链路层中，我们为每一个网络设备分配了唯一的标识符，即MAC地址(media
+access control
+address)。多个网络设备可以通过交换机连接成一个局域网。</p>
+<h3 id="arp">[1-1-1] ARP</h3>
+<p>如果设备A要与设备B通信，那么A需要先通过ARP协议得知B的MAC地址。ARP其实是通过IP地址找MAC地址的一种协议，如果发送方A不知道接受方B的MAC地址，A会先广播一条消息"我是A(MAC:aaa,IP:aaa)，我想知道bbb这个IP对应的MAC地址是什么"，这条消息叫做ARP
+Request。用同一台交换机相连的所有网络设备都会接收到这条消息，当B发现A在找自己的时候，B就会记录下A的MAC地址，然后给A回复一条消息告诉A"bbb这个IP地址指的是我，我的MAC地址是bbb"</p>
+<p>在数据传输的过程中，交换机也会不断学习这个数据包的源MAC地址和目的MAC地址，记录在交换机的缓存当中，这个过程叫做交换机的逆学习过程。</p>
+<h3 id="dhcp">[1-1-2] DHCP</h3>
+<p>如果设备A想要跟互联网通信，那么设备A必须要获取自己的IP地址和所在子网，除此之外，它还需要知道递归DNS服务器和默认网关的IP地址，这些都是DHCP服务器为设备A分配的。</p>
+<h2 id="常见攻击">[1-2] 常见攻击</h2>
+<h3 id="arp-1">[1-2-1] ARP</h3>
+<h4 id="arp-dosmac地址洪泛">[1-2-1-1] ARP DoS(MAC地址洪泛)</h4>
+<p>交换机的MAC表有老化机制，当一条MAC记录生存期结束之后才会被新的MAC记录替换；而MAC表的容量又是有限的，如果MAC表满了，并且当前表中所有记录都尚未过期，那此时交换机将对它无法找到MAC地址的所有数据包进行泛洪，也就是将这个数据包广播到它的所有接口(除了收到数据包的接口)。</p>
+<p>如果攻击者伪造大量的MAC地址将交换机填满，再发送大量不在表中的MAC地址给交换机，交换机就会广播大量数据包给局域网，给网络造成压力。</p>
+<h4 id="arp-缓存投毒">[1-2-1-2] ARP 缓存投毒</h4>
+<ul>
+<li>ARP Reply</li>
+</ul>
+<p>攻击者伪造reply包，欺骗受害者的目的MAC地址</p>
+<ul>
+<li>ARP Request</li>
+</ul>
+<p>攻击者伪造request包，欺骗受害者的源MAC地址</p>
+<p>这两种攻击可以欺骗客户端/网关/服务器，获取他们发送/接收的数据包。</p>
+<h3 id="dhcp-1">[1-2-2] DHCP</h3>
+<h4 id="dhcp-dos">[1-2-2-1] DHCP DoS</h4>
+<p>攻击者伪造大量"从不同MAC发来的DHCP
+req"数据包，消耗DHCP服务器分配的资源 #### [1-2-2-2] DHCP 投毒
+攻击者伪装成DHCP服务器向受害者发送DHCP Reply</p>
+<h1 id="网络层">[2] 网络层</h1>
+<h2 id="协议-1">[2-1] 协议</h2>
+<h3 id="ip">[2-1-1] IP</h3>
+<p>由于MAC地址唯一且不可随意更改，我们需要用IP地址来灵活管理接入网络的设备。IP协议规定了数据包
+的头部(比如源IP目的IP，是否分片)，同时IP协议规定了最大数据包大小(MTU,1500bytes)，其中IP头占据20字节</p>
+<h3 id="icmp">[2-1-2] ICMP</h3>
+<p>ICMP协议用于报告网络通信中的错误情况和诊断信息，ICMP头部包含type(类型)、code(子类型)、checksum和其余字段，通过改变type/code等内容，可以报告不同的错误类型，
+比如目标不可达、超时和源抑制等，ICMP头一般占据8byte</p>
+<h2 id="常见攻击-1">[2-2] 常见攻击</h2>
+<h3 id="ip-1">[2-2-1] IP</h3>
+<h4 id="ping-of-death">[2-2-1-1] Ping of Death</h4>
+<p>ICMP协议规定 ICMP Echo Request 的数据包最大不超过 65535
+字节，去掉IP和ICMP头部的28字节， 还剩 65507
+byte。如果我们构造的数据包数据部分大于这个数目，可能会导致缓冲区溢出。
+比如我们构造一个75000byte的数据包，MTU大小为1500，去掉头部还剩1472byte，所以我们需要
+构造 <span class="math inline">\(\lceil 75000 / 1472 \rceil =
+51\)</span> 个分片，当这些分片被组合起来的时候就会造成缓冲区溢出。</p>
+<h3 id="icmp-1">[2-2-2] ICMP</h3>
+<h4 id="smurf攻击icmp-dos">[2-2-2-1] Smurf攻击(ICMP DoS)</h4>
+<p>攻击者向某个含有大量网络设备的广播域发送一个 ICMP Echo Request
+包，这个包的
+源IP地址伪造为受害者的IP，这样该广播域所有接收到request包的设备都会向受害者
+发送reply包，导致流量放大，使受害者网络资源耗尽。</p>
+<h4 id="icmp-redirecticmp-poisoning">[2-2-2-2] ICMP Redirect(ICMP
+Poisoning)</h4>
+<p>ICMP包中Type=5叫做重定向包，路由器A在接收到用户的数据包后，
+发现用户将该数据包转发到B可以更有效地到达目标，就会用 ICMP
+重定向包告知用户更改默认网关。
+如果在用户发出一个数据包后，攻击者伪造一个IMCP重定向包，将用户的默认网关修改为自己可以控制的IP，
+用户发出的所有流量就会被攻击者获得。</p>
+<h2 id="防护措施-ipsec">[2-3] 防护措施-IPSec</h2>
+<p>通过常见攻击手段，我们可以发现利用网络层发起的攻击都有以下特点：①报头会被伪造②数据包
+可以被修改后转发或重放。因此，我们设计的防御措施可以从以下安全目标出发：
+①加密数据包，防止中间人查看数据②加入序列号，防止重放攻击③加入哈希函数和数字签名，
+防止数据包伪造。</p>
+<h3 id="组件">[2-3-1] 组件</h3>
+<p>ESP: 封装安全载荷，提供数据完整性、不可抵赖性和保密性</p>
+<p>AH: 认证报头协议，提供数据完整性、不可抵赖性</p>
+<p>IKE: 互联网密钥交换协议</p>
+<h4 id="密钥管理系统">[2-3-1-1] 密钥管理系统</h4>
+<p>Security Association(SA):
+一组用于保护通信的安全参数，定义了数据包如何传入传出
+SA是单向的，因此双向通信需要用到2个SA。
+SA一般由IKE自动维护，SA中包括一个参数叫做Security Parameter
+Index，用于在数据库中索引和匹配SA</p>
+<p>Security Association Database(SAD):
+端点用于存储SA的数据库，发送方发送数据包前首先检查SAD确认发送方式，
+接收方接收到数据包后，根据数据包中的SPI匹配SAD中的SA，来确认用什么方式处理数据包。</p>
+<p>Security Policy Database(SPD):
+端点通过源IP、目的IP和协议号来匹配SPD，查看此次通话是否需要用到IPSec，
+如果要用的话就去查找SAD，确认使用哪个SA。</p>
+<p>IKE工作流程：IKE的工作分为两阶段，第一阶段协商一个辅助的端到端安全信道IKE
+SA，第二阶段用于协商范围更小的IPSec SA。
+IKE经常分为用户IKE守护进程，或者是内核IKE。当IKE进程启动时就会协商IKE
+SA，后续每个应用程序使用IKE的话，
+IKE就会进入第二阶段，为每个进程协商IPSec SA</p>
+<h3 id="传输模式">[2-3-2] 传输模式</h3>
+<p>传输模式：不加密IP头，适用于端到端</p>
+<p>隧道模式：加密IP头，适用于网关到网关</p>
+<h3 id="esp-tun-mode-工作流程">[2-3-3] ESP TUN Mode 工作流程</h3>
+<p>①在原始数据包前后加入ESP头和ESP尾形成新数据包，ESP头包含SPI和序列号，ESP尾用于padding</p>
+<p>②加密新数据包，形成enchidala</p>
+<p>③对enchidala进行mac计算，将结果拼接到enchidala尾部</p>
+<p>④最终数据包: 新IP头 + enchidala + MAC认证</p>
+<h1 id="运输层">[3] 运输层</h1>
+<h2 id="协议-2">[3-1] 协议</h2>
+<h3 id="udp">[3-1-1] UDP</h3>
+<p>UDP类似于IP协议，在底层数据包的基础上加入一个8字节的头部，包含源端口、目的端口、长度和checksum。
+UDP协议是无状态的。</p>
+<h3 id="tcp">[3-1-2] TCP</h3>
+<p>TCP协议是有状态的，通过三次握手建立连接，通过四次挥手释放连接。</p>
+<p>三次握手过程为： ①A随机挑选一个序列号seq=x，向B发送seq=x的数据包
+②B随机挑选一个序列号ack=y，向A发送seq=y,ack=x+1的数据包，同时将SYN和ACK标志位设置为1
+同时服务器分配一个端口给该TCP连接，此时B称为半连接状态
+③A接收到数据包之后，向B发送seq=x+1，ack=y+1的数据包，该数据包ACK标志为1，第三次握手已经可以携带其他数据。</p>
+<p>四次挥手考察的比较少，用人话来说可以模拟成如下场景：</p>
+<p>A:我数据发完了，连接可以关闭了</p>
+<p>B:我知道了，连接先留着，等我数据发完再关</p>
+<p>B:我发完了，TCP连接可以关了</p>
+<p>A:我知道了，那就关吧</p>
+<h2 id="主要攻击方式">[3-2] 主要攻击方式</h2>
+<h3 id="端口扫描与资产探查">[3-2-1] 端口扫描与资产探查</h3>
+<p>资产探查就是利用不同操作系统、app等对IP、ICMP等协议数据包处理细节的不同，来判断该主机使用的是什么OS或app。
+比如windows和linux对TTL设置就不相同。</p>
+<p>按连接状态分，端口扫描有两种方式，全连接扫描和半连接扫描，全连接比较完善，但是半连接更隐蔽一些。</p>
+<p>按协议分，端口扫描也可以分为TCP和UDP扫描两种方式。UDP扫描比较简单，就是给一台主机的全部端口发送空的UDP包，
+如果收到ICMP目的不可达说明端口关闭，收到响应报文则说明端口开放。</p>
+<p>TCP扫描有四种基本方式：Manimon(SYN+ACK),NULL(标志位全0),FIN(FIN),Xmas(FIN,URG,PSH)，
+开放的端口对这些错误包都是不予理睬的，FIN扫描最多会回显一个ICMP错误，但是未开放的端口会响应一个RST包</p>
+<h4 id="隐蔽扫描">[3-2-1-1] 隐蔽扫描</h4>
+<p>攻击者通过伪造数据包srcIP为A的IP，利用主机A来扫描主机B的端口，然后通过ICMP包来查看A的IPID增加数目来判断B的端口是否开放。</p>
+<h3 id="tcp-syn-floodtcp-dos">[3-2-2] TCP SYN Flood(TCP DoS)</h3>
+<p>攻击者不断发起第一次握手，等服务器第二次握手结束后不发送第三次握手，这样就会大量占据服务器的端口资源</p>
+<h3 id="tcp-会话劫持重置">[3-2-3] TCP 会话劫持/重置</h3>
+<p>攻击者通过预测TCP序列号，向该TCP连接注入恶意数据包。比如向telnet服务器注入反弹shell命令，或者单纯发一个RST数据包重置TCP连接，都会造成较大的影响。</p>
+<blockquote>
+<p>如何预测 TCP 序列号？</p>
+</blockquote>
+<p>RFC标准中规定，如果一台主机收到TCP报文但报文中含有错误的序列号或确认号时，会回复一个ACK报文来明确正确的序列号和确认号。
+那么攻击者只要在预测序列号前后都查看一次IPID，如果IPID+1则正确，+2则不正确</p>
+<h3 id="tcp反射放大攻击">[3-2-4] TCP反射放大攻击</h3>
+<p>防火墙在阻拦TCP连接时往往第一次握手就会回复一个比请求包大的多的阻断包。攻击者可以利用该特性实施反射放大攻击</p>
+<blockquote>
+<p>补充：CDN反射放大攻击</p>
+</blockquote>
+<p>当客户向CDN请求资源时，CDN可能会向源站请求完整资源，然后只回复客户所需的资源。攻击者可以构造较小的资源请求，使CDN向源站请求较大的完整资源，从而造成反射放大。</p>
+<h2 id="防御措施">[3-3] 防御措施</h2>
+<h3 id="针对syn-flood">[3-3-1] 针对SYN Flood</h3>
+<ol type="1">
+<li>增大半连接等待队列</li>
+<li>降低资源回收时间</li>
+<li>TCP Cookie，在验证第三次握手cookie正确前不分配资源</li>
+</ol>
+<h1 id="应用层">[4] 应用层</h1>
+<h2 id="域名系统">[4-1] 域名系统</h2>
+<h3 id="域名系统概述">[4-1-1] 域名系统概述</h3>
+<p>整个域名系统可以由如下部分构成：根域名服务器-顶级域名服务器-权威域名服务器-递归域名服务器-客户端。
+客户端如果想要查询一个域名对应的IP地址，只需要向递归域名服务器发起询问，递归域名服务器会向根域名服务器查询顶级域名服务器的位置，
+然后向顶级域名服务器查询二级、三级域名服务器的位置，最后向权威域名服务器查询这个域名对应的IP地址。
+当递归域名服务器得到IP地址之后，就会向客户返回这个资源条目。</p>
+<p>一个资源条目一般包括：域名-缓存时间-资源类别-资源类型-IP地址。资源类型一般包含A(ipv4地址)、AAAA(ipv6地址)、NS(权威DNS名称)、
+MX(邮件服务器名称)、CNAME(域名别名)和SOA(起始授权信息)</p>
+<p>同时，为了减轻网络压力，递归域名服务器和客户主机一般会缓存一部分DNS条目</p>
+<h3 id="主要攻击方式-1">[4-1-2] 主要攻击方式</h3>
+<h4 id="poisoning">[4-1-2-1] Poisoning</h4>
+<p>客户在发起DNS请求后，攻击者抢在递归域名服务器之前向客户发起响应，不过这种攻击需要攻击者预测TXID和目的端口。</p>
+<h4 id="绕过同源策略">[4-1-2-2] 绕过同源策略</h4>
+<p>同源策略是指JS脚本只能访问同源资源，同源指的是"协议://域名:端口"相同。绕过同源策略需要攻击者控制递归域名服务器。</p>
+<p>当客户向域名服务器查询域名A的IP时，攻击者可以返回一个恶意IP，客户会在这个IP被注入恶意脚本，该恶意脚本每隔一段时间访问域名A。
+同时，攻击者控制的DNS服务器将这个域名-IP的缓存时间设置的极短，当该DNS缓存条目过期之后，恶意脚本再访问域名A就会再次向攻击者DNS服务器查询域名，
+此时攻击者返回用户的内网IP，恶意脚本就绕过同源策略，可以访问到这个内网IP的资源了。</p>
+<h4 id="dns-反射放大">[4-1-2-3] DNS 反射放大</h4>
+<p>攻击者伪造DNS请求的srcIP，并向网络中大量递归域名服务器发送请求，这些DNS服务器收到请求后都会返回一个响应包到srcIP，大量占用srcIP网络的资源</p>
+<h4 id="dns-劫持">[4-1-2-4] DNS 劫持</h4>
+<p>只要攻击者控制了域名系统中包含信道的任何一个关键节点，攻击者就可以将用户访问的域名绑定到恶意IP</p>
+<h3 id="防护措施">[4-1-3] 防护措施</h3>
+<h4 id="基于随机化">[4-1-3-1] 基于随机化</h4>
+<p>事务ID随机化、域名大小写随机化、DNS Cookie(64位随机值)</p>
+<h4 id="基于加密">[4-1-3-2] 基于加密</h4>
+<p>DNS on TLS</p>
+<p>DNS on
+HTTPS：与HTTPS协议共享443端口来执行域名解析，防止被防火墙监控和拦截。</p>
+<p>DNS on QUIC：基于UDP的协议，传输速度快但尚未普及</p>
+<p>DNSSEC：在加密的同时使用签名机制</p>
+<h2 id="web系统安全">[4-2] Web系统安全</h2>
+<h3 id="web系统概述">[4-2-1] web系统概述</h3>
+<p>web系统主要由客户端浏览器、服务器和中间交互的协议组成。</p>
+<h3 id="主要攻击">[4-2-2] 主要攻击</h3>
+<h4 id="客户端浏览器">[4-2-2-1] 客户端浏览器</h4>
+<p>从客户端浏览器出发，我们首先考虑到的风险是前端三件套的风险：html是框架可以暂且不谈；
+攻击者可以用css本身诱骗用户进行一些点击操作从而访问恶意网站，比如构建一个透明的样式图，
+同时css解析出错也会导致一些问题，比如导致渲染错误，或者利用反斜杠等解析错误来注入某些恶意代码；
+再就是javascript，攻击者可以注入恶意js代码，造成信息泄露、会话劫持、DoS等破坏。而除去前端三件套，
+第三方插件也会带来隐私泄露和额外引入的安全漏洞，同时第三方插件也可能是恶意软件，泄露用户隐私或者诱骗用户访问恶意网站等。</p>
+<h4 id="服务器">[4-2-2-2] 服务器</h4>
+<p>从服务器端出发，主要风险可以来源于①持续对话②认证③缓存④分段数据传输</p>
+<p>HTTP协议可以基于TCP协议，因此可以通过Connection:
+keep-alive来实现持续对话，双方可以在这个持久连接上发送多个HTTP包，减少资源浪费。
+但如果服务器发出的一个HTTP包中设置了多个Content-Length字段，web客户端可能会将该对话与多个不同对话对应起来，导致客户端显示混乱，
+如果是代理服务器可能还会导致全局缓存错误，分发错误的缓存内容给其他用户。</p>
+<p>HTTP协议支持分段数据传输，但过多的数据分段或者content-length设置错误可能会导致整数溢出或者浏览器显示混乱。</p>
+<p>HTTP协议有一个认证字段，当认证字段被攻击者修改为明文认证而不是摘要认证时，攻击者就可以获得用户的明文敏感信息。</p>
+<p>web缓存器也称为代理服务器，可以是距离用户较近的网关服务器，也可以是较大的CDN。缓存有可能会有非授权的数据访问，也可能保存用户的隐私数据，
+当访问缓存参数失当可能也会导致浏览器处理异常，此外，缓存可能被污染。</p>
+<h3 id="防护措施-1">[4-2-3] 防护措施</h3>
+<h4 id="同源策略">[4-2-3-1] 同源策略</h4>
+<h4 id="浏览器插件安全规则">[4-2-3-2] 浏览器插件安全规则</h4>
+<p>①最小权限②数据保护③更新机制④使用安全的第三方库</p>
+<h4 id="http-cookie安全策略">[4-2-3-3] HTTP Cookie安全策略</h4>
+<p>通过设置不同的安全字段，保证cookie的安全。</p>
+<p>Secure：cookie只通过HTTPS传输。HTTPOnly：拒绝JS代码访问cookie。SameSite：设置第三方站点何时可以在跨站点请求中携带cookie。
+除了这些字段以外，还可以设置cookie过期时间，以及Domain和Path的限制。</p>
+<h4 id="https">[4-2-3-4] HTTPS</h4>
+<p>HTTPS是指 HTTP on
+TLS，TLS可以分为握手协议、记录协议和告警协议。其中记录协议可以看作外壳协议，专门用来加解密数据包、验证、完整性检验和压缩解压缩的。
+告警协议是指收到不正确的数据包时如何通知会话对方。下面着重描述记录协议。</p>
+<p>首先，客户端发送ClientHello消息，其中包括客户端的安全能力。然后服务器发送Serverhello消息，其中包括服务器选择的各个参数。
+然后服务器发送证书，该证书包含证书链的多个证书，包括服务器证书、签发该服务器证书的CA证书，注意该证书可能不包括根CA证书，因为浏览器可能预装了所有的根CA证书。
+之后，服务器发送ServerKeyExchange消息，这条消息包含的是密钥协商所需要的额外数据，有些算法不需要就不用发，比如RSA。
+之后，服务器发送certificateRequest消息，只有服务器要求客户端用公钥证书证明身份时才会发送这一条消息。
+之后，服务器发送ServerHelloDone消息，告知客户端服务器这边的消息已经全部发送完毕。</p>
+<p>如果收到CertificateRequest消息，客户端首先发送自己的证书给服务器。之后，为了完成密钥协商，客户端发送ClientKeyExchange消息。
+之后，如果收到CertificateRequest消息，客户端还会发送CertificateVerify消息，发送一条包含客户端证书对应的私钥对握手消息的数字签名，
+通过这条消息，服务器可以验证从握手开始到现在所有消息未被篡改并且没有被重放，因为握手消息中包含客户端和服务器生成的随机数，保证不被重放。
+之后，客户端和服务器都向对方发送ChangeCipherSpec，表明自己已经完成密钥协商，之后所有消息都是加密的，这条消息是独立协议，并不属于握手子协议。
+最后，双方发送Finished消息，这条消息是加密数据的第一条消息，包含了握手阶段所有消息的哈希值，主要意义在于验证握手的完整性，防止中间人攻击。</p>
+<h4 id="cdn">[4-2-3-5] CDN</h4>
+<p>CDN(Content Distribution
+Network)内容分发网络是在不同地理位置设置代理服务器，
+把web网站的内容分散到更接近用户的地方。</p>
+<p>CDN的功能：①均衡网络负载②抗DoS攻击③保证网络更加稳定④降低网络延迟⑤过滤恶意web访问</p>
+<h2 id="邮件系统">[4-3] 邮件系统</h2>
+<h3 id="概述">[4-3-1] 概述</h3>
+<h1 id="防御技术">[5] 防御技术</h1>
+<h2 id="防火墙">[5-1] 防火墙</h2>
+<h2 id="idsintrusion-detection-system">[5-2] IDS(Intrusion Detection
+System)</h2>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>HeyGap
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="http://heygap.github.io/2024/12/20/Web%20-%20%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E6%A6%82%E8%BF%B0/" title="Web - 网络安全概述">http://heygap.github.io/2024/12/20/Web - 网络安全概述/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------文章就到这里啦！<i class="fa fa-paw"></i>感谢您的阅读XD-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web/" rel="tag"># web</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/12/06/Web%20-%20DNS%20poisoning/" rel="prev" title="Web - DNS Poisoning">
+      <i class="fa fa-chevron-left"></i> Web - DNS Poisoning
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%E5%B1%80%E5%9F%9F%E7%BD%91"><span class="nav-number">1.</span> <span class="nav-text">[1] 数据链路层(局域网)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.1.</span> <span class="nav-text">[1-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arp"><span class="nav-number">1.1.1.</span> <span class="nav-text">[1-1-1] ARP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dhcp"><span class="nav-number">1.1.2.</span> <span class="nav-text">[1-1-2] DHCP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB"><span class="nav-number">1.2.</span> <span class="nav-text">[1-2] 常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arp-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">[1-2-1] ARP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#arp-dosmac%E5%9C%B0%E5%9D%80%E6%B4%AA%E6%B3%9B"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">[1-2-1-1] ARP DoS(MAC地址洪泛)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#arp-%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">[1-2-1-2] ARP 缓存投毒</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dhcp-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">[1-2-2] DHCP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dhcp-dos"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">[1-2-2-1] DHCP DoS</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="nav-number">2.</span> <span class="nav-text">[2] 网络层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-1"><span class="nav-number">2.1.</span> <span class="nav-text">[2-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ip"><span class="nav-number">2.1.1.</span> <span class="nav-text">[2-1-1] IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icmp"><span class="nav-number">2.1.2.</span> <span class="nav-text">[2-1-2] ICMP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-1"><span class="nav-number">2.2.</span> <span class="nav-text">[2-2] 常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ip-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">[2-2-1] IP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ping-of-death"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">[2-2-1-1] Ping of Death</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icmp-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">[2-2-2] ICMP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#smurf%E6%94%BB%E5%87%BBicmp-dos"><span class="nav-number">2.2.2.1.</span> <span class="nav-text">[2-2-2-1] Smurf攻击(ICMP DoS)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#icmp-redirecticmp-poisoning"><span class="nav-number">2.2.2.2.</span> <span class="nav-text">[2-2-2-2] ICMP Redirect(ICMP
+Poisoning)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-ipsec"><span class="nav-number">2.3.</span> <span class="nav-text">[2-3] 防护措施-IPSec</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6"><span class="nav-number">2.3.1.</span> <span class="nav-text">[2-3-1] 组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.3.1.1.</span> <span class="nav-text">[2-3-1-1] 密钥管理系统</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.3.2.</span> <span class="nav-text">[2-3-2] 传输模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#esp-tun-mode-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.3.</span> <span class="nav-text">[2-3-3] ESP TUN Mode 工作流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%BE%93%E5%B1%82"><span class="nav-number">3.</span> <span class="nav-text">[3] 运输层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-2"><span class="nav-number">3.1.</span> <span class="nav-text">[3-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#udp"><span class="nav-number">3.1.1.</span> <span class="nav-text">[3-1-1] UDP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp"><span class="nav-number">3.1.2.</span> <span class="nav-text">[3-1-2] TCP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">[3-2] 主要攻击方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F%E4%B8%8E%E8%B5%84%E4%BA%A7%E6%8E%A2%E6%9F%A5"><span class="nav-number">3.2.1.</span> <span class="nav-text">[3-2-1] 端口扫描与资产探查</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9A%90%E8%94%BD%E6%89%AB%E6%8F%8F"><span class="nav-number">3.2.1.1.</span> <span class="nav-text">[3-2-1-1] 隐蔽扫描</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp-syn-floodtcp-dos"><span class="nav-number">3.2.2.</span> <span class="nav-text">[3-2-2] TCP SYN Flood(TCP DoS)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp-%E4%BC%9A%E8%AF%9D%E5%8A%AB%E6%8C%81%E9%87%8D%E7%BD%AE"><span class="nav-number">3.2.3.</span> <span class="nav-text">[3-2-3] TCP 会话劫持&#x2F;重置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7%E6%94%BB%E5%87%BB"><span class="nav-number">3.2.4.</span> <span class="nav-text">[3-2-4] TCP反射放大攻击</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="nav-number">3.3.</span> <span class="nav-text">[3-3] 防御措施</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%88%E5%AF%B9syn-flood"><span class="nav-number">3.3.1.</span> <span class="nav-text">[3-3-1] 针对SYN Flood</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="nav-number">4.</span> <span class="nav-text">[4] 应用层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F"><span class="nav-number">4.1.</span> <span class="nav-text">[4-1] 域名系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">4.1.1.</span> <span class="nav-text">[4-1-1] 域名系统概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F-1"><span class="nav-number">4.1.2.</span> <span class="nav-text">[4-1-2] 主要攻击方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#poisoning"><span class="nav-number">4.1.2.1.</span> <span class="nav-text">[4-1-2-1] Poisoning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%95%E8%BF%87%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="nav-number">4.1.2.2.</span> <span class="nav-text">[4-1-2-2] 绕过同源策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dns-%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7"><span class="nav-number">4.1.2.3.</span> <span class="nav-text">[4-1-2-3] DNS 反射放大</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dns-%E5%8A%AB%E6%8C%81"><span class="nav-number">4.1.2.4.</span> <span class="nav-text">[4-1-2-4] DNS 劫持</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD"><span class="nav-number">4.1.3.</span> <span class="nav-text">[4-1-3] 防护措施</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%9A%8F%E6%9C%BA%E5%8C%96"><span class="nav-number">4.1.3.1.</span> <span class="nav-text">[4-1-3-1] 基于随机化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%8A%A0%E5%AF%86"><span class="nav-number">4.1.3.2.</span> <span class="nav-text">[4-1-3-2] 基于加密</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#web%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8"><span class="nav-number">4.2.</span> <span class="nav-text">[4-2] Web系统安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#web%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">4.2.1.</span> <span class="nav-text">[4-2-1] web系统概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB"><span class="nav-number">4.2.2.</span> <span class="nav-text">[4-2-2] 主要攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="nav-number">4.2.2.1.</span> <span class="nav-text">[4-2-2-1] 客户端浏览器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">4.2.2.2.</span> <span class="nav-text">[4-2-2-2] 服务器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">[4-2-3] 防护措施</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="nav-number">4.2.3.1.</span> <span class="nav-text">[4-2-3-1] 同源策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E6%8F%92%E4%BB%B6%E5%AE%89%E5%85%A8%E8%A7%84%E5%88%99"><span class="nav-number">4.2.3.2.</span> <span class="nav-text">[4-2-3-2] 浏览器插件安全规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#http-cookie%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5"><span class="nav-number">4.2.3.3.</span> <span class="nav-text">[4-2-3-3] HTTP Cookie安全策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#https"><span class="nav-number">4.2.3.4.</span> <span class="nav-text">[4-2-3-4] HTTPS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cdn"><span class="nav-number">4.2.3.5.</span> <span class="nav-text">[4-2-3-5] CDN</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%82%AE%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">4.3.</span> <span class="nav-text">[4-3] 邮件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">4.3.1.</span> <span class="nav-text">[4-3-1] 概述</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF"><span class="nav-number">5.</span> <span class="nav-text">[5] 防御技术</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">5.1.</span> <span class="nav-text">[5-1] 防火墙</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#idsintrusion-detection-system"><span class="nav-number">5.2.</span> <span class="nav-text">[5-2] IDS(Intrusion Detection
+System)</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="HeyGap"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">HeyGap</p>
+  <div class="site-description" itemprop="description">An undergraduate student of Cybersecurity at SDU.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/HeyGap" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;HeyGap" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/2310769056@qq.com" title="E-Mail → 2310769056@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">HeyGap</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
