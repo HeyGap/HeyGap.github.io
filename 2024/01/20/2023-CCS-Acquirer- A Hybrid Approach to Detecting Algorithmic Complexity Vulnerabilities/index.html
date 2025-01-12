@@ -252,211 +252,198 @@
         <blockquote class="blockquote-center">
 在做项目，记录一篇论文的阅读笔记
 </blockquote>
+
 <span id="more"></span>
-<h1 id="摘要">摘要</h1>
-<p>JAVA程序中的AC漏洞</p>
-<h1 id="一.-引言">一. 引言</h1>
+<h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>JAVA程序中的AC漏洞</p>
+<h1 id="一-引言"><a href="#一-引言" class="headerlink" title="一. 引言"></a>一. 引言</h1><ul>
+<li><strong>一些AC漏洞例子</strong><br>Decompression Bombs: <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Zip_bomb">https://en.wikipedia.org/wiki/Zip_bomb</a><br>Bilion Laughs Attach: <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Billion_laughs_attack">https://en.wikipedia.org/wiki/Billion_laughs_attack</a><br>ReDoS: <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ReDoS">https://en.wikipedia.org/wiki/ReDoS</a><br>Hash-table DoS Attack: <a target="_blank" rel="noopener" href="https://fahrplan.events.ccc.de/congress/2011/Fahrplan/events/4680.en.html">https://fahrplan.events.ccc.de/congress/2011/Fahrplan/events/4680.en.html</a><br>Zip Bomb: <a target="_blank" rel="noopener" href="https://www.theregister.com/2001/07/23/dos_risk_from_zip/">https://www.theregister.com/2001/07/23/dos_risk_from_zip/</a></li>
+</ul>
 <ul>
-<li><p><strong>一些AC漏洞例子</strong> Decompression Bombs:
-https://en.wikipedia.org/wiki/Zip_bomb Bilion Laughs Attach:
-https://en.wikipedia.org/wiki/Billion_laughs_attack ReDoS:
-https://en.wikipedia.org/wiki/ReDoS Hash-table DoS Attack:
-https://fahrplan.events.ccc.de/congress/2011/Fahrplan/events/4680.en.html
-Zip Bomb:
-https://www.theregister.com/2001/07/23/dos_risk_from_zip/</p></li>
-<li><p><strong>目前存在的一些问题</strong> state explosions</p></li>
+<li><p><strong>目前存在的一些问题</strong><br>state explosions</p>
+</li>
 <li><p><strong>ACQIRER的优势</strong></p>
-<ol type="1">
+<ol>
 <li>继承静态分析器</li>
 <li>构建必要的调用上下文和目标程序仪器，自动生成动态符号执行的测试线束，以此来验证漏洞，然后使用注入的程序，执行的测试线束。然后，它使用注入的程序，在从这些模式中学到的分支策略指导下执行选择性动态符号执行，从而高效地验证是否存在两条具有显著成本差异的路径。这种动态验证器有助于ACQIRER排除误报。</li>
 <li>它报告的路径约束还能帮助开发人员分析和修复漏洞。</li>
-</ol></li>
+</ol>
+</li>
 </ul>
-<h1 id="二.-背景">二. 背景</h1>
-<ul>
-<li><strong>AC DOS</strong> AC DOS attack是一种新的low-bandwidth DoS
-attack，它利用了程序中的算法缺陷，具体地说，对于目标程序中接受用户输入的函数，存在两个大小相似的输入，他们的运行时间可能大不相同。</li>
+<h1 id="二-背景"><a href="#二-背景" class="headerlink" title="二. 背景"></a>二. 背景</h1><ul>
+<li><strong>AC DOS</strong><br>AC DOS attack是一种新的low-bandwidth DoS attack，它利用了程序中的算法缺陷，具体地说，对于目标程序中接受用户输入的函数，存在两个大小相似的输入，他们的运行时间可能大不相同。</li>
 </ul>
 <blockquote>
 <p>问题一：整理常见的、具有时间复杂度缺陷的算法，并理解为什么会造成这些缺陷</p>
 </blockquote>
 <ul>
-<li><strong>常见诱发AC DOS的算法</strong>
-<ol type="1">
-<li>排序
-<ol type="1">
+<li><p><strong>常见诱发AC DOS的算法</strong></p>
+<ol>
+<li>排序<ol>
 <li>插入排序</li>
-</ol></li>
+</ol>
+</li>
 <li>树遍历</li>
-</ol></li>
-<li>AC DOS自动/半自动检测方法
-<ol type="1">
-<li>代码结构分析：识别执行时间可变的程序结构
-<ol type="1">
+</ol>
+</li>
+<li><p>AC DOS自动/半自动检测方法</p>
+<ol>
+<li>代码结构分析：识别执行时间可变的程序结构<ol>
 <li>举例：循环/递归</li>
-<li>工具：DISCOVER 最先进的静态分析工具
-<ol type="1">
+<li>工具：DISCOVER 最先进的静态分析工具<ol>
 <li>定义并收集了一个“循环特征”列表</li>
 <li>只能分析基本循环，不能分析包含其他控制结构（条件、跳转和内循环）的复杂循环，因为它们的控制流很难静态确定</li>
-</ol></li>
-</ol></li>
-<li>计算成本分析
-<ol type="1">
-<li>Fuzz：生成不同的测试输入，以测试不同的程序路径，从而检测高成本路径
-<ol type="1">
+</ol>
+</li>
+</ol>
+</li>
+<li>计算成本分析<ol>
+<li>Fuzz：生成不同的测试输入，以测试不同的程序路径，从而检测高成本路径<ol>
 <li>需要大量工程工作来开发测试线束</li>
 <li>自动测试生成功能，要么需要人类定义的现有测试线束，要么为单个方法生成不考虑其调用上下文的人工测试线束</li>
-</ol></li>
+</ol>
+</li>
 <li>SE：这块没读明白，之前没了解过SE</li>
-</ol></li>
-</ol></li>
+</ol>
+</li>
+</ol>
+</li>
 </ul>
 <blockquote>
 <p>问题二：了解Fuzz工作原理，了解AC漏洞建模是什么，了解SE，</p>
 </blockquote>
-<h1 id="三.-问题陈述">三. 问题陈述</h1>
-<ul>
-<li><strong>研究目标与挑战</strong>
-<ol type="1">
+<h1 id="三-问题陈述"><a href="#三-问题陈述" class="headerlink" title="三. 问题陈述"></a>三. 问题陈述</h1><ul>
+<li><p><strong>研究目标与挑战</strong></p>
+<ol>
 <li>AC漏洞建模：提出适用于具有不同计算成本的不同程序的易受攻击代码模式</li>
 <li>Path Explosion：找到潜在的易受攻击路径</li>
 <li>自动测试：为每个程序自动生成兼容的测试数据</li>
-</ol></li>
-<li><strong>定义</strong>
-<ol type="1">
+</ol>
+</li>
+<li><p><strong>定义</strong></p>
+<ol>
 <li>定义了绝对和相对计算成本，通过测量JVM中已执行指令的数量来估算计算成本，假定所有指令的计算成本顺序大致相同，真正成本取决于具体架构</li>
 <li>条件和分支策略生成器</li>
-</ol></li>
+</ol>
+</li>
 </ul>
-<h1 id="四.-成本差异代码模式-modeling-ac-vulnerability">四.
-成本差异代码模式-modeling AC vulnerability</h1>
-<ul>
-<li>Vulnerable Conditional Patterns
-<ol type="1">
+<h1 id="四-成本差异代码模式-modeling-AC-vulnerability"><a href="#四-成本差异代码模式-modeling-AC-vulnerability" class="headerlink" title="四. 成本差异代码模式-modeling AC vulnerability"></a>四. 成本差异代码模式-modeling AC vulnerability</h1><ul>
+<li>Vulnerable Conditional Patterns<ol>
 <li>概述：生成分支策略的决策依据</li>
-<li>分类
-<ol type="1">
+<li>分类<ol>
 <li>Non-Determined Loops：没看明白</li>
-<li>Single-Branch Conditionals in
-Loops：只有一个分支的条件语句，采用该分支会增加计算成本</li>
-<li>Termination-Branch Conditionals in
-Loops：return/exception，不进入return/exit/异常，就会增加计算成本，但有时异常处理代码的成本也可能会更高(tru-catch)</li>
-</ol></li>
-</ol></li>
+<li>Single-Branch Conditionals in Loops：只有一个分支的条件语句，采用该分支会增加计算成本</li>
+<li>Termination-Branch Conditionals in Loops：return/exception，不进入return/exit/异常，就会增加计算成本，但有时异常处理代码的成本也可能会更高(tru-catch)</li>
+</ol>
+</li>
+</ol>
+</li>
 </ul>
-<h1 id="五.-acquirer">五. ACQUIRER</h1>
-<ul>
-<li><p><strong>5.1 功能简介</strong>
-按照第四部分介绍的模式来静态分析代码漏洞，并且生成接下来要讲的branch
-policies。
-然后按照policies，通过动态符号执行，来找出一条快速路径和一条慢速路径，并得出他们的计算开销。
-并且还可以为每一个潜在的漏洞生成test harness。
-有选择性地过滤非漏洞循环</p></li>
-<li><p><strong>5.2 Branch Policy(分支策略)</strong></p></li>
+<h1 id="五-ACQUIRER"><a href="#五-ACQUIRER" class="headerlink" title="五. ACQUIRER"></a>五. ACQUIRER</h1><ul>
+<li><p><strong>5.1 功能简介</strong><br>按照第四部分介绍的模式来静态分析代码漏洞，并且生成接下来要讲的branch policies。<br>然后按照policies，通过动态符号执行，来找出一条快速路径和一条慢速路径，并得出他们的计算开销。<br>并且还可以为每一个潜在的漏洞生成test harness。<br>有选择性地过滤非漏洞循环</p>
+</li>
+<li><p><strong>5.2 Branch Policy(分支策略)</strong></p>
+</li>
 </ul>
-<ol type="1">
-<li>概述
-<ol type="1">
+<ol>
+<li>概述<ol>
 <li>目的：确定快慢路径</li>
-<li>程序内静态分析通过全局CFG(控制流图)
-<ol type="1">
+<li>程序内静态分析通过全局CFG(控制流图)<ol>
 <li>全局CFG是目标程序的字节码来分析的</li>
-<li>We enhance the global CFG with a call graph, where the call target
-at a call site includes all the possible callees for polymorphic
-calls.这句没读懂</li>
+<li>We enhance the global CFG with a call graph, where the call target at a call site includes all the possible callees for polymorphic calls.这句没读懂</li>
 <li>将一些调用函数视作内联函数</li>
-</ol></li>
+</ol>
+</li>
 <li>支持通过用户注释来分析external methods</li>
-</ol></li>
-<li>Determining Branch Choices
-<ol type="1">
-<li>终止条件：有一条边连到循环外的代码块 /
-包含return或throw的代码块</li>
+</ol>
+</li>
+<li>Determining Branch Choices<ol>
+<li>终止条件：有一条边连到循环外的代码块 / 包含return或throw的代码块</li>
 <li>单分支（没太读懂）：</li>
-<li>决策(参考listing
-1)：绕过结束分支，然后根据单分支的两条路径，选择计算开销大的那个，并继续迭代</li>
-</ol></li>
-<li>Resolving Branch CHoice Conflicts
-<ol type="1">
-<li>Conditional in Loop：终止分支 &gt; 未确定循环 &gt; 单分支条件,</li>
+<li>决策(参考listing 1)：绕过结束分支，然后根据单分支的两条路径，选择计算开销大的那个，并继续迭代</li>
+</ol>
+</li>
+<li>Resolving Branch CHoice Conflicts<ol>
+<li>Conditional in Loop：终止分支 &gt; 未确定循环 &gt; 单分支条件, </li>
 <li>Alternative Loops：</li>
 <li>Nested Loops：内层循环 &lt; 外层循环</li>
-</ol></li>
-<li>Loop-level Policy
-<ol type="1">
+</ol>
+</li>
+<li>Loop-level Policy<ol>
 <li>概述：循环级策略，构造了一个循环的“条件-值”的映射</li>
-</ol></li>
-<li>Function-level Policy
-<ol type="1">
+</ol>
+</li>
+<li>Function-level Policy<ol>
 <li>概述：函数级策略，我们先通过函数内包含的循环来生成慢速策略，然后通过合并慢速策略来生成函数级策略</li>
 <li>Reaching Vulnerable Loops：没看懂</li>
 <li>Generating Function Policy：没看懂</li>
-</ol></li>
+</ol>
+</li>
 </ol>
 <ul>
 <li><strong>5.3Selective Dynamic Symbolic Execution</strong></li>
 </ul>
-<ol type="1">
+<ol>
 <li>概述：依据5.2生成的分支策略，通过符号执行来测试快慢分支的绝对和相对计算开销，进而为后续报告漏洞提供数据。</li>
-<li>Selective Path
-Exploration：没太看懂路径约束是啥，路径约束器求解的又是啥</li>
+<li>Selective Path Exploration：没太看懂路径约束是啥，路径约束器求解的又是啥</li>
 <li>Vulnerability Validation：有点抽象</li>
 </ol>
 <ul>
 <li>5.4 Test Harness Generation</li>
 </ul>
-<ol type="1">
+<ol>
 <li>概述：包含一个测试执行程序和相关测试脚本，测试脚本应指定要调用的函数/方法，并提供必要的调用上下文（如参数、对象等）</li>
-<li>calling context
-<ol type="1">
+<li>calling context<ol>
 <li>出现目的：当代码量巨大时，编译代码并运行到漏洞位置将会耗费相当长的时间，所以我们希望能够自动生成上下文，然后通过测试脚本来针对这一小段代码进行测试</li>
 <li>注意上下文只包含必要的函数/语句，因为有些传进来的参数可能经过”消毒“，已经变得不可控</li>
-</ol></li>
 </ol>
-<p>5.5 Non-Vulnerable Code Block Filtering 1.
-概述：过滤不可能利用的循环，进而减少分析时间。该论文采取的策略相对保守
-2. 分类 1. Unreachable Loops：过滤绝对无法调用的函数 2. (Almost) -
-Constant Cost
-Loops：迭代器/计数器以常量为界，或者以”以常量为界“的变量为界的循环，迭代次数可以确定，过滤。
-3. Determined Loops：有点没理解</p>
-<h1 id="六.-implementation">六. Implementation</h1>
-<ul>
-<li><strong>6.1 Calling Context Construction</strong>
-<ol type="1">
+</li>
+</ol>
+<p>5.5 Non-Vulnerable Code Block Filtering</p>
+<ol>
+<li>概述：过滤不可能利用的循环，进而减少分析时间。该论文采取的策略相对保守</li>
+<li>分类<ol>
+<li>Unreachable Loops：过滤绝对无法调用的函数</li>
+<li>(Almost) - Constant Cost Loops：迭代器/计数器以常量为界，或者以”以常量为界“的变量为界的循环，迭代次数可以确定，过滤。</li>
+<li>Determined Loops：有点没理解</li>
+</ol>
+</li>
+</ol>
+<h1 id="六-Implementation"><a href="#六-Implementation" class="headerlink" title="六. Implementation"></a>六. Implementation</h1><ul>
+<li><strong>6.1 Calling Context Construction</strong><ol>
 <li>有点晕乎，跟符号执行有关，应该就是生成一段代码，这段代码截取了程序的一个慢速路径和该路径上的所有的传参过程。目的是尽快测试出这条路径的计算开销。</li>
-</ol></li>
+</ol>
+</li>
 </ul>
-<ol start="2" type="1">
-<li>Code Instrumentation
-<ol type="1">
-<li>更懵了...看起来像是拿自己写的工具里面的一些自己做的类，替换了原来的数据类型，方便在自己的工具里面进行下一步的操作？</li>
-</ol></li>
-<li>Dynamic Symbolic Execution
-<ol type="1">
+<ol>
+<li>Code Instrumentation<ol>
+<li>更懵了…看起来像是拿自己写的工具里面的一些自己做的类，替换了原来的数据类型，方便在自己的工具里面进行下一步的操作？</li>
+</ol>
+</li>
+<li>Dynamic Symbolic Execution<ol>
 <li>没读懂</li>
-</ol></li>
+</ol>
+</li>
 </ol>
 <blockquote>
 <p>问题三：了解一下符号执行</p>
 </blockquote>
-<h1 id="nan.-一些想法">NaN. 一些想法</h1>
-<ul>
-<li>程序主体
-<ol type="1">
+<h1 id="NaN-一些想法"><a href="#NaN-一些想法" class="headerlink" title="NaN. 一些想法"></a>NaN. 一些想法</h1><ul>
+<li>程序主体<ol>
 <li>我们也要构建CFG的话，首先要对二进制程序的字节码进行反汇编，并且根据反汇编的一些跳转语句，来生成CFG</li>
 <li>根据CFG来决策Branch，是否需要一些图论的知识？</li>
 <li>modeling AC vulnerability 需要我们人工设定一些路径选择</li>
-</ol></li>
-<li>扩展
-<ol type="1">
+</ol>
+</li>
+<li>扩展<ol>
 <li>可以耦合一些反混淆工具</li>
 <li>论文5.4中说”想要静态分析任意代码段的可执行性十分困难“，这个可以作为我们一个进步点来用</li>
-</ol></li>
-<li>全局问题
-<ol type="1">
+</ol>
+</li>
+<li>全局问题<ol>
 <li>有什么应用呢？服务器上有什么服务可以让我们通过AC DoS来打一下？</li>
 <li>架构不同，机器码不同，反汇编不同。怎么保证都可以用？</li>
-</ol></li>
+</ol>
+</li>
 </ul>
 
     </div>
@@ -569,8 +556,7 @@ Loops：迭代器/计数器以常量为界，或者以”以常量为界“的�
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80.-%E5%BC%95%E8%A8%80"><span class="nav-number">2.</span> <span class="nav-text">一. 引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C.-%E8%83%8C%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">二. 背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89.-%E9%97%AE%E9%A2%98%E9%99%88%E8%BF%B0"><span class="nav-number">4.</span> <span class="nav-text">三. 问题陈述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B.-%E6%88%90%E6%9C%AC%E5%B7%AE%E5%BC%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E5%BC%8F-modeling-ac-vulnerability"><span class="nav-number">5.</span> <span class="nav-text">四.
-成本差异代码模式-modeling AC vulnerability</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94.-acquirer"><span class="nav-number">6.</span> <span class="nav-text">五. ACQUIRER</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD.-implementation"><span class="nav-number">7.</span> <span class="nav-text">六. Implementation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#nan.-%E4%B8%80%E4%BA%9B%E6%83%B3%E6%B3%95"><span class="nav-number">8.</span> <span class="nav-text">NaN. 一些想法</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%91%98%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80-%E5%BC%95%E8%A8%80"><span class="nav-number">2.</span> <span class="nav-text">一. 引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C-%E8%83%8C%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">二. 背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89-%E9%97%AE%E9%A2%98%E9%99%88%E8%BF%B0"><span class="nav-number">4.</span> <span class="nav-text">三. 问题陈述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B-%E6%88%90%E6%9C%AC%E5%B7%AE%E5%BC%82%E4%BB%A3%E7%A0%81%E6%A8%A1%E5%BC%8F-modeling-AC-vulnerability"><span class="nav-number">5.</span> <span class="nav-text">四. 成本差异代码模式-modeling AC vulnerability</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94-ACQUIRER"><span class="nav-number">6.</span> <span class="nav-text">五. ACQUIRER</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD-Implementation"><span class="nav-number">7.</span> <span class="nav-text">六. Implementation</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NaN-%E4%B8%80%E4%BA%9B%E6%83%B3%E6%B3%95"><span class="nav-number">8.</span> <span class="nav-text">NaN. 一些想法</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -586,18 +572,18 @@ Loops：迭代器/计数器以常量为界，或者以”以常量为界“的�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -639,7 +625,7 @@ Loops：迭代器/计数器以常量为界，或者以”以常量为界“的�
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

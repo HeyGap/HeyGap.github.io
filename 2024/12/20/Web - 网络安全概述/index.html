@@ -29,7 +29,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://heygap.github.io/pic/5cddd5eea2e4549ee0b1252922577350.png">
 <meta property="article:published_time" content="2024-12-20T08:27:00.000Z">
-<meta property="article:modified_time" content="2024-12-21T09:58:07.951Z">
+<meta property="article:modified_time" content="2024-12-24T03:21:49.140Z">
 <meta property="article:author" content="HeyGap">
 <meta property="article:tag" content="web">
 <meta name="twitter:card" content="summary">
@@ -220,7 +220,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-12-21 17:12:95" itemprop="dateModified" datetime="2024-12-21T17:58:07+08:00">2024-12-21</time>
+                <time title="修改时间：2024-12-24 11:12:14" itemprop="dateModified" datetime="2024-12-24T11:21:49+08:00">2024-12-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -258,17 +258,51 @@
 <img src="/pic/5cddd5eea2e4549ee0b1252922577350.png" alt="导图" />
 <figcaption aria-hidden="true">导图</figcaption>
 </figure>
-<p>这篇文章主要从TCP/IP五层模型的层次来讲网络安全的攻击。众所周知，TCP/IP五层模型将网络架构分为物理层、数据链路层、网络层、运输层和应用层。针对物理层的攻击我不是很懂，因此不在本篇文章的描述范围内，而应用层出现的app漏洞和防御技术比较广泛，会用几章分别叙述。</p>
+<p>这篇文章主要从TCP/IP五层模型的层次来比较宽泛地讲一些常见的网络攻击。众所周知，TCP/IP五层模型将网络架构分为物理层、数据链路层、网络层、运输层和应用层。针对物理层的攻击我不是很懂，因此不在本篇文章的描述范围内，而应用层出现的app漏洞和防御技术比较广泛，会用几章分别叙述。</p>
 <blockquote>
 <p>每一章大概分为"协议-攻击方式-防御措施"三部分。常见攻击可以分为"DoS,投毒,劫持"，其中，劫持一般是劫持有状态的协议。</p>
 </blockquote>
+<p>下面是一些用于应试的背诵点，不考试的读者直接跳过即可。</p>
+<p>分层带来的功能是：拆分与重组、封装、连接控制、顺序递交、流控制、出错控制和复用</p>
+<p>bugs指的是软件程序中的错误或缺陷，vuln指的是系统需求、设计、实现或运行中的缺陷或弱点，
+exploit指的是一段软件、一系列命令或一组数据利用vuln或bugs来引发计算机软件或硬件上的非预期行为</p>
+<p>网络攻击可以分为：面向报文头的攻击、面向认证的攻击、面向协议的攻击和面向网络流的攻击。</p>
+<h1 id="比较容易遗忘的点">[0] 比较容易遗忘的点：</h1>
+<ol type="1">
+<li><p>分层带来的功能</p></li>
+<li><p>bugs,vuln,==exp==</p></li>
+<li><p>==网络攻击分类方式==</p></li>
+<li><p>==IPSec的enchidala怎么来的==</p></li>
+<li><p>==传输层:TCP攻击方式 + manimon==</p></li>
+<li><p>==DNS报文解析，什么样的报文会被递归DNS接收，劫持型DNS
+poison，响应型服务器做什么检查？DNS有哪些攻击方式？==</p></li>
+<li><p>==web系统安全：css/js有哪些安全风险？服务器的风险（缓存没记住），web系统风险，cookieparams，第三方插件安全，tls工作阶段==</p></li>
+<li><p>==邮件安全：绕过身份验证攻击，DKIM重放，根本原因==</p></li>
+<li><p>防火墙：功能、缺陷、三种防火墙的原理和优缺点、其他类型防火墙、WAF、内部防火墙的部署</p></li>
+<li><p>IDS：HIDS/NIDS的原理及优缺点，常见入侵，P2DR，IDS技术</p></li>
+<li><p>arp投毒如何防护</p></li>
+<li><p>缓存：①被注入②未授权的访问数据③字段错误导致访问问题④窃取行为习惯</p></li>
+<li><p>web系统的风险有：①身份冒充②网络监听和中间人③DOS④针对应用的攻击</p></li>
+<li><p>包过滤防火墙优点：高效开销小+透明，缺点：粒度粗容易误报漏报、不防御应用层漏洞、不防御IP伪造、日志提供有限</p></li>
+<li><p>状态检测防火墙优点：建立连接跟踪，检测会话，减少虚假报警；缺点：配置复杂、开销大、不防御应用层漏洞、不适合UDP</p></li>
+<li><p>应用层防火墙优点：能防御应用层、日志详细，缺点：配置复杂因地制宜+开销大+错误拦截多+第三方漏洞</p></li>
+<li><p>WAF：基于特征、基于行为、基于语义分析</p></li>
+<li><p>其他类型防火墙：</p></li>
+<li><p>HIDS优点：检测加密前解密后的数据、不受交换网络影响、检测NIDS无法检测的内容、检测软件完整性破坏
+缺点：开销大、因地制宜配置复杂、可能背攻击禁用</p></li>
+<li><p>NIDS优点：被动捕获、扩展性好、OS独立、抗DoS。缺点：①受交换空间影响②无法检测加密内容③难以处理高速网络</p></li>
+<li><p>常见入侵：蠕虫木马、钓鱼邮件、勒索病毒、APT、DoS</p></li>
+<li><p>基于误用：模式匹配，静态只匹配静态表，动态还分析时间序列或状态变化等</p></li>
+<li><p>静态mac表，开启路由器和网关的arp防护，用软件或中间件来检测arp</p></li>
+</ol>
 <h1 id="数据链路层局域网">[1] 数据链路层(局域网)</h1>
 <h2 id="协议">[1-1] 协议</h2>
 <p>这部分讲述的协议不只是设计数据链路层的协议，而是涉及到局域网通信的协议。</p>
 <p>由于物理媒介的不同，我们可以把网络分为有线网络和无线网络。无线网络涉及AP、信道等内容，不利于基础攻防技术的学习，因此本文主要基于有线网络进行讲述。根据IEEE
 802.3 的规定，有线网络使用的数据传输策略是CSMA/CD(carrier sensation
 multiple access/collision
-detection)，即带有碰撞检测的载波监听多点接入技术，该技术的细节就不在这里过多描述。在数据链路层中，我们为每一个网络设备分配了唯一的标识符，即MAC地址(media
+detection)，即带有碰撞检测的载波监听多点接入技术，该技术的细节就不在这里过多描述，
+我们只需要知道因为该协议的存在，数据链路层的数据包的data部分必须控制在46byte-1500byte，被称为MTU。在数据链路层中，我们为每一个网络设备分配了唯一的标识符，即MAC地址(media
 access control
 address)。多个网络设备可以通过交换机连接成一个局域网。</p>
 <h3 id="arp">[1-1-1] ARP</h3>
@@ -358,7 +392,7 @@ IKE就会进入第二阶段，为每个进程协商IPSec SA</p>
 <p>隧道模式：加密IP头，适用于网关到网关</p>
 <h3 id="esp-tun-mode-工作流程">[2-3-3] ESP TUN Mode 工作流程</h3>
 <p>①在原始数据包前后加入ESP头和ESP尾形成新数据包，ESP头包含SPI和序列号，ESP尾用于padding</p>
-<p>②加密新数据包，形成enchidala</p>
+<p>②加密新数据包，形成enchidala，注意头部是不加密的，要不然接收方无法确认SPI，也就无法选择SA。</p>
 <p>③对enchidala进行mac计算，将结果拼接到enchidala尾部</p>
 <p>④最终数据包: 新IP头 + enchidala + MAC认证</p>
 <h1 id="运输层">[3] 运输层</h1>
@@ -419,11 +453,27 @@ UDP协议是无状态的。</p>
 当递归域名服务器得到IP地址之后，就会向客户返回这个资源条目。</p>
 <p>一个资源条目一般包括：域名-缓存时间-资源类别-资源类型-IP地址。资源类型一般包含A(ipv4地址)、AAAA(ipv6地址)、NS(权威DNS名称)、
 MX(邮件服务器名称)、CNAME(域名别名)和SOA(起始授权信息)</p>
-<p>同时，为了减轻网络压力，递归域名服务器和客户主机一般会缓存一部分DNS条目</p>
+<p>同时，为了减轻网络压力，递归域名服务器和客户主机一般会缓存一部分DNS条目。</p>
+<p>另外，DNS报文体对应报文头中的四个数量字段，它们分别是:</p>
+<ol type="1">
+<li>问题区域：指定用户查询的目标域名和资源记录类型</li>
+<li>应答区域：直接回答查询请求，即满足目标域名和资源记录类型的权威应答</li>
+<li>授权区域：一般包含类型为NS的资源记录，指向域名的权威服务器名称</li>
+<li>附加区域：包含域名服务器返回的在查询过程中可能用到的其他资源记录，比如权威服务器对应的IP地址等</li>
+</ol>
 <h3 id="主要攻击方式-1">[4-1-2] 主要攻击方式</h3>
 <h4 id="poisoning">[4-1-2-1] Poisoning</h4>
-<p>客户在发起DNS请求后，攻击者抢在递归域名服务器之前向客户发起响应，不过这种攻击需要攻击者预测TXID和目的端口。</p>
-<h4 id="绕过同源策略">[4-1-2-2] 绕过同源策略</h4>
+<ol type="1">
+<li>应答型</li>
+</ol>
+<p>客户在发起DNS请求后，攻击者抢在递归域名服务器之前向客户发起响应，不过只有IP地址匹配、端口匹配、TXID匹配和问题区域匹配，
+response包才会被递归DNS接收，问题区域可以通过自问自答的方式解决，IP地址填自己就行，
+但TXID和目的端口需要攻击者爆破去猜测。</p>
+<ol start="2" type="1">
+<li>劫持型</li>
+</ol>
+<h4 id="绕过同源策略dns-重绑定攻击">[4-1-2-2] 绕过同源策略(DNS
+重绑定攻击)</h4>
 <p>同源策略是指JS脚本只能访问同源资源，同源指的是"协议://域名:端口"相同。绕过同源策略需要攻击者控制递归域名服务器。</p>
 <p>当客户向域名服务器查询域名A的IP时，攻击者可以返回一个恶意IP，客户会在这个IP被注入恶意脚本，该恶意脚本每隔一段时间访问域名A。
 同时，攻击者控制的DNS服务器将这个域名-IP的缓存时间设置的极短，当该DNS缓存条目过期之后，恶意脚本再访问域名A就会再次向攻击者DNS服务器查询域名，
@@ -461,6 +511,11 @@ keep-alive来实现持续对话，双方可以在这个持久连接上发送多�
 <p>HTTP协议有一个认证字段，当认证字段被攻击者修改为明文认证而不是摘要认证时，攻击者就可以获得用户的明文敏感信息。</p>
 <p>web缓存器也称为代理服务器，可以是距离用户较近的网关服务器，也可以是较大的CDN。缓存有可能会有非授权的数据访问，也可能保存用户的隐私数据，
 当访问缓存参数失当可能也会导致浏览器处理异常，此外，缓存可能被污染。</p>
+<h4 id="整个web系统">[4-2-2-3] 整个Web系统</h4>
+<ol type="1">
+<li>身份假冒攻击：HTTP最开始没有身份认证，攻击者可以伪装成正常的web服务器欺骗用户访问</li>
+<li>网络流量监听和中间人：未授权的网络监听被称为被动攻击；主动攻击是指攻击者不仅未授权监听流量，还主动注入恶意流量</li>
+</ol>
 <h3 id="防护措施-1">[4-2-3] 防护措施</h3>
 <h4 id="同源策略">[4-2-3-1] 同源策略</h4>
 <h4 id="浏览器插件安全规则">[4-2-3-2] 浏览器插件安全规则</h4>
@@ -510,10 +565,11 @@ Agent)来投递给Y的MUA。</p>
 <blockquote>
 <p>造成下列攻击的根本原因是：多协议之间的薄弱环节、多角色之间的薄弱环节和多服务之间的薄弱环节。</p>
 </blockquote>
-<h4 id="绕过身份验证标识符">[4-3-3-1] 绕过身份验证标识符</h4>
+<h4 id="身份验证标识符不一致">[4-3-3-1] 身份验证标识符不一致</h4>
 <blockquote>
 <p>建议学习[4-3-4]后再来学习本节</p>
 </blockquote>
+<p>通常情况下，MUA显示的是FROM字段的内容。</p>
 <ol type="1">
 <li><p>空 Mail FROM
 攻击：SPF检验的是一个服务器是否可以代替其服务器发送，当MAIL FROM为空时，
@@ -534,6 +590,9 @@ A记录，因此这种攻击较为广泛。这种邮件会被SPF打上none标签
 <p>DKIM注入是利用"b="字段将左括号认为是注释的原理来绕过，SPF注入是利用MAIL
 FROM字段将单引号认为是注释的原理来绕过。</p>
 <h4 id="dkim签名重放">[4-3-3-3] DKIM签名重放</h4>
+<blockquote>
+<p>建议学习[4-3-4]后再来学习本节</p>
+</blockquote>
 <p>DKIM不防重放，并且允许攻击者将额外的电子邮件标头甚至正文添加到被签名保护的消息中。</p>
 <ol type="1">
 <li><p>"h=":
@@ -543,6 +602,14 @@ DKIM对于邮件标头的签名是可选的，如果h=中包含的标头不完�
 该标签允许向电子邮件列表中的不同地址发送不同内容，另外该标签允许攻击者在原始邮件正文添加新的而已内容而不会破坏签名。</p></li>
 <li><p>利用转发功能：通常知名的邮件转发服务器不会被过滤</p></li>
 </ol>
+<h4 id="身份验证绕过攻击">[4-3-3-4] 身份验证绕过攻击</h4>
+<blockquote>
+<p>建议学习[4-3-4]后再来学习本节</p>
+</blockquote>
+<p>共享MTA场景：多个域名共享一个合法MTA，如果接收方只验证MTA
+IP则会有安全风险</p>
+<p>直接MTA场景：攻击者不通过发送方MTA，而是直接连接到接收方MTA来发送邮件，这样接收方MTA可能不会验证邮件。</p>
+<p>转发MTA场景：攻击者利用受信任的转发MTA来发送。</p>
 <h3 id="常见防护">[4-3-4] 常见防护</h3>
 <h4 id="spf">[4-3-4-1] SPF</h4>
 <p>通过SPF记录指明哪些服务器可以代表域名发送电子邮件到MSA，SPF记录以DNS
@@ -554,17 +621,21 @@ TXT记录的形式发布， 一个域名只能发布一条记录。举个例子�
 <p>include:spf.example.net：允许 spf.example.net
 域的SPF记录中的IP地址发送邮件。</p>
 <p>~all：如果邮件来源不符合这些规则，则标记为软失败（通常会被标记为垃圾邮件）。</p>
+<p>当MUA接收到一封邮件时，SPF协议会提取MAIL
+FROM字段中的域名，通过DNS查询来确认是否匹配。</p>
 <h4 id="dkim">[4-3-4-2] DKIM</h4>
 <p>DKIM协议会在邮件的标头添加一个数字签名，这个签名是这样计算的：</p>
 <p>首先计算邮件正文的哈希值、选定邮件标头的哈希值以及整个邮件的哈希值。然后发件人的MTA会对哈希值进行签名，
 生成DKIM-Signature。</p>
 <h4 id="dmarc">[4-3-4-3] DMARC</h4>
 <p>引入多认证标识符对齐机制，将FROM命令里的身份信息与SPF和DKIM的认证关联起来</p>
+<h4 id="共享直接转发-mta-场景">[4-3-4-4] 共享/直接/转发 MTA 场景</h4>
 <h1 id="防御技术">[5] 防御技术</h1>
 <h2 id="防火墙">[5-1] 防火墙</h2>
 <h3 id="概述-1">[5-1-1] 概述</h3>
 <p>功能：①包过滤、入侵检测、监控和日志②负载均衡、应用程序代理服务器、数据缓存③网络地址转换</p>
 <p>缺陷：①无法对抗旁路攻击②不完全透明，可能会带来延迟③不防范端到端加密通信④有时会拦截有用的服务</p>
+<p>内部防火墙的部署：①内部防火墙提供更严格的过滤能力②在DMZ之间提供双向保护③多个防火墙保护内部网络的不同区域</p>
 <h3 id="分类">[5-1-2] 分类</h3>
 <blockquote>
 <p>优缺点大一统:①应用层？②开销③配置难易④日志</p>
@@ -575,14 +646,17 @@ TXT记录的形式发布， 一个域名只能发布一条记录。举个例子�
 <p>缺点：①粒度过粗②无法防御针对特定app漏洞的攻击③无法防御IP伪造攻击④日志信息有限</p>
 <h4 id="状态检查防火墙">[5-1-2-2] 状态检查防火墙</h4>
 <p>拦截依据：TCP等协议建立的状态+包过滤防火墙的拦截依据</p>
-<p>优点：①建立连接跟踪②会话感知过滤③减少虚假报警 -&gt;
-其实就是粒度更细了、更适合TCP了、更精确了</p>
+<p>优点：①建立连接跟踪，跟踪网络连接的状态，以便返回流量能通过防火墙②会话感知过滤，可以根据会话信息进行更细粒度的过滤③减少虚假报警，不会将合法的响应流量误以为是未经授权的入侵
+-&gt; 其实就是粒度更细了、更适合TCP了、更精确了</p>
 <p>缺点：①配置复杂②资源开销大③无法防御针对特定app漏洞的攻击④UDP效果较差</p>
 <h4 id="应用层防火墙">[5-1-2-3] 应用层防火墙</h4>
 <p>拦截依据：数据包头+数据包内容（模式匹配+正则匹配+协议分析）</p>
 <p>优点：①过滤规则容易配置和测试②进行内容过滤、复杂访问控制、精细注册和审核等
 ③防御针对应用层的攻击④提供详细的日志和审计功能</p>
 <p>缺点：①性能开销大②特定协议特定检查机制③可能引入新漏洞④配置复杂⑤误报误阻会封堵正常业务流程，需要额外测试和配置。</p>
+<p>WAF：Web Application
+Firewall，基于特征、行为和语义分析来检测恶意行为，可以作为独立硬件或虚拟设备部署在web前端，
+可以通过云端waf在云中保护web应用，可以作为浏览器插件或应用，也能以反向代理模式部署</p>
 <h4 id="其他类型">[5-1-2-4] 其他类型</h4>
 <p>下一代防火墙</p>
 <p>网络分割防火墙</p>
@@ -660,7 +734,10 @@ class="math inline">\(P^2DR模型\)</span></h3>
     <a href="/2024/12/06/Web%20-%20DNS%20poisoning/" rel="prev" title="Web - DNS Poisoning">
       <i class="fa fa-chevron-left"></i> Web - DNS Poisoning
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2025/01/12/2024%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" rel="next" title="2024年终总结">
+      2024年终总结 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -719,9 +796,10 @@ class="math inline">\(P^2DR模型\)</span></h3>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%E5%B1%80%E5%9F%9F%E7%BD%91"><span class="nav-number">1.</span> <span class="nav-text">[1] 数据链路层(局域网)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.1.</span> <span class="nav-text">[1-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arp"><span class="nav-number">1.1.1.</span> <span class="nav-text">[1-1-1] ARP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dhcp"><span class="nav-number">1.1.2.</span> <span class="nav-text">[1-1-2] DHCP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB"><span class="nav-number">1.2.</span> <span class="nav-text">[1-2] 常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arp-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">[1-2-1] ARP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#arp-dosmac%E5%9C%B0%E5%9D%80%E6%B4%AA%E6%B3%9B"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">[1-2-1-1] ARP DoS(MAC地址洪泛)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#arp-%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">[1-2-1-2] ARP 缓存投毒</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dhcp-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">[1-2-2] DHCP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dhcp-dos"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">[1-2-2-1] DHCP DoS</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="nav-number">2.</span> <span class="nav-text">[2] 网络层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-1"><span class="nav-number">2.1.</span> <span class="nav-text">[2-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ip"><span class="nav-number">2.1.1.</span> <span class="nav-text">[2-1-1] IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icmp"><span class="nav-number">2.1.2.</span> <span class="nav-text">[2-1-2] ICMP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-1"><span class="nav-number">2.2.</span> <span class="nav-text">[2-2] 常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ip-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">[2-2-1] IP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ping-of-death"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">[2-2-1-1] Ping of Death</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icmp-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">[2-2-2] ICMP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#smurf%E6%94%BB%E5%87%BBicmp-dos"><span class="nav-number">2.2.2.1.</span> <span class="nav-text">[2-2-2-1] Smurf攻击(ICMP DoS)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#icmp-redirecticmp-poisoning"><span class="nav-number">2.2.2.2.</span> <span class="nav-text">[2-2-2-2] ICMP Redirect(ICMP
-Poisoning)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-ipsec"><span class="nav-number">2.3.</span> <span class="nav-text">[2-3] 防护措施-IPSec</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6"><span class="nav-number">2.3.1.</span> <span class="nav-text">[2-3-1] 组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.3.1.1.</span> <span class="nav-text">[2-3-1-1] 密钥管理系统</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.3.2.</span> <span class="nav-text">[2-3-2] 传输模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#esp-tun-mode-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.3.</span> <span class="nav-text">[2-3-3] ESP TUN Mode 工作流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%BE%93%E5%B1%82"><span class="nav-number">3.</span> <span class="nav-text">[3] 运输层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-2"><span class="nav-number">3.1.</span> <span class="nav-text">[3-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#udp"><span class="nav-number">3.1.1.</span> <span class="nav-text">[3-1-1] UDP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp"><span class="nav-number">3.1.2.</span> <span class="nav-text">[3-1-2] TCP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F"><span class="nav-number">3.2.</span> <span class="nav-text">[3-2] 主要攻击方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F%E4%B8%8E%E8%B5%84%E4%BA%A7%E6%8E%A2%E6%9F%A5"><span class="nav-number">3.2.1.</span> <span class="nav-text">[3-2-1] 端口扫描与资产探查</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9A%90%E8%94%BD%E6%89%AB%E6%8F%8F"><span class="nav-number">3.2.1.1.</span> <span class="nav-text">[3-2-1-1] 隐蔽扫描</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp-syn-floodtcp-dos"><span class="nav-number">3.2.2.</span> <span class="nav-text">[3-2-2] TCP SYN Flood(TCP DoS)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp-%E4%BC%9A%E8%AF%9D%E5%8A%AB%E6%8C%81%E9%87%8D%E7%BD%AE"><span class="nav-number">3.2.3.</span> <span class="nav-text">[3-2-3] TCP 会话劫持&#x2F;重置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7%E6%94%BB%E5%87%BB"><span class="nav-number">3.2.4.</span> <span class="nav-text">[3-2-4] TCP反射放大攻击</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="nav-number">3.3.</span> <span class="nav-text">[3-3] 防御措施</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%88%E5%AF%B9syn-flood"><span class="nav-number">3.3.1.</span> <span class="nav-text">[3-3-1] 针对SYN Flood</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="nav-number">4.</span> <span class="nav-text">[4] 应用层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F"><span class="nav-number">4.1.</span> <span class="nav-text">[4-1] 域名系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">4.1.1.</span> <span class="nav-text">[4-1-1] 域名系统概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F-1"><span class="nav-number">4.1.2.</span> <span class="nav-text">[4-1-2] 主要攻击方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#poisoning"><span class="nav-number">4.1.2.1.</span> <span class="nav-text">[4-1-2-1] Poisoning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%95%E8%BF%87%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="nav-number">4.1.2.2.</span> <span class="nav-text">[4-1-2-2] 绕过同源策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dns-%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7"><span class="nav-number">4.1.2.3.</span> <span class="nav-text">[4-1-2-3] DNS 反射放大</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dns-%E5%8A%AB%E6%8C%81"><span class="nav-number">4.1.2.4.</span> <span class="nav-text">[4-1-2-4] DNS 劫持</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD"><span class="nav-number">4.1.3.</span> <span class="nav-text">[4-1-3] 防护措施</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%9A%8F%E6%9C%BA%E5%8C%96"><span class="nav-number">4.1.3.1.</span> <span class="nav-text">[4-1-3-1] 基于随机化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%8A%A0%E5%AF%86"><span class="nav-number">4.1.3.2.</span> <span class="nav-text">[4-1-3-2] 基于加密</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#web%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8"><span class="nav-number">4.2.</span> <span class="nav-text">[4-2] Web系统安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#web%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">4.2.1.</span> <span class="nav-text">[4-2-1] web系统概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB"><span class="nav-number">4.2.2.</span> <span class="nav-text">[4-2-2] 主要攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="nav-number">4.2.2.1.</span> <span class="nav-text">[4-2-2-1] 客户端浏览器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">4.2.2.2.</span> <span class="nav-text">[4-2-2-2] 服务器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">[4-2-3] 防护措施</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="nav-number">4.2.3.1.</span> <span class="nav-text">[4-2-3-1] 同源策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E6%8F%92%E4%BB%B6%E5%AE%89%E5%85%A8%E8%A7%84%E5%88%99"><span class="nav-number">4.2.3.2.</span> <span class="nav-text">[4-2-3-2] 浏览器插件安全规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#http-cookie%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5"><span class="nav-number">4.2.3.3.</span> <span class="nav-text">[4-2-3-3] HTTP Cookie安全策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#https"><span class="nav-number">4.2.3.4.</span> <span class="nav-text">[4-2-3-4] HTTPS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cdn"><span class="nav-number">4.2.3.5.</span> <span class="nav-text">[4-2-3-5] CDN</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%82%AE%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">4.3.</span> <span class="nav-text">[4-3] 邮件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">4.3.1.</span> <span class="nav-text">[4-3-1] 概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-3"><span class="nav-number">4.3.2.</span> <span class="nav-text">[4-3-2] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#smtp"><span class="nav-number">4.3.2.1.</span> <span class="nav-text">[4-3-2-1] SMTP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pop3"><span class="nav-number">4.3.2.2.</span> <span class="nav-text">[4-3-2-2] POP3</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#imap4"><span class="nav-number">4.3.2.3.</span> <span class="nav-text">[4-3-2-3] IMAP4</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-2"><span class="nav-number">4.3.3.</span> <span class="nav-text">[4-3-3] 常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%95%E8%BF%87%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%A0%87%E8%AF%86%E7%AC%A6"><span class="nav-number">4.3.3.1.</span> <span class="nav-text">[4-3-3-1] 绕过身份验证标识符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%BB%93%E6%9E%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB"><span class="nav-number">4.3.3.2.</span> <span class="nav-text">[4-3-3-2] 身份验证结果注入攻击</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dkim%E7%AD%BE%E5%90%8D%E9%87%8D%E6%94%BE"><span class="nav-number">4.3.3.3.</span> <span class="nav-text">[4-3-3-3] DKIM签名重放</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%98%B2%E6%8A%A4"><span class="nav-number">4.3.4.</span> <span class="nav-text">[4-3-4] 常见防护</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#spf"><span class="nav-number">4.3.4.1.</span> <span class="nav-text">[4-3-4-1] SPF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dkim"><span class="nav-number">4.3.4.2.</span> <span class="nav-text">[4-3-4-2] DKIM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dmarc"><span class="nav-number">4.3.4.3.</span> <span class="nav-text">[4-3-4-3] DMARC</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF"><span class="nav-number">5.</span> <span class="nav-text">[5] 防御技术</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">5.1.</span> <span class="nav-text">[5-1] 防火墙</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">5.1.1.</span> <span class="nav-text">[5-1-1] 概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">5.1.2.</span> <span class="nav-text">[5-1-2] 分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8C%85%E8%BF%87%E6%BB%A4%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">5.1.2.1.</span> <span class="nav-text">[5-1-2-1] 包过滤防火墙</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">5.1.2.2.</span> <span class="nav-text">[5-1-2-2] 状态检查防火墙</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">5.1.2.3.</span> <span class="nav-text">[5-1-2-3] 应用层防火墙</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B"><span class="nav-number">5.1.2.4.</span> <span class="nav-text">[5-1-2-4] 其他类型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#idsintrusion-detection-system"><span class="nav-number">5.2.</span> <span class="nav-text">[5-2] IDS(Intrusion Detection
-System)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#p2dr%E6%A8%A1%E5%9E%8B"><span class="nav-number">5.2.1.</span> <span class="nav-text">[5-2-1] \(P^2DR模型\)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB-1"><span class="nav-number">5.2.2.</span> <span class="nav-text">[5-2-2] 分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#hids"><span class="nav-number">5.2.2.1.</span> <span class="nav-text">[5-2-2-1] HIDS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nids"><span class="nav-number">5.2.2.2.</span> <span class="nav-text">[5-2-2-2] NIDS</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ids%E6%8A%80%E6%9C%AF"><span class="nav-number">5.2.3.</span> <span class="nav-text">[5-2-3] IDS技术</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%AF%AF%E7%94%A8%E7%9A%84%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B"><span class="nav-number">5.2.3.1.</span> <span class="nav-text">[5-2-3-1] 基于误用的入侵检测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%BC%82%E5%B8%B8%E7%9A%84%E6%A3%80%E6%B5%8B"><span class="nav-number">5.2.3.2.</span> <span class="nav-text">[5-2-3-2] 基于异常的检测</span></a></li></ol></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AF%94%E8%BE%83%E5%AE%B9%E6%98%93%E9%81%97%E5%BF%98%E7%9A%84%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">[0] 比较容易遗忘的点：</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%E5%B1%80%E5%9F%9F%E7%BD%91"><span class="nav-number">2.</span> <span class="nav-text">[1] 数据链路层(局域网)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arp"><span class="nav-number">2.1.1.</span> <span class="nav-text">[1-1-1] ARP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dhcp"><span class="nav-number">2.1.2.</span> <span class="nav-text">[1-1-2] DHCP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB"><span class="nav-number">2.2.</span> <span class="nav-text">[1-2] 常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arp-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">[1-2-1] ARP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#arp-dosmac%E5%9C%B0%E5%9D%80%E6%B4%AA%E6%B3%9B"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">[1-2-1-1] ARP DoS(MAC地址洪泛)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#arp-%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92"><span class="nav-number">2.2.1.2.</span> <span class="nav-text">[1-2-1-2] ARP 缓存投毒</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dhcp-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">[1-2-2] DHCP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#dhcp-dos"><span class="nav-number">2.2.2.1.</span> <span class="nav-text">[1-2-2-1] DHCP DoS</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="nav-number">3.</span> <span class="nav-text">[2] 网络层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-1"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ip"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icmp"><span class="nav-number">3.1.2.</span> <span class="nav-text">[2-1-2] ICMP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-1"><span class="nav-number">3.2.</span> <span class="nav-text">[2-2] 常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ip-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">[2-2-1] IP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ping-of-death"><span class="nav-number">3.2.1.1.</span> <span class="nav-text">[2-2-1-1] Ping of Death</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#icmp-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">[2-2-2] ICMP</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#smurf%E6%94%BB%E5%87%BBicmp-dos"><span class="nav-number">3.2.2.1.</span> <span class="nav-text">[2-2-2-1] Smurf攻击(ICMP DoS)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#icmp-redirecticmp-poisoning"><span class="nav-number">3.2.2.2.</span> <span class="nav-text">[2-2-2-2] ICMP Redirect(ICMP
+Poisoning)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-ipsec"><span class="nav-number">3.3.</span> <span class="nav-text">[2-3] 防护措施-IPSec</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6"><span class="nav-number">3.3.1.</span> <span class="nav-text">[2-3-1] 组件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.3.1.1.</span> <span class="nav-text">[2-3-1-1] 密钥管理系统</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.3.2.</span> <span class="nav-text">[2-3-2] 传输模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#esp-tun-mode-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">3.3.3.</span> <span class="nav-text">[2-3-3] ESP TUN Mode 工作流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%90%E8%BE%93%E5%B1%82"><span class="nav-number">4.</span> <span class="nav-text">[3] 运输层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-2"><span class="nav-number">4.1.</span> <span class="nav-text">[3-1] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#udp"><span class="nav-number">4.1.1.</span> <span class="nav-text">[3-1-1] UDP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp"><span class="nav-number">4.1.2.</span> <span class="nav-text">[3-1-2] TCP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F"><span class="nav-number">4.2.</span> <span class="nav-text">[3-2] 主要攻击方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F%E4%B8%8E%E8%B5%84%E4%BA%A7%E6%8E%A2%E6%9F%A5"><span class="nav-number">4.2.1.</span> <span class="nav-text">[3-2-1] 端口扫描与资产探查</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9A%90%E8%94%BD%E6%89%AB%E6%8F%8F"><span class="nav-number">4.2.1.1.</span> <span class="nav-text">[3-2-1-1] 隐蔽扫描</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp-syn-floodtcp-dos"><span class="nav-number">4.2.2.</span> <span class="nav-text">[3-2-2] TCP SYN Flood(TCP DoS)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp-%E4%BC%9A%E8%AF%9D%E5%8A%AB%E6%8C%81%E9%87%8D%E7%BD%AE"><span class="nav-number">4.2.3.</span> <span class="nav-text">[3-2-3] TCP 会话劫持&#x2F;重置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tcp%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7%E6%94%BB%E5%87%BB"><span class="nav-number">4.2.4.</span> <span class="nav-text">[3-2-4] TCP反射放大攻击</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="nav-number">4.3.</span> <span class="nav-text">[3-3] 防御措施</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%88%E5%AF%B9syn-flood"><span class="nav-number">4.3.1.</span> <span class="nav-text">[3-3-1] 针对SYN Flood</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="nav-number">5.</span> <span class="nav-text">[4] 应用层</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F"><span class="nav-number">5.1.</span> <span class="nav-text">[4-1] 域名系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">5.1.1.</span> <span class="nav-text">[4-1-1] 域名系统概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F-1"><span class="nav-number">5.1.2.</span> <span class="nav-text">[4-1-2] 主要攻击方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#poisoning"><span class="nav-number">5.1.2.1.</span> <span class="nav-text">[4-1-2-1] Poisoning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%95%E8%BF%87%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5dns-%E9%87%8D%E7%BB%91%E5%AE%9A%E6%94%BB%E5%87%BB"><span class="nav-number">5.1.2.2.</span> <span class="nav-text">[4-1-2-2] 绕过同源策略(DNS
+重绑定攻击)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dns-%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7"><span class="nav-number">5.1.2.3.</span> <span class="nav-text">[4-1-2-3] DNS 反射放大</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dns-%E5%8A%AB%E6%8C%81"><span class="nav-number">5.1.2.4.</span> <span class="nav-text">[4-1-2-4] DNS 劫持</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD"><span class="nav-number">5.1.3.</span> <span class="nav-text">[4-1-3] 防护措施</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%9A%8F%E6%9C%BA%E5%8C%96"><span class="nav-number">5.1.3.1.</span> <span class="nav-text">[4-1-3-1] 基于随机化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%8A%A0%E5%AF%86"><span class="nav-number">5.1.3.2.</span> <span class="nav-text">[4-1-3-2] 基于加密</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#web%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8"><span class="nav-number">5.2.</span> <span class="nav-text">[4-2] Web系统安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#web%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">5.2.1.</span> <span class="nav-text">[4-2-1] web系统概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB"><span class="nav-number">5.2.2.</span> <span class="nav-text">[4-2-2] 主要攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="nav-number">5.2.2.1.</span> <span class="nav-text">[4-2-2-1] 客户端浏览器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">5.2.2.2.</span> <span class="nav-text">[4-2-2-2] 服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E4%B8%AAweb%E7%B3%BB%E7%BB%9F"><span class="nav-number">5.2.2.3.</span> <span class="nav-text">[4-2-2-3] 整个Web系统</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-1"><span class="nav-number">5.2.3.</span> <span class="nav-text">[4-2-3] 防护措施</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="nav-number">5.2.3.1.</span> <span class="nav-text">[4-2-3-1] 同源策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E6%8F%92%E4%BB%B6%E5%AE%89%E5%85%A8%E8%A7%84%E5%88%99"><span class="nav-number">5.2.3.2.</span> <span class="nav-text">[4-2-3-2] 浏览器插件安全规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#http-cookie%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5"><span class="nav-number">5.2.3.3.</span> <span class="nav-text">[4-2-3-3] HTTP Cookie安全策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#https"><span class="nav-number">5.2.3.4.</span> <span class="nav-text">[4-2-3-4] HTTPS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cdn"><span class="nav-number">5.2.3.5.</span> <span class="nav-text">[4-2-3-5] CDN</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%82%AE%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">5.3.</span> <span class="nav-text">[4-3] 邮件系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">5.3.1.</span> <span class="nav-text">[4-3-1] 概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE-3"><span class="nav-number">5.3.2.</span> <span class="nav-text">[4-3-2] 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#smtp"><span class="nav-number">5.3.2.1.</span> <span class="nav-text">[4-3-2-1] SMTP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pop3"><span class="nav-number">5.3.2.2.</span> <span class="nav-text">[4-3-2-2] POP3</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#imap4"><span class="nav-number">5.3.2.3.</span> <span class="nav-text">[4-3-2-3] IMAP4</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-2"><span class="nav-number">5.3.3.</span> <span class="nav-text">[4-3-3] 常见攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%A0%87%E8%AF%86%E7%AC%A6%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="nav-number">5.3.3.1.</span> <span class="nav-text">[4-3-3-1] 身份验证标识符不一致</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%BB%93%E6%9E%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB"><span class="nav-number">5.3.3.2.</span> <span class="nav-text">[4-3-3-2] 身份验证结果注入攻击</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dkim%E7%AD%BE%E5%90%8D%E9%87%8D%E6%94%BE"><span class="nav-number">5.3.3.3.</span> <span class="nav-text">[4-3-3-3] DKIM签名重放</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%BB%95%E8%BF%87%E6%94%BB%E5%87%BB"><span class="nav-number">5.3.3.4.</span> <span class="nav-text">[4-3-3-4] 身份验证绕过攻击</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%98%B2%E6%8A%A4"><span class="nav-number">5.3.4.</span> <span class="nav-text">[4-3-4] 常见防护</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#spf"><span class="nav-number">5.3.4.1.</span> <span class="nav-text">[4-3-4-1] SPF</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dkim"><span class="nav-number">5.3.4.2.</span> <span class="nav-text">[4-3-4-2] DKIM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dmarc"><span class="nav-number">5.3.4.3.</span> <span class="nav-text">[4-3-4-3] DMARC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E7%9B%B4%E6%8E%A5%E8%BD%AC%E5%8F%91-mta-%E5%9C%BA%E6%99%AF"><span class="nav-number">5.3.4.4.</span> <span class="nav-text">[4-3-4-4] 共享&#x2F;直接&#x2F;转发 MTA 场景</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF"><span class="nav-number">6.</span> <span class="nav-text">[5] 防御技术</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">6.1.</span> <span class="nav-text">[5-1] 防火墙</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="nav-number">6.1.1.</span> <span class="nav-text">[5-1-1] 概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB"><span class="nav-number">6.1.2.</span> <span class="nav-text">[5-1-2] 分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8C%85%E8%BF%87%E6%BB%A4%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">6.1.2.1.</span> <span class="nav-text">[5-1-2-1] 包过滤防火墙</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">6.1.2.2.</span> <span class="nav-text">[5-1-2-2] 状态检查防火墙</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">6.1.2.3.</span> <span class="nav-text">[5-1-2-3] 应用层防火墙</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B"><span class="nav-number">6.1.2.4.</span> <span class="nav-text">[5-1-2-4] 其他类型</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#idsintrusion-detection-system"><span class="nav-number">6.2.</span> <span class="nav-text">[5-2] IDS(Intrusion Detection
+System)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#p2dr%E6%A8%A1%E5%9E%8B"><span class="nav-number">6.2.1.</span> <span class="nav-text">[5-2-1] \(P^2DR模型\)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB-1"><span class="nav-number">6.2.2.</span> <span class="nav-text">[5-2-2] 分类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#hids"><span class="nav-number">6.2.2.1.</span> <span class="nav-text">[5-2-2-1] HIDS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nids"><span class="nav-number">6.2.2.2.</span> <span class="nav-text">[5-2-2-2] NIDS</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ids%E6%8A%80%E6%9C%AF"><span class="nav-number">6.2.3.</span> <span class="nav-text">[5-2-3] IDS技术</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E8%AF%AF%E7%94%A8%E7%9A%84%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B"><span class="nav-number">6.2.3.1.</span> <span class="nav-text">[5-2-3-1] 基于误用的入侵检测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%BC%82%E5%B8%B8%E7%9A%84%E6%A3%80%E6%B5%8B"><span class="nav-number">6.2.3.2.</span> <span class="nav-text">[5-2-3-2] 基于异常的检测</span></a></li></ol></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -737,18 +815,18 @@ System)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a clas
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">21</span>
         <span class="site-state-item-name">标签</span>
       </div>
   </nav>
@@ -790,7 +868,7 @@ System)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a clas
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -872,6 +950,59 @@ System)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a clas
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
