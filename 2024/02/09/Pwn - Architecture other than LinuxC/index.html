@@ -120,6 +120,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
         <li class="menu-item menu-item-categories">
 
     <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
@@ -251,24 +256,30 @@
         <blockquote class="blockquote-center">
 总结一下异架构的相关内容，便于后续调用
 </blockquote>
-
 <span id="more"></span>
-<h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><ol>
-<li><p><a href="#1-different-language">Different Language</a></p>
+<h1 id="目录">目录</h1>
+<ol type="1">
+<li><a href="#1-different-language">Different Language</a>
 <ul>
 <li><a href="#1-1-python">python</a></li>
-</ul>
-</li>
-<li><p><a href="#2-different-architecture">Different Architecture</a></p>
+</ul></li>
+<li><a href="#2-different-architecture">Different Architecture</a>
 <ul>
 <li><a href="#2-1-arm">ARM</a></li>
-</ul>
-</li>
+</ul></li>
 </ol>
-<h1 id="1-Different-Language"><a href="#1-Different-Language" class="headerlink" title="[1] Different Language"></a>[1] Different Language</h1><h2 id="1-1-python"><a href="#1-1-python" class="headerlink" title="[1-1] python"></a>[1-1] python</h2><h3 id="1-1-1-python-链接-动态链接库"><a href="#1-1-1-python-链接-动态链接库" class="headerlink" title="[1-1-1] python 链接 动态链接库"></a>[1-1-1] python 链接 动态链接库</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 main.py 中添加:</span></span><br><span class="line">sys.path.append(<span class="string">&quot;/absolute/path/to/packagename.cpython-37m-x86_64-linux-gnu.so&quot;</span>)</span><br><span class="line"><span class="comment"># app.cpython-37m-x86_64-linux-gnu.so 中的 37m 指的是 python3.7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> packagename</span><br></pre></td></tr></table></figure>
-<h3 id="1-1-2-用-pwntools-调试"><a href="#1-1-2-用-pwntools-调试" class="headerlink" title="[1-1-2] 用 pwntools 调试"></a>[1-1-2] 用 pwntools 调试</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">io = process([<span class="string">&#x27;python&#x27;</span>, <span class="string">&#x27;main.py&#x27;</span>])</span><br></pre></td></tr></table></figure>
-<h1 id="2-Different-Architecture"><a href="#2-Different-Architecture" class="headerlink" title="[2] Different Architecture"></a>[2] Different Architecture</h1><h2 id="2-1-ARM"><a href="#2-1-ARM" class="headerlink" title="[2-1] ARM"></a>[2-1] ARM</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yidianhan/p/13060466.html">Manual: ARM/mips系统调用号</a></p>
-<h3 id="2-1-1-用-pwntools-调试"><a href="#2-1-1-用-pwntools-调试" class="headerlink" title="[2-1-1] 用 pwntools 调试"></a>[2-1-1] 用 pwntools 调试</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">io = process([<span class="string">&quot;qemu-arm&quot;</span>, <span class="string">&quot;-g&quot;</span>, <span class="string">&quot;1234&quot;</span>, <span class="string">&quot;./pwn&quot;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后再开一个tmux</span></span><br><span class="line"><span class="comment"># 用 gdb-multiarch ./pwn</span></span><br><span class="line"><span class="comment"># 在 gdb 中输入 target remote:1234</span></span><br></pre></td></tr></table></figure>
+<h1 id="different-language">[1] Different Language</h1>
+<h2 id="python">[1-1] python</h2>
+<h3 id="python-链接-动态链接库">[1-1-1] python 链接 动态链接库</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 main.py 中添加:</span></span><br><span class="line">sys.path.append(<span class="string">&quot;/absolute/path/to/packagename.cpython-37m-x86_64-linux-gnu.so&quot;</span>)</span><br><span class="line"><span class="comment"># app.cpython-37m-x86_64-linux-gnu.so 中的 37m 指的是 python3.7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> packagename</span><br></pre></td></tr></table></figure>
+<h3 id="用-pwntools-调试">[1-1-2] 用 pwntools 调试</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">io = process([<span class="string">&#x27;python&#x27;</span>, <span class="string">&#x27;main.py&#x27;</span>])</span><br></pre></td></tr></table></figure>
+<h1 id="different-architecture">[2] Different Architecture</h1>
+<h2 id="arm">[2-1] ARM</h2>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yidianhan/p/13060466.html">Manual:
+ARM/mips系统调用号</a></p>
+<h3 id="用-pwntools-调试-1">[2-1-1] 用 pwntools 调试</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">io = process([<span class="string">&quot;qemu-arm&quot;</span>, <span class="string">&quot;-g&quot;</span>, <span class="string">&quot;1234&quot;</span>, <span class="string">&quot;./pwn&quot;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后再开一个tmux</span></span><br><span class="line"><span class="comment"># 用 gdb-multiarch ./pwn</span></span><br><span class="line"><span class="comment"># 在 gdb 中输入 target remote:1234</span></span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -379,7 +390,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Different-Language"><span class="nav-number">2.</span> <span class="nav-text">[1] Different Language</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-python"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] python</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-1-python-%E9%93%BE%E6%8E%A5-%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93"><span class="nav-number">2.1.1.</span> <span class="nav-text">[1-1-1] python 链接 动态链接库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-2-%E7%94%A8-pwntools-%E8%B0%83%E8%AF%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">[1-1-2] 用 pwntools 调试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Different-Architecture"><span class="nav-number">3.</span> <span class="nav-text">[2] Different Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-ARM"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] ARM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-%E7%94%A8-pwntools-%E8%B0%83%E8%AF%95"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] 用 pwntools 调试</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#different-language"><span class="nav-number">2.</span> <span class="nav-text">[1] Different Language</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#python"><span class="nav-number">2.1.</span> <span class="nav-text">[1-1] python</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#python-%E9%93%BE%E6%8E%A5-%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93"><span class="nav-number">2.1.1.</span> <span class="nav-text">[1-1-1] python 链接 动态链接库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8-pwntools-%E8%B0%83%E8%AF%95"><span class="nav-number">2.1.2.</span> <span class="nav-text">[1-1-2] 用 pwntools 调试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#different-architecture"><span class="nav-number">3.</span> <span class="nav-text">[2] Different Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#arm"><span class="nav-number">3.1.</span> <span class="nav-text">[2-1] ARM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8-pwntools-%E8%B0%83%E8%AF%95-1"><span class="nav-number">3.1.1.</span> <span class="nav-text">[2-1-1] 用 pwntools 调试</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

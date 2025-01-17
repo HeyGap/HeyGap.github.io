@@ -121,6 +121,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
         <li class="menu-item menu-item-categories">
 
     <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
@@ -252,63 +257,104 @@
         <blockquote class="blockquote-center">
 单一漏洞 + 污点分析做到顶会，暑假就想复现了结果拖到现在
 </blockquote>
-
 <span id="more"></span>
 <blockquote>
 <p>年份：2024</p>
 </blockquote>
-<h1 id="1-Abstract"><a href="#1-Abstract" class="headerlink" title="[1] Abstract"></a>[1] Abstract</h1><p>基于目前研究较少的address verification漏洞，本文用污点分析实现了的“轻量级”专属扫描工具AVVerifier，检查了数百万的合约，找到了数百个有该漏洞的合约，并将其部署在链上成为实时检测工具，并成功检测到了一次数十万美元的攻击</p>
-<h1 id="2-Intro-amp-Background"><a href="#2-Intro-amp-Background" class="headerlink" title="[2] Intro &amp; Background"></a>[2] Intro &amp; Background</h1><h2 id="2-1-Ethreum-Primer"><a href="#2-1-Ethreum-Primer" class="headerlink" title="[2-1] Ethreum Primer"></a>[2-1] Ethreum Primer</h2><p>大概讲了一下现在区块链非常火，自从以太坊和智能合约出现后，DApps的各种应用层出不穷，比如闪电贷等。指出为了防止漏报带来的经济损失，能保证soundness的静态符号执行常常被用到（mythril）</p>
-<h2 id="2-2-Whitelist-address-verification"><a href="#2-2-Whitelist-address-verification" class="headerlink" title="[2-2] Whitelist address verification"></a>[2-2] Whitelist address verification</h2><p>Beosin.  Two vulnerabilities in one function:  The analysis of visor finance exploit.  <a target="_blank" rel="noopener" href="https://beosin.medium.com/two-vulnerabilities">https://beosin.medium.com/two-vulnerabilities</a> in-one-function-the-analysis-of-visor finance-exploit-a15735e2492, 2023.<br>这是一个地址验证的漏洞举例。这种漏洞的大意就是“如果’改变合约on-chain state’的修改依赖于external call，比如delegatedcall等，那很有可能就会被利用”<br>这种漏洞为什么难自动化检测？①要实现inter-contract or inter-procedural analysis，但这样的分析会有效率或者有效性上的不足②合约大多数闭源，字节码层级缺乏语义③该漏洞需要memory和storage的细粒度跟踪<br>DeFi Llama. Ethereum defi statistics. https://  defillama.com/chain/Ethereum, 2023. （基于total value locked排出来的前40的DeFi项目）<br>作者从上述DeFi项目中总结出来的核心漏洞原理，并将这些漏洞归纳为三种形式：硬编码、mapping和硬编码enum</p>
-<h2 id="2-3-基于污点分析的地址验证"><a href="#2-3-基于污点分析的地址验证" class="headerlink" title="[2-3] 基于污点分析的地址验证"></a>[2-3] 基于污点分析的地址验证</h2><p>作者在这里简略介绍了一下他们的方法：不考虑路径可能性，保留stack,memory和storage的值和污点传播状态，这样的静态模拟遍历了多数路径。函数参数中与address相关的设置为source，然后任意可能被利用的点都设置为sink。作者在这里提到2019年的一个工作是将sstore设置为sink。</p>
-<h2 id="2-4-Threat-Model"><a href="#2-4-Threat-Model" class="headerlink" title="[2-4] Threat Model"></a>[2-4] Threat Model</h2><p>作者在这里提出工作是建立在我们无法分辨攻击者和普通用户的区别之上的。攻击者不需要额外的特权，当然不能欺骗以太网网络的正确性，也不能做女巫攻击之类对区块链底层的攻击，也不能获取合法用户的私钥之类的。</p>
-<h1 id="3-Motivation"><a href="#3-Motivation" class="headerlink" title="[3] Motivation"></a>[3] Motivation</h1><h2 id="3-1-举例"><a href="#3-1-举例" class="headerlink" title="[3-1] 举例"></a>[3-1] 举例</h2><p>作者总结了三种漏洞特征：①P1:参数有address并且缺少地址检查②P2:地址作为外部call跳转③P3:链上状态随之更新</p>
-<h2 id="3-2-Challenge"><a href="#3-2-Challenge" class="headerlink" title="[3-2] Challenge"></a>[3-2] Challenge</h2><p>作者归纳了要实现漏洞扫描的两个主要问题：</p>
-<ol>
-<li><p>解决bytecode semantic缺失的问题<br>Pengxiang Ma, Ningyu He, Yuhua Huang, Haoyu Wang,  and Xiapu Luo. Abusing the ethereum smart contract  verification services for fun and profit. arXiv preprint  arXiv:2307.00549, 2023. 这篇说明了99%以上的以太坊合约都没有发布源码</p>
-</li>
-<li><p>基于控制流和数据流的跨函数分析非常困难</p>
-</li>
+<h1 id="abstract">[1] Abstract</h1>
+<p>基于目前研究较少的address
+verification漏洞，本文用污点分析实现了的“轻量级”专属扫描工具AVVerifier，检查了数百万的合约，找到了数百个有该漏洞的合约，并将其部署在链上成为实时检测工具，并成功检测到了一次数十万美元的攻击</p>
+<h1 id="intro-background">[2] Intro &amp; Background</h1>
+<h2 id="ethreum-primer">[2-1] Ethreum Primer</h2>
+<p>大概讲了一下现在区块链非常火，自从以太坊和智能合约出现后，DApps的各种应用层出不穷，比如闪电贷等。指出为了防止漏报带来的经济损失，能保证soundness的静态符号执行常常被用到（mythril）</p>
+<h2 id="whitelist-address-verification">[2-2] Whitelist address
+verification</h2>
+<p>Beosin. Two vulnerabilities in one function: The analysis of visor
+finance exploit. https://beosin.medium.com/two-vulnerabilities
+in-one-function-the-analysis-of-visor finance-exploit-a15735e2492, 2023.
+这是一个地址验证的漏洞举例。这种漏洞的大意就是“如果'改变合约on-chain
+state'的修改依赖于external
+call，比如delegatedcall等，那很有可能就会被利用”
+这种漏洞为什么难自动化检测？①要实现inter-contract or inter-procedural
+analysis，但这样的分析会有效率或者有效性上的不足②合约大多数闭源，字节码层级缺乏语义③该漏洞需要memory和storage的细粒度跟踪
+DeFi Llama. Ethereum defi statistics. https://
+defillama.com/chain/Ethereum, 2023. （基于total value
+locked排出来的前40的DeFi项目）
+作者从上述DeFi项目中总结出来的核心漏洞原理，并将这些漏洞归纳为三种形式：硬编码、mapping和硬编码enum</p>
+<h2 id="基于污点分析的地址验证">[2-3] 基于污点分析的地址验证</h2>
+<p>作者在这里简略介绍了一下他们的方法：不考虑路径可能性，保留stack,memory和storage的值和污点传播状态，这样的静态模拟遍历了多数路径。函数参数中与address相关的设置为source，然后任意可能被利用的点都设置为sink。作者在这里提到2019年的一个工作是将sstore设置为sink。</p>
+<h2 id="threat-model">[2-4] Threat Model</h2>
+<p>作者在这里提出工作是建立在我们无法分辨攻击者和普通用户的区别之上的。攻击者不需要额外的特权，当然不能欺骗以太网网络的正确性，也不能做女巫攻击之类对区块链底层的攻击，也不能获取合法用户的私钥之类的。</p>
+<h1 id="motivation">[3] Motivation</h1>
+<h2 id="举例">[3-1] 举例</h2>
+<p>作者总结了三种漏洞特征：①P1:参数有address并且缺少地址检查②P2:地址作为外部call跳转③P3:链上状态随之更新</p>
+<h2 id="challenge">[3-2] Challenge</h2>
+<p>作者归纳了要实现漏洞扫描的两个主要问题：</p>
+<ol type="1">
+<li><p>解决bytecode semantic缺失的问题 Pengxiang Ma, Ningyu He, Yuhua
+Huang, Haoyu Wang, and Xiapu Luo. Abusing the ethereum smart contract
+verification services for fun and profit. arXiv preprint
+arXiv:2307.00549, 2023.
+这篇说明了99%以上的以太坊合约都没有发布源码</p></li>
+<li><p>基于控制流和数据流的跨函数分析非常困难</p></li>
 </ol>
-<h2 id="3-3-相关工作（这里我没仔细看，因为跟复现关系不是很大，之后做工作拓展再去看）"><a href="#3-3-相关工作（这里我没仔细看，因为跟复现关系不是很大，之后做工作拓展再去看）" class="headerlink" title="[3-3] 相关工作（这里我没仔细看，因为跟复现关系不是很大，之后做工作拓展再去看）"></a>[3-3] 相关工作（这里我没仔细看，因为跟复现关系不是很大，之后做工作拓展再去看）</h2><p>动态分析方法往往资源开销大，<br>静态分析方法里形式验证和符号执行比较流行，但符号验证需要人们提前给每种漏洞做模板，普适度不够并且容易出错；符号执行就会出现路径爆炸的问题<br>而现有的污点分析工具中没有能直接检测该种漏洞的工具。</p>
-<h1 id="4-Design-of-AVV"><a href="#4-Design-of-AVV" class="headerlink" title="[4] Design of AVV"></a>[4] Design of AVV</h1><p>AVV主要由Grapher，Simulator和Detector组成。</p>
-<h2 id="4-1-Grapher"><a href="#4-1-Grapher" class="headerlink" title="[4-1] Grapher"></a>[4-1] Grapher</h2><p>主要负责提取出目标函数CFG的子树。</p>
-<p>输入bytecode，首先提取出包含函数实现的runtime code，然后将code解析成bb，并依据jump关系构建出CFG。但有些jump关系是动态决定的而非在编译时就静态决定，因此只依据静态决定的jump来建构CFG（为了soundness做出的妥协）</p>
-<p>启发性地筛出那些以address作为参数的函数（这就是所谓的heuristic-based path selection method，就是通过现有经验构建约束，减少需要选择的路径），具体来说就是那些与20字节0xFF…FF做AND运算的address参数。有这种参数的函数被标记为可疑函数送入Simulator。</p>
-<h2 id="4-2-Simulator"><a href="#4-2-Simulator" class="headerlink" title="[4-2] Simulator"></a>[4-2] Simulator</h2><p>这篇论文没用伪代码也把方法讲的很好，实属牛比</p>
+<h2
+id="相关工作这里我没仔细看因为跟复现关系不是很大之后做工作拓展再去看">[3-3]
+相关工作（这里我没仔细看，因为跟复现关系不是很大，之后做工作拓展再去看）</h2>
+<p>动态分析方法往往资源开销大，
+静态分析方法里形式验证和符号执行比较流行，但符号验证需要人们提前给每种漏洞做模板，普适度不够并且容易出错；符号执行就会出现路径爆炸的问题
+而现有的污点分析工具中没有能直接检测该种漏洞的工具。</p>
+<h1 id="design-of-avv">[4] Design of AVV</h1>
+<p>AVV主要由Grapher，Simulator和Detector组成。 ## [4-1] Grapher
+主要负责提取出目标函数CFG的子树。</p>
+<p>输入bytecode，首先提取出包含函数实现的runtime
+code，然后将code解析成bb，并依据jump关系构建出CFG。但有些jump关系是动态决定的而非在编译时就静态决定，因此只依据静态决定的jump来建构CFG（为了soundness做出的妥协）</p>
+<p>启发性地筛出那些以address作为参数的函数（这就是所谓的heuristic-based
+path selection
+method，就是通过现有经验构建约束，减少需要选择的路径），具体来说就是那些与20字节0xFF...FF做AND运算的address参数。有这种参数的函数被标记为可疑函数送入Simulator。
+## [4-2] Simulator 这篇论文没用伪代码也把方法讲的很好，实属牛比</p>
 <p>这个组件概括来说就是“在维护EVM数据结构的同时，更新污点状态”</p>
-<p>具体来说，用户可控的变量包括ORIGIN，CALLDATA，BALANCE等。Simulator就是针对每一个opcode制定一系列规则，这些规则“在维护EVM数据结构的同时，更新污点状态”。为了不丢失普遍性，opcode被作者分为“①stack②load&amp;store③call④control flow”四种。同时定义了一些数据结构，比如污点集T、危险参数集S、污点与污染源映射集CT等等</p>
-<h3 id="4-2-1-Stack-related-opcode"><a href="#4-2-1-Stack-related-opcode" class="headerlink" title="[4-2-1] Stack related opcode"></a>[4-2-1] Stack related opcode</h3><p>这些opcode只与栈交互，并且不改变控制流。</p>
+<p>具体来说，用户可控的变量包括ORIGIN，CALLDATA，BALANCE等。Simulator就是针对每一个opcode制定一系列规则，这些规则“在维护EVM数据结构的同时，更新污点状态”。为了不丢失普遍性，opcode被作者分为“①stack②load&amp;store③call④control
+flow”四种。同时定义了一些数据结构，比如污点集T、危险参数集S、污点与污染源映射集CT等等</p>
+<h3 id="stack-related-opcode">[4-2-1] Stack related opcode</h3>
+<p>这些opcode只与栈交互，并且不改变控制流。</p>
 <p>包括ADD，SWAP和DUP。拿ADD做例子，接受两个参数op1,op2作为输入，返回一个参数opk作为返回值。除了栈上必要的更新，作者也形式化了污点分析传播的规则：如果危险参数集S或污点集T中存在op1或op2，就将opk污染，并且将“污点与污染源映射集”CT[opk]更新（论文里有具体更新方式）</p>
-<h3 id="4-2-2-Load-amp-Store-related-opcode"><a href="#4-2-2-Load-amp-Store-related-opcode" class="headerlink" title="[4-2-2] Load &amp; Store related opcode"></a>[4-2-2] Load &amp; Store related opcode</h3><p>作者将storage和memory都用key-value数据结构来存储（storage这样设计是因为EVM本身就是这么设计的，memory这样设计是因为memory很稀疏无需用大数组来存储），Sto[key] or Mem[offset]</p>
-<p>Load related opcode</p>
-<ul>
-<li>包括MLOAD和SLOAD，它们都接受一个参数tar，返回一个值ret。</li>
-<li>污染规则为：①如果tar在S或T中，就将ret加入到T中。将CT[ret]更新为tar②以memory为例，Mem[tar]在S或T中，也将ret加入到T中，将CT[ret]更新为Mem[tar]，Storage同理<br>Store related </li>
-<li>包括SSTORE和MSTORE，接受参数val和dest</li>
-<li>污染规则为：如果val或dest在S或T中，就把val加入T中。将CT[val]更新为dest<h3 id="4-2-3-Call-related-opcode"><a href="#4-2-3-Call-related-opcode" class="headerlink" title="[4-2-3] Call related opcode"></a>[4-2-3] Call related opcode</h3>可以导致external call的opcode，比如CALL，DELEGATECALL和SELFDESTRUCT。</li>
-</ul>
-<p>因为CALLDATALOAD是唯一一个可以解析address类型变量的opcode，因此我们只需要关注”上述opcode的address参数”(记为(param_address))在CT中有没有祖先是CALLDATALOAD就好了。换句话说，就是从CT[address]向前遍历到起点（一般是S中的某个成员），如果这个起点是CALLDATALOAD，就把suc（不懂suc是什么，success吗？）加入污点集，然后更新CT[suc]=param_address</p>
-<h3 id="4-2-4-Control-flow-related-opcode"><a href="#4-2-4-Control-flow-related-opcode" class="headerlink" title="[4-2-4] Control flow related opcode"></a>[4-2-4] Control flow related opcode</h3><p>有些控制流相关的opcode不带参数，比如RETURN，STOP，REVERT和INVALID，因此模拟这些opcode时没有污点传播，因此Simulator只模拟它们带来的控制流变化。比如遇到INVALID时，simulator会停止模拟本路径并切换到下一条路径。</p>
-<p>对于JUMP和JUMPI，JUMP只是没有条件的JUMPI。对于JUMPI，它接受两个参数dest和cond并且什么都不返回；执行控制流跳转时有两条分支，fallthrough和jumpdest，前一条代表“如果条件不满足则顺序执行”，后一条代表“如果条件满足则跳转到jumpdest”。<br>参数dest是不依赖任何参数的，编译时就能确定。因此控制流变化规则根据“cond是否动态决定”来制定即可：</p>
+<h3 id="load-store-related-opcode">[4-2-2] Load &amp; Store related
+opcode</h3>
+<p>作者将storage和memory都用key-value数据结构来存储（storage这样设计是因为EVM本身就是这么设计的，memory这样设计是因为memory很稀疏无需用大数组来存储），Sto[key]
+or Mem[offset]</p>
+<p>Load related opcode -
+包括MLOAD和SLOAD，它们都接受一个参数tar，返回一个值ret。 -
+污染规则为：①如果tar在S或T中，就将ret加入到T中。将CT[ret]更新为tar②以memory为例，Mem[tar]在S或T中，也将ret加入到T中，将CT[ret]更新为Mem[tar]，Storage同理
+Store related - 包括SSTORE和MSTORE，接受参数val和dest -
+污染规则为：如果val或dest在S或T中，就把val加入T中。将CT[val]更新为dest
+### [4-2-3] Call related opcode 可以导致external
+call的opcode，比如CALL，DELEGATECALL和SELFDESTRUCT。</p>
+<p>因为CALLDATALOAD是唯一一个可以解析address类型变量的opcode，因此我们只需要关注"上述opcode的address参数"(记为(param_address))在CT中有没有祖先是CALLDATALOAD就好了。换句话说，就是从CT[address]向前遍历到起点（一般是S中的某个成员），如果这个起点是CALLDATALOAD，就把suc（不懂suc是什么，success吗？）加入污点集，然后更新CT[suc]=param_address</p>
+<h3 id="control-flow-related-opcode">[4-2-4] Control flow related
+opcode</h3>
+<p>有些控制流相关的opcode不带参数，比如RETURN，STOP，REVERT和INVALID，因此模拟这些opcode时没有污点传播，因此Simulator只模拟它们带来的控制流变化。比如遇到INVALID时，simulator会停止模拟本路径并切换到下一条路径。</p>
+<p>对于JUMP和JUMPI，JUMP只是没有条件的JUMPI。对于JUMPI，它接受两个参数dest和cond并且什么都不返回；执行控制流跳转时有两条分支，fallthrough和jumpdest，前一条代表“如果条件不满足则顺序执行”，后一条代表“如果条件满足则跳转到jumpdest”。
+参数dest是不依赖任何参数的，编译时就能确定。因此控制流变化规则根据“cond是否动态决定”来制定即可：</p>
 <p>如果cond是常数，我没太看懂“由simulator决定选择fallthrough还是jumpdest”是什么意思</p>
-<p>如果不是常数，两条路径都是可行的：</p>
-<ul>
-<li>如果cond的祖先是CALLDATALOAD（像call related opcode一样），优先考虑jumpdest，为的是模拟攻击者成功绕过了检验机制。 -&gt; 这也是heuristic的地方</li>
-<li>如果不是，两条路径都纳入考量。</li>
-</ul>
-<p>上述内容给人的感觉很主观，并没有给人严谨的感觉，即并没有通过实验来验证“为什么这样选择”，就像Taint-Fuzz一样，为什么会选择5-20作为评判标准。这就是所谓的heuristic<br>作者解释这样做的好处是：①不像符号执行一样会有路径爆炸的问题②能忽略一些处理起来比较复杂但是对准确性没有帮助的内容，比如没有意义的getter</p>
+<p>如果不是常数，两条路径都是可行的： -
+如果cond的祖先是CALLDATALOAD（像call related
+opcode一样），优先考虑jumpdest，为的是模拟攻击者成功绕过了检验机制。
+-&gt; 这也是heuristic的地方 - 如果不是，两条路径都纳入考量。</p>
+<p>上述内容给人的感觉很主观，并没有给人严谨的感觉，即并没有通过实验来验证“为什么这样选择”，就像Taint-Fuzz一样，为什么会选择5-20作为评判标准。这就是所谓的heuristic
+作者解释这样做的好处是：①不像符号执行一样会有路径爆炸的问题②能忽略一些处理起来比较复杂但是对准确性没有帮助的内容，比如没有意义的getter</p>
 <p>这种opcode没有返回值，所以没有污点传播规则，只有控制流变化。</p>
-<h2 id="4-3-Detector"><a href="#4-3-Detector" class="headerlink" title="[4-3] Detector"></a>[4-3] Detector</h2><p>基于前文Motivation提到的P1-P3制定检测规则。</p>
-<p>第一阶段检测一个合约是否采用了白名单验证机制，检测逻辑可以描述为：</p>
-<ul>
-<li>如果一个参数不被标记为address类型，返回正常</li>
-<li>如果对于每一个JUMPI，如果它的cond被参数j污染，参数j又能被CALLDATALOAD污染，就返回正常（我觉得这里是不是写错了）</li>
-<li>如果上述两种情况都没有，就返回错误，意味着有可能出现问题，送到第二阶段检查</li>
-</ul>
+<h2 id="detector">[4-3] Detector</h2>
+<p>基于前文Motivation提到的P1-P3制定检测规则。</p>
+<p>第一阶段检测一个合约是否采用了白名单验证机制，检测逻辑可以描述为： -
+如果一个参数不被标记为address类型，返回正常 -
+如果对于每一个JUMPI，如果它的cond被参数j污染，参数j又能被CALLDATALOAD污染，就返回正常（我觉得这里是不是写错了）
+-
+如果上述两种情况都没有，就返回错误，意味着有可能出现问题，送到第二阶段检查</p>
 <p>第二阶段检查参数j是否能充当任一外部调用指令的目标。在以太坊中，外部调用将地址作为参数，并且允许当前合约与他们进行交互。检测逻辑可以描述为：如果外部调用指令的target的前导是受污染的paramj，或者target就是地址本身，则说明有可能有问题，送到第三阶段检查。返回false的合约被标记为没有利用价值的含漏洞合约，即虽然可以操控参数但无法进一步利用。</p>
 <p>第三阶段考虑链上状态是否依据外部调用的返回值来更新。在以太坊中，链上状态有两种：一种可以看做普通变量并且直接修改，比如BALANCE；另一种是SSTORE存储的变量。因此我们把这些有价值的变量(链上状态关键词、SSTORE的var和dest)收录到sink集，一旦这些sink被污染则说明链上状态可以被改变。</p>
-<h1 id="5-Evaluation"><a href="#5-Evaluation" class="headerlink" title="[5] Evaluation"></a>[5] Evaluation</h1>
+<h1 id="evaluation">[5] Evaluation</h1>
+
     </div>
 
     
@@ -416,7 +462,11 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Abstract"><span class="nav-number">1.</span> <span class="nav-text">[1] Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Intro-amp-Background"><span class="nav-number">2.</span> <span class="nav-text">[2] Intro &amp; Background</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-Ethreum-Primer"><span class="nav-number">2.1.</span> <span class="nav-text">[2-1] Ethreum Primer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Whitelist-address-verification"><span class="nav-number">2.2.</span> <span class="nav-text">[2-2] Whitelist address verification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E5%9F%BA%E4%BA%8E%E6%B1%A1%E7%82%B9%E5%88%86%E6%9E%90%E7%9A%84%E5%9C%B0%E5%9D%80%E9%AA%8C%E8%AF%81"><span class="nav-number">2.3.</span> <span class="nav-text">[2-3] 基于污点分析的地址验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-Threat-Model"><span class="nav-number">2.4.</span> <span class="nav-text">[2-4] Threat Model</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Motivation"><span class="nav-number">3.</span> <span class="nav-text">[3] Motivation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E4%B8%BE%E4%BE%8B"><span class="nav-number">3.1.</span> <span class="nav-text">[3-1] 举例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-Challenge"><span class="nav-number">3.2.</span> <span class="nav-text">[3-2] Challenge</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C%EF%BC%88%E8%BF%99%E9%87%8C%E6%88%91%E6%B2%A1%E4%BB%94%E7%BB%86%E7%9C%8B%EF%BC%8C%E5%9B%A0%E4%B8%BA%E8%B7%9F%E5%A4%8D%E7%8E%B0%E5%85%B3%E7%B3%BB%E4%B8%8D%E6%98%AF%E5%BE%88%E5%A4%A7%EF%BC%8C%E4%B9%8B%E5%90%8E%E5%81%9A%E5%B7%A5%E4%BD%9C%E6%8B%93%E5%B1%95%E5%86%8D%E5%8E%BB%E7%9C%8B%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">[3-3] 相关工作（这里我没仔细看，因为跟复现关系不是很大，之后做工作拓展再去看）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Design-of-AVV"><span class="nav-number">4.</span> <span class="nav-text">[4] Design of AVV</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-Grapher"><span class="nav-number">4.1.</span> <span class="nav-text">[4-1] Grapher</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-Simulator"><span class="nav-number">4.2.</span> <span class="nav-text">[4-2] Simulator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-Stack-related-opcode"><span class="nav-number">4.2.1.</span> <span class="nav-text">[4-2-1] Stack related opcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-2-Load-amp-Store-related-opcode"><span class="nav-number">4.2.2.</span> <span class="nav-text">[4-2-2] Load &amp; Store related opcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-3-Call-related-opcode"><span class="nav-number">4.2.3.</span> <span class="nav-text">[4-2-3] Call related opcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-4-Control-flow-related-opcode"><span class="nav-number">4.2.4.</span> <span class="nav-text">[4-2-4] Control flow related opcode</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-3-Detector"><span class="nav-number">4.3.</span> <span class="nav-text">[4-3] Detector</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-Evaluation"><span class="nav-number">5.</span> <span class="nav-text">[5] Evaluation</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#abstract"><span class="nav-number">1.</span> <span class="nav-text">[1] Abstract</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#intro-background"><span class="nav-number">2.</span> <span class="nav-text">[2] Intro &amp; Background</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ethreum-primer"><span class="nav-number">2.1.</span> <span class="nav-text">[2-1] Ethreum Primer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#whitelist-address-verification"><span class="nav-number">2.2.</span> <span class="nav-text">[2-2] Whitelist address
+verification</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E6%B1%A1%E7%82%B9%E5%88%86%E6%9E%90%E7%9A%84%E5%9C%B0%E5%9D%80%E9%AA%8C%E8%AF%81"><span class="nav-number">2.3.</span> <span class="nav-text">[2-3] 基于污点分析的地址验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#threat-model"><span class="nav-number">2.4.</span> <span class="nav-text">[2-4] Threat Model</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#motivation"><span class="nav-number">3.</span> <span class="nav-text">[3] Motivation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BE%E4%BE%8B"><span class="nav-number">3.1.</span> <span class="nav-text">[3-1] 举例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#challenge"><span class="nav-number">3.2.</span> <span class="nav-text">[3-2] Challenge</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C%E8%BF%99%E9%87%8C%E6%88%91%E6%B2%A1%E4%BB%94%E7%BB%86%E7%9C%8B%E5%9B%A0%E4%B8%BA%E8%B7%9F%E5%A4%8D%E7%8E%B0%E5%85%B3%E7%B3%BB%E4%B8%8D%E6%98%AF%E5%BE%88%E5%A4%A7%E4%B9%8B%E5%90%8E%E5%81%9A%E5%B7%A5%E4%BD%9C%E6%8B%93%E5%B1%95%E5%86%8D%E5%8E%BB%E7%9C%8B"><span class="nav-number">3.3.</span> <span class="nav-text">[3-3]
+相关工作（这里我没仔细看，因为跟复现关系不是很大，之后做工作拓展再去看）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#design-of-avv"><span class="nav-number">4.</span> <span class="nav-text">[4] Design of AVV</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#stack-related-opcode"><span class="nav-number">4.0.1.</span> <span class="nav-text">[4-2-1] Stack related opcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#load-store-related-opcode"><span class="nav-number">4.0.2.</span> <span class="nav-text">[4-2-2] Load &amp; Store related
+opcode</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#control-flow-related-opcode"><span class="nav-number">4.0.3.</span> <span class="nav-text">[4-2-4] Control flow related
+opcode</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#detector"><span class="nav-number">4.1.</span> <span class="nav-text">[4-3] Detector</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#evaluation"><span class="nav-number">5.</span> <span class="nav-text">[5] Evaluation</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
