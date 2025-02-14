@@ -1,239 +1,191 @@
-<!DOCTYPE html><html class="hide-aside" lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Web - 网络安全概述 | HeyGap's_Blog</title><meta name="keywords" content="web"><meta name="author" content="HeyGap"><meta name="copyright" content="HeyGap"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#f7f9fe"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-touch-fullscreen" content="yes"><meta name="apple-mobile-web-app-title" content="Web - 网络安全概述"><meta name="application-name" content="Web - 网络安全概述"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="#f7f9fe"><meta property="og:type" content="article"><meta property="og:title" content="Web - 网络安全概述"><meta property="og:url" content="http://heygap.github.io/posts/27202.html"><meta property="og:site_name" content="HeyGap's_Blog"><meta property="og:description" content="12.24网络安全期末，用这篇文章来梳理一下对相关知识的理解     导图  这篇文章主要从TCP&amp;#x2F;IP五层模型的层次来比较宽泛地讲一些常见的网络攻击。众所周知，TCP&amp;#x2F;IP五层模型将网络架构分为物理层、数据链路层、网络层、运输层和应用层。针对物理层的攻击我不是很懂，因此不在本篇文"><meta property="og:locale" content="zh-CN"><meta property="og:image" content="https://i.imgs.ovh/2025/02/13/t37x.png?_r_=b04fa066-0667-454b-36ca-2503291713ce"><meta property="article:author" content="HeyGap"><meta property="article:tag"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://i.imgs.ovh/2025/02/13/t37x.png?_r_=b04fa066-0667-454b-36ca-2503291713ce"><meta name="description" content="12.24网络安全期末，用这篇文章来梳理一下对相关知识的理解     导图  这篇文章主要从TCP&amp;#x2F;IP五层模型的层次来比较宽泛地讲一些常见的网络攻击。众所周知，TCP&amp;#x2F;IP五层模型将网络架构分为物理层、数据链路层、网络层、运输层和应用层。针对物理层的攻击我不是很懂，因此不在本篇文"><link rel="shortcut icon" href="https://i.imgs.ovh/2025/02/13/twlL.jpeg"><link rel="canonical" href="http://heygap.github.io/posts/27202.html"><link rel="preconnect" href="//cdn.cbd.int"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="xxx"/><meta name="baidu-site-verification" content="code-xxx"/><meta name="msvalidate.01" content="xxx"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.cbd.int/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/swiper/swiper.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
-  linkPageTop: undefined,
-  peoplecanvas: undefined,
-  postHeadAiDescription: {"enable":true,"gptName":"AnZhiYu","mode":"local","switchBtn":false,"btnLink":"https://afdian.net/item/886a79d4db6711eda42a52540025c377","randomNum":3,"basicWordCount":1000,"key":"xxxx","Referer":"https://xx.xx/"},
-  diytitle: {"enable":true,"leaveTitle":"w(ﾟДﾟ)w 不要走！再看看嘛！","backTitle":"♪(^∇^*)欢迎肥来！"},
-  LA51: undefined,
-  greetingBox: {"enable":true,"default":"晚上好👋","list":[{"greeting":"晚安😴","startTime":0,"endTime":5},{"greeting":"早上好鸭👋, 祝你一天好心情！","startTime":6,"endTime":9},{"greeting":"上午好👋, 状态很好，鼓励一下～","startTime":10,"endTime":10},{"greeting":"11点多啦, 在坚持一下就吃饭啦～","startTime":11,"endTime":11},{"greeting":"午安👋, 宝贝","startTime":12,"endTime":14},{"greeting":"🌈充实的一天辛苦啦！","startTime":14,"endTime":18},{"greeting":"19点喽, 奖励一顿丰盛的大餐吧🍔。","startTime":19,"endTime":19},{"greeting":"晚上好👋, 在属于自己的时间好好放松😌~","startTime":20,"endTime":24}]},
-  twikooEnvId: '',
-  commentBarrageConfig:undefined,
-  music_page_default: "nav_music",
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Web - 网络安全概述 | HeyGap's_Blog</title><meta name="author" content="HeyGap"><meta name="copyright" content="HeyGap"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="12.24网络安全期末，用这篇文章来梳理一下对相关知识的理解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web - 网络安全概述">
+<meta property="og:url" content="http://heygap.github.io/posts/27202.html">
+<meta property="og:site_name" content="HeyGap&#39;s_Blog">
+<meta property="og:description" content="12.24网络安全期末，用这篇文章来梳理一下对相关知识的理解">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://heygap.github.io/img/cover2.jpg">
+<meta property="article:published_time" content="2024-12-20T08:27:00.000Z">
+<meta property="article:modified_time" content="2025-02-12T10:09:13.110Z">
+<meta property="article:author" content="HeyGap">
+<meta property="article:tag" content="web">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://heygap.github.io/img/cover2.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Web - 网络安全概述",
+  "url": "http://heygap.github.io/posts/27202.html",
+  "image": "http://heygap.github.io/img/cover2.jpg",
+  "datePublished": "2024-12-20T08:27:00.000Z",
+  "dateModified": "2025-02-12T10:09:13.110Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "HeyGap",
+      "url": "http://heygap.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="http://heygap.github.io/posts/27202.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
   root: '/',
-  preloader: {"source":3},
-  friends_vue_info: undefined,
-  navMusic: false,
-  mainTone: undefined,
-  authorStatus: {"skills":["🤖️ Blockchain","🔍 Binary","🔨 Program Analysis"]},
   algolia: undefined,
-  localSearch: {"path":"/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
-  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简","rightMenuMsgToTraditionalChinese":"转为繁体","rightMenuMsgToSimplifiedChinese":"转为简体"},
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":330},
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
   copy: {
     success: '复制成功',
-    error: '复制错误',
+    error: '复制失败',
     noSupport: '浏览器不支持'
   },
   relativeDate: {
     homepage: false,
-    simplehomepage: true,
     post: false
   },
-  runtime: '',
-  date_suffix: {
+  runtime: '天',
+  dateSuffix: {
     just: '刚刚',
     min: '分钟前',
     hour: '小时前',
     day: '天前',
     month: '个月前'
   },
-  copyright: {"copy":true,"copyrightEbable":false,"limitCount":50,"languages":{"author":"作者: HeyGap","link":"链接: ","source":"来源: HeyGap's_Blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。","copySuccess":"复制成功，复制和转载请标注本文地址"}},
-  lightbox: 'fancybox',
-  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#425AEF","bgDark":"#1f1f1f","position":"top-center"},
-  source: {
-    justifiedGallery: {
-      js: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.min.js',
-      css: 'https://cdn.cbd.int/flickr-justified-gallery@2.1.2/dist/fjGallery.css'
-    }
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
   },
   isPhotoFigcaption: false,
-  islazyload: true,
+  islazyloadPlugin: false,
   isAnchor: false,
-  shortcutKey: undefined,
-  autoDarkmode: true
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  configTitle: 'HeyGap's_Blog',
-  title: 'Web - 网络安全概述',
-  postAI: '',
-  pageFillDescription: '[0] 比较容易遗忘的点：, [1] 数据链路层(局域网), [1-1] 协议, [1-1-1] ARP, [1-1-2] DHCP, [1-2] 常见攻击, [1-2-1] ARP, [1-2-1-1] ARP DoS(MAC地址洪泛), [1-2-1-2] ARP 缓存投毒, [1-2-2] DHCP, [1-2-2-1] DHCP DoS, [2] 网络层, [2-1] 协议, [2-1-1] IP, [2-1-2] ICMP, [2-2] 常见攻击, [2-2-1] IP, [2-2-1-1] Ping of Death, [2-2-2] ICMP, [2-2-2-1] Smurf攻击(ICMP DoS), [2-3] 防护措施-IPSec, [2-3-1] 组件, [2-3-1-1] 密钥管理系统, [2-3-2] 传输模式, [2-3-3] ESP TUN Mode 工作流程, [3] 运输层, [3-1] 协议, [3-1-1] UDP, [3-1-2] TCP, [3-2] 主要攻击方式, [3-2-1] 端口扫描与资产探查, [3-2-1-1] 隐蔽扫描, [3-2-2] TCP SYN Flood(TCP DoS), [3-2-3] TCP 会话劫持/重置, [3-2-4] TCP反射放大攻击, [3-3] 防御措施, [3-3-1] 针对SYN Flood, [4] 应用层, [4-1] 域名系统, [4-1-1] 域名系统概述, [4-1-2] 主要攻击方式, [4-1-2-1] Poisoning, [4-1-2-3] DNS 反射放大, [4-1-2-4] DNS 劫持, [4-1-3] 防护措施, [4-1-3-1] 基于随机化, [4-1-3-2] 基于加密, [4-2] Web系统安全, [4-2-1] web系统概述, [4-2-2] 主要攻击, [4-2-2-1] 客户端浏览器, [4-2-2-2] 服务器, [4-2-2-3] 整个Web系统, [4-2-3] 防护措施, [4-2-3-1] 同源策略, [4-2-3-2] 浏览器插件安全规则, [4-2-3-3] HTTP Cookie安全策略, [4-2-3-4] HTTPS, [4-2-3-5] CDN, [4-3] 邮件系统, [4-3-1] 概述, [4-3-2] 协议, [4-3-2-1] SMTP, [4-3-2-2] POP3, [4-3-2-3] IMAP4, [4-3-3] 常见攻击, [4-3-3-1] 身份验证标识符不一致, [4-3-3-2] 身份验证结果注入攻击, [4-3-3-3] DKIM签名重放, [4-3-3-4] 身份验证绕过攻击, [4-3-4] 常见防护, [4-3-4-1] SPF, [4-3-4-2] DKIM, [4-3-4-3] DMARC, [4-3-4-4] 共享/直接/转发 MTA 场景, [5] 防御技术, [5-1] 防火墙, [5-1-1] 概述, [5-1-2] 分类, [5-1-2-1] 包过滤防火墙, [5-1-2-2] 状态检查防火墙, [5-1-2-3] 应用层防火墙, [5-1-2-4] 其他类型, [5-2-2] 分类, [5-2-2-1] HIDS, [5-2-2-2] NIDS, [5-2-3] IDS技术, [5-2-3-1] 基于误用的入侵检测, [5-2-3-2] 基于异常的检测网络安全期末用这篇文章来梳理一下对相关知识的理解导图这篇文章主要从五层模型的层次来比较宽泛地讲一些常见的网络攻击众所周知五层模型将网络架构分为物理层数据链路层网络层运输层和应用层针对物理层的攻击我不是很懂因此不在本篇文章的描述范围内而应用层出现的漏洞和防御技术比较广泛会用几章分别叙述每一章大概分为协议攻击方式防御措施三部分常见攻击可以分为投毒劫持其中劫持一般是劫持有状态的协议下面是一些用于应试的背诵点不考试的读者直接跳过即可分层带来的功能是拆分与重组封装连接控制顺序递交流控制出错控制和复用指的是软件程序中的错误或缺陷指的是系统需求设计实现或运行中的缺陷或弱点指的是一段软件一系列命令或一组数据利用或来引发计算机软件或硬件上的非预期行为网络攻击可以分为面向报文头的攻击面向认证的攻击面向协议的攻击和面向网络流的攻击比较容易遗忘的点分层带来的功能网络攻击分类方式的怎么来的传输层攻击方式报文解析什么样的报文会被递归接收劫持型响应型服务器做什么检查有哪些攻击方式系统安全有哪些安全风险服务器的风险缓存没记住系统风险第三方插件安全工作阶段邮件安全绕过身份验证攻击重放根本原因防火墙功能缺陷三种防火墙的原理和优缺点其他类型防火墙内部防火墙的部署的原理及优缺点常见入侵技术投毒如何防护缓存被注入未授权的访问数据字段错误导致访问问题窃取行为习惯系统的风险有身份冒充网络监听和中间人针对应用的攻击包过滤防火墙优点高效开销小透明缺点粒度粗容易误报漏报不防御应用层漏洞不防御伪造日志提供有限状态检测防火墙优点建立连接跟踪检测会话减少虚假报警缺点配置复杂开销大不防御应用层漏洞不适合应用层防火墙优点能防御应用层日志详细缺点配置复杂因地制宜开销大错误拦截多第三方漏洞基于特征基于行为基于语义分析其他类型防火墙优点检测加密前解密后的数据不受交换网络影响检测无法检测的内容检测软件完整性破坏缺点开销大因地制宜配置复杂可能背攻击禁用优点被动捕获扩展性好独立抗缺点受交换空间影响无法检测加密内容难以处理高速网络常见入侵蠕虫木马钓鱼邮件勒索病毒基于误用模式匹配静态只匹配静态表动态还分析时间序列或状态变化等静态表开启路由器和网关的防护用软件或中间件来检测数据链路层局域网协议这部分讲述的协议不只是设计数据链路层的协议而是涉及到局域网通信的协议由于物理媒介的不同我们可以把网络分为有线网络和无线网络无线网络涉及信道等内容不利于基础攻防技术的学习因此本文主要基于有线网络进行讲述根据的规定有线网络使用的数据传输策略是即带有碰撞检测的载波监听多点接入技术该技术的细节就不在这里过多描述我们只需要知道因为该协议的存在数据链路层的数据包的部分必须控制在被称为在数据链路层中我们为每一个网络设备分配了唯一的标识符即地址多个网络设备可以通过交换机连接成一个局域网如果设备要与设备通信那么需要先通过协议得知的地址其实是通过地址找地址的一种协议如果发送方不知道接受方的地址会先广播一条消息我是我想知道这个对应的地址是什么这条消息叫做用同一台交换机相连的所有网络设备都会接收到这条消息当发现在找自己的时候就会记录下的地址然后给回复一条消息告诉这个地址指的是我我的地址是在数据传输的过程中交换机也会不断学习这个数据包的源地址和目的地址记录在交换机的缓存当中这个过程叫做交换机的逆学习过程如果设备想要跟互联网通信那么设备必须要获取自己的地址和所在子网除此之外它还需要知道递归服务器和默认网关的地址这些都是服务器为设备分配的常见攻击地址洪泛交换机的表有老化机制当一条记录生存期结束之后才会被新的记录替换而表的容量又是有限的如果表满了并且当前表中所有记录都尚未过期那此时交换机将对它无法找到地址的所有数据包进行泛洪也就是将这个数据包广播到它的所有接口除了收到数据包的接口如果攻击者伪造大量的地址将交换机填满再发送大量不在表中的地址给交换机交换机就会广播大量数据包给局域网给网络造成压力缓存投毒攻击者伪造包欺骗受害者的目的地址攻击者伪造包欺骗受害者的源地址这两种攻击可以欺骗客户端网关服务器获取他们发送接收的数据包攻击者伪造大量从不同发来的数据包消耗服务器分配的资源投毒攻击者伪装成服务器向受害者发送网络层协议由于地址唯一且不可随意更改我们需要用地址来灵活管理接入网络的设备协议规定了数据包的头部比如源目的是否分片同时协议规定了最大数据包大小其中头占据字节协议用于报告网络通信中的错误情况和诊断信息头部包含类型子类型和其余字段通过改变等内容可以报告不同的错误类型比如目标不可达超时和源抑制等头一般占据常见攻击协议规定的数据包最大不超过字节去掉和头部的字节还剩如果我们构造的数据包数据部分大于这个数目可能会导致缓冲区溢出比如我们构造一个的数据包大小为去掉头部还剩所以我们需要构造个分片当这些分片被组合起来的时候就会造成缓冲区溢出攻击攻击者向某个含有大量网络设备的广播域发送一个包这个包的源地址伪造为受害者的这样该广播域所有接收到包的设备都会向受害者发送包导致流量放大使受害者网络资源耗尽包中叫做重定向包路由器在接收到用户的数据包后发现用户将该数据包转发到可以更有效地到达目标就会用重定向包告知用户更改默认网关如果在用户发出一个数据包后攻击者伪造一个重定向包将用户的默认网关修改为自己可以控制的用户发出的所有流量就会被攻击者获得防护措施通过常见攻击手段我们可以发现利用网络层发起的攻击都有以下特点报头会被伪造数据包可以被修改后转发或重放因此我们设计的防御措施可以从以下安全目标出发加密数据包防止中间人查看数据加入序列号防止重放攻击加入哈希函数和数字签名防止数据包伪造组件封装安全载荷提供数据完整性不可抵赖性和保密性认证报头协议提供数据完整性不可抵赖性互联网密钥交换协议密钥管理系统一组用于保护通信的安全参数定义了数据包如何传入传出是单向的因此双向通信需要用到个一般由自动维护中包括一个参数叫做用于在数据库中索引和匹配端点用于存储的数据库发送方发送数据包前首先检查确认发送方式接收方接收到数据包后根据数据包中的匹配中的来确认用什么方式处理数据包端点通过源目的和协议号来匹配查看此次通话是否需要用到如果要用的话就去查找确认使用哪个工作流程的工作分为两阶段第一阶段协商一个辅助的端到端安全信道第二阶段用于协商范围更小的经常分为用户守护进程或者是内核当进程启动时就会协商后续每个应用程序使用的话就会进入第二阶段为每个进程协商传输模式传输模式不加密头适用于端到端隧道模式加密头适用于网关到网关工作流程在原始数据包前后加入头和尾形成新数据包头包含和序列号尾用于加密新数据包形成注意头部是不加密的要不然接收方无法确认也就无法选择对进行计算将结果拼接到尾部最终数据包新头认证运输层协议类似于协议在底层数据包的基础上加入一个字节的头部包含源端口目的端口长度和协议是无状态的协议是有状态的通过三次握手建立连接通过四次挥手释放连接三次握手过程为随机挑选一个序列号向发送的数据包随机挑选一个序列号向发送的数据包同时将和标志位设置为同时服务器分配一个端口给该连接此时称为半连接状态接收到数据包之后向发送的数据包该数据包标志为第三次握手已经可以携带其他数据四次挥手考察的比较少用人话来说可以模拟成如下场景我数据发完了连接可以关闭了我知道了连接先留着等我数据发完再关我发完了连接可以关了我知道了那就关吧主要攻击方式端口扫描与资产探查资产探查就是利用不同操作系统等对等协议数据包处理细节的不同来判断该主机使用的是什么或比如和对设置就不相同按连接状态分端口扫描有两种方式全连接扫描和半连接扫描全连接比较完善但是半连接更隐蔽一些按协议分端口扫描也可以分为和扫描两种方式扫描比较简单就是给一台主机的全部端口发送空的包如果收到目的不可达说明端口关闭收到响应报文则说明端口开放扫描有四种基本方式标志位全开放的端口对这些错误包都是不予理睬的扫描最多会回显一个错误但是未开放的端口会响应一个包隐蔽扫描攻击者通过伪造数据包为的利用主机来扫描主机的端口然后通过包来查看的增加数目来判断的端口是否开放攻击者不断发起第一次握手等服务器第二次握手结束后不发送第三次握手这样就会大量占据服务器的端口资源会话劫持重置攻击者通过预测序列号向该连接注入恶意数据包比如向服务器注入反弹命令或者单纯发一个数据包重置连接都会造成较大的影响如何预测序列号标准中规定如果一台主机收到报文但报文中含有错误的序列号或确认号时会回复一个报文来明确正确的序列号和确认号那么攻击者只要在预测序列号前后都查看一次如果则正确则不正确反射放大攻击防火墙在阻拦连接时往往第一次握手就会回复一个比请求包大的多的阻断包攻击者可以利用该特性实施反射放大攻击补充反射放大攻击当客户向请求资源时可能会向源站请求完整资源然后只回复客户所需的资源攻击者可以构造较小的资源请求使向源站请求较大的完整资源从而造成反射放大防御措施针对增大半连接等待队列降低资源回收时间在验证第三次握手正确前不分配资源应用层域名系统域名系统概述整个域名系统可以由如下部分构成根域名服务器顶级域名服务器权威域名服务器递归域名服务器客户端客户端如果想要查询一个域名对应的地址只需要向递归域名服务器发起询问递归域名服务器会向根域名服务器查询顶级域名服务器的位置然后向顶级域名服务器查询二级三级域名服务器的位置最后向权威域名服务器查询这个域名对应的地址当递归域名服务器得到地址之后就会向客户返回这个资源条目一个资源条目一般包括域名缓存时间资源类别资源类型地址资源类型一般包含地址地址权威名称邮件服务器名称域名别名和起始授权信息同时为了减轻网络压力递归域名服务器和客户主机一般会缓存一部分条目另外报文体对应报文头中的四个数量字段它们分别是问题区域指定用户查询的目标域名和资源记录类型应答区域直接回答查询请求即满足目标域名和资源记录类型的权威应答授权区域一般包含类型为的资源记录指向域名的权威服务器名称附加区域包含域名服务器返回的在查询过程中可能用到的其他资源记录比如权威服务器对应的地址等主要攻击方式应答型客户在发起请求后攻击者抢在递归域名服务器之前向客户发起响应不过只有地址匹配端口匹配匹配和问题区域匹配包才会被递归接收问题区域可以通过自问自答的方式解决地址填自己就行但和目的端口需要攻击者爆破去猜测劫持型绕过同源策略重绑定攻击同源策略是指脚本只能访问同源资源同源指的是协议域名端口相同绕过同源策略需要攻击者控制递归域名服务器当客户向域名服务器查询域名的时攻击者可以返回一个恶意客户会在这个被注入恶意脚本该恶意脚本每隔一段时间访问域名同时攻击者控制的服务器将这个域名的缓存时间设置的极短当该缓存条目过期之后恶意脚本再访问域名就会再次向攻击者服务器查询域名此时攻击者返回用户的内网恶意脚本就绕过同源策略可以访问到这个内网的资源了反射放大攻击者伪造请求的并向网络中大量递归域名服务器发送请求这些服务器收到请求后都会返回一个响应包到大量占用网络的资源劫持只要攻击者控制了域名系统中包含信道的任何一个关键节点攻击者就可以将用户访问的域名绑定到恶意防护措施基于随机化事务随机化域名大小写随机化位随机值基于加密与协议共享端口来执行域名解析防止被防火墙监控和拦截基于的协议传输速度快但尚未普及在加密的同时使用签名机制系统安全系统概述系统主要由客户端浏览器服务器和中间交互的协议组成主要攻击客户端浏览器从客户端浏览器出发我们首先考虑到的风险是前端三件套的风险是框架可以暂且不谈攻击者可以用本身诱骗用户进行一些点击操作从而访问恶意网站比如构建一个透明的样式图同时解析出错也会导致一些问题比如导致渲染错误或者利用反斜杠等解析错误来注入某些恶意代码再就是攻击者可以注入恶意代码造成信息泄露会话劫持等破坏而除去前端三件套第三方插件也会带来隐私泄露和额外引入的安全漏洞同时第三方插件也可能是恶意软件泄露用户隐私或者诱骗用户访问恶意网站等服务器从服务器端出发主要风险可以来源于持续对话认证缓存分段数据传输协议可以基于协议因此可以通过来实现持续对话双方可以在这个持久连接上发送多个包减少资源浪费但如果服务器发出的一个包中设置了多个字段客户端可能会将该对话与多个不同对话对应起来导致客户端显示混乱如果是代理服务器可能还会导致全局缓存错误分发错误的缓存内容给其他用户协议支持分段数据传输但过多的数据分段或者设置错误可能会导致整数溢出或者浏览器显示混乱协议有一个认证字段当认证字段被攻击者修改为明文认证而不是摘要认证时攻击者就可以获得用户的明文敏感信息缓存器也称为代理服务器可以是距离用户较近的网关服务器也可以是较大的缓存有可能会有非授权的数据访问也可能保存用户的隐私数据当访问缓存参数失当可能也会导致浏览器处理异常此外缓存可能被污染整个系统身份假冒攻击最开始没有身份认证攻击者可以伪装成正常的服务器欺骗用户访问网络流量监听和中间人未授权的网络监听被称为被动攻击主动攻击是指攻击者不仅未授权监听流量还主动注入恶意流量防护措施同源策略浏览器插件安全规则最小权限数据保护更新机制使用安全的第三方库安全策略通过设置不同的安全字段保证的安全只通过传输拒绝代码访问设置第三方站点何时可以在跨站点请求中携带除了这些字段以外还可以设置过期时间以及和的限制是指可以分为握手协议记录协议和告警协议其中记录协议可以看作外壳协议专门用来加解密数据包验证完整性检验和压缩解压缩的告警协议是指收到不正确的数据包时如何通知会话对方下面着重描述记录协议首先客户端发送消息其中包括客户端的安全能力然后服务器发送消息其中包括服务器选择的各个参数然后服务器发送证书该证书包含证书链的多个证书包括服务器证书签发该服务器证书的证书注意该证书可能不包括根证书因为浏览器可能预装了所有的根证书之后服务器发送消息这条消息包含的是密钥协商所需要的额外数据有些算法不需要就不用发比如之后服务器发送消息只有服务器要求客户端用公钥证书证明身份时才会发送这一条消息之后服务器发送消息告知客户端服务器这边的消息已经全部发送完毕如果收到消息客户端首先发送自己的证书给服务器之后为了完成密钥协商客户端发送消息之后如果收到消息客户端还会发送消息发送一条包含客户端证书对应的私钥对握手消息的数字签名通过这条消息服务器可以验证从握手开始到现在所有消息未被篡改并且没有被重放因为握手消息中包含客户端和服务器生成的随机数保证不被重放之后客户端和服务器都向对方发送表明自己已经完成密钥协商之后所有消息都是加密的这条消息是独立协议并不属于握手子协议最后双方发送消息这条消息是加密数据的第一条消息包含了握手阶段所有消息的哈希值主要意义在于验证握手的完整性防止中间人攻击内容分发网络是在不同地理位置设置代理服务器把网站的内容分散到更接近用户的地方的功能均衡网络负载抗攻击保证网络更加稳定降低网络延迟过滤恶意访问邮件系统概述用户通过编写发送接收和管理邮件当用户通过发送邮件给用户时邮件会先被提交给的再把邮件推送到的中的会将邮件发送给的的再将邮件交给来投递给的总结一下每个用户都有自己的发件人邮件供应商会配置一个一个收件人邮件供应商会配置一个一个另外往往是域名的邮件服务器协议对每一条命令服务器都会回复相应信息离线邮件协议对每一条命令服务器都会回复相应信息分布式存储存储邮件保证服务器与客户端的同步在线操作和阅读服务器上的邮件常见攻击垃圾邮件钓鱼邮件造成下列攻击的根本原因是多协议之间的薄弱环节多角色之间的薄弱环节和多服务之间的薄弱环节身份验证标识符不一致建议学习后再来学习本节通常情况下显示的是字段的内容空攻击检验的是一个服务器是否可以代替其服务器发送当为空时协议要通过字段来完成验证因此攻击者可以将字段设置为恶意域名然后字段设置为正常邮箱这样受害者看到的发件人是字段字段还能绕过多标头攻击者可以在一个写上自己的邮箱然后在另一个写上正常邮箱最后用自己的签名完成验证这样不仅可以完成验证还能让受害者看到是正常邮箱多邮件地址攻击攻击者在同一个写入合法邮箱和自己的邮箱同时用自己的签名签署邮件可以达到与多攻击一样的效果不存在子域名攻击当域名没有记录时会使用域名的记录这意味着所有的记录都是合法的域名又因为知名网站大多都会配置带有通配符的记录因此这种攻击较为广泛这种邮件会被打上标签但往往不会被邮件直接拒收身份验证结果注入攻击建议学习后再来学习本节注入是利用字段将左括号认为是注释的原理来绕过注入是利用字段将单引号认为是注释的原理来绕过签名重放建议学习后再来学习本节不防重放并且允许攻击者将额外的电子邮件标头甚至正文添加到被签名保护的消息中对于邮件标头的签名是可选的如果中包含的标头不完整重放攻击者可以修改那些未受保护的标头而不会使签名失效如果不同组件以不同方式解析额外的邮件标头攻击者可以通过在签名邮件中添加新标头来制造混淆比如如果使用原那显示的就是恶意该标签允许向电子邮件列表中的不同地址发送不同内容另外该标签允许攻击者在原始邮件正文添加新的而已内容而不会破坏签名利用转发功能通常知名的邮件转发服务器不会被过滤身份验证绕过攻击建议学习后再来学习本节共享场景多个域名共享一个合法如果接收方只验证则会有安全风险直接场景攻击者不通过发送方而是直接连接到接收方来发送邮件这样接收方可能不会验证邮件转发场景攻击者利用受信任的转发来发送常见防护通过记录指明哪些服务器可以代表域名发送电子邮件到记录以记录的形式发布一个域名只能发布一条记录举个例子这条记录的含义是允许来自子网的地址发送邮件允许来自域的记录指向的地址发送邮件允许域的记录中的地址发送邮件如果邮件来源不符合这些规则则标记为软失败通常会被标记为垃圾邮件当接收到一封邮件时协议会提取字段中的域名通过查询来确认是否匹配协议会在邮件的标头添加一个数字签名这个签名是这样计算的首先计算邮件正文的哈希值选定邮件标头的哈希值以及整个邮件的哈希值然后发件人的会对哈希值进行签名生成引入多认证标识符对齐机制将命令里的身份信息与和的认证关联起来共享直接转发场景防御技术防火墙概述功能包过滤入侵检测监控和日志负载均衡应用程序代理服务器数据缓存网络地址转换缺陷无法对抗旁路攻击不完全透明可能会带来延迟不防范端到端加密通信有时会拦截有用的服务内部防火墙的部署内部防火墙提供更严格的过滤能力在之间提供双向保护多个防火墙保护内部网络的不同区域分类优缺点大一统应用层开销配置难易日志包过滤防火墙拦截依据协议类型地址端口流向的接口选项选项其他协议选项流动方向优点便于配置检查效率高对于用户是透明的缺点粒度过粗无法防御针对特定漏洞的攻击无法防御伪造攻击日志信息有限状态检查防火墙拦截依据等协议建立的状态包过滤防火墙的拦截依据优点建立连接跟踪跟踪网络连接的状态以便返回流量能通过防火墙会话感知过滤可以根据会话信息进行更细粒度的过滤减少虚假报警不会将合法的响应流量误以为是未经授权的入侵其实就是粒度更细了更适合了更精确了缺点配置复杂资源开销大无法防御针对特定漏洞的攻击效果较差应用层防火墙拦截依据数据包头数据包内容模式匹配正则匹配协议分析优点过滤规则容易配置和测试进行内容过滤复杂访问控制精细注册和审核等防御针对应用层的攻击提供详细的日志和审计功能缺点性能开销大特定协议特定检查机制可能引入新漏洞配置复杂误报误阻会封堵正常业务流程需要额外测试和配置基于特征行为和语义分析来检测恶意行为可以作为独立硬件或虚拟设备部署在前端可以通过云端在云中保护应用可以作为浏览器插件或应用也能以反向代理模式部署其他类型下一代防火墙网络分割防火墙云防火墙模型策略模型核心其他方面围绕策略展开防护阻止侵入系统或延长侵入系统的时间为检测和反应提供时间主要包括安全规章制定在安全策略的基础上指定安全细则系统安全配置安装各种必要补丁进行仔细配置采用安全措施安装防火墙软件或设备检测异常监视发现系统异常行为如异常登录模式发现对已知的攻击模式进行匹配响应报告让管理员知道风险记录记录入侵细节与系统反应反应进行处理并防止进一步入侵比如修复漏洞增加防护措施恢复清楚入侵影响让系统恢复正常分类是基于主机的信息一般来源于操作系统的日志等优点检测无法察觉的攻击的信息源不会被网络传输中的加密干扰不受网络环境变化的影响当运行在的审计线上时可以检测特洛伊木马等针对软件完整性破坏的攻击缺点必须为每个受监控的主机配置可能被攻击禁用性能损耗通常由一组放置在网络各个点的单一用途传感器组成这些单元监控流量分析问题并向中央报告问题他们用途单一更难被破坏并且通常被设置为隐形的难以被攻击者发现优点使用被动接口捕获网络数据包可扩展性好独立的提供更好的防御缺点如果流量被加密则无法检测在现代交换网络上变得困难无法处理高速网络技术基于误用的入侵检测将传入的网络流量特征与特征数据库中已经存在的先前入侵的特征进行匹配分为静态签名检测和动态监测静态签名检测就是直接与数据库中的模式进行匹配动态检测还关注行为的时间序列和状态变化基于异常的检测根据系统行为或资源使用状态的正常程度来进行判断',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2025-02-12 18:02:11',
-  postMainColor: '',
-}</script><noscript><style type="text/css">
-  #nav {
-    opacity: 1
-  }
-  .justified-gallery img {
-    opacity: 1
-  }
-
-  #recent-posts time,
-  #post-meta time {
-    display: inline !important
-  }
-</style></noscript><script>(win=>{
-      win.saveToLocal = {
-        set: (key, value, ttl) => {
-          if (ttl === 0) return
-          const now = Date.now()
-          const expiry = now + ttl * 86400000
-          const item = {
-            value,
-            expiry
-          }
-          localStorage.setItem(key, JSON.stringify(item))
-        },
-      
-        get: key => {
-          const itemStr = localStorage.getItem(key)
-      
-          if (!itemStr) {
-            return undefined
-          }
-          const item = JSON.parse(itemStr)
-          const now = Date.now()
-      
-          if (now > item.expiry) {
-            localStorage.removeItem(key)
-            return undefined
-          }
-          return item.value
-        }
-      }
-    
-      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        script.onerror = reject
-        script.onload = script.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          script.onload = script.onreadystatechange = null
-          resolve()
-        }
-
-        Object.keys(attr).forEach(key => {
-          script.setAttribute(key, attr[key])
-        })
-
-        document.head.appendChild(script)
-      })
-    
-      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onerror = reject
-        link.onload = link.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          link.onload = link.onreadystatechange = null
-          resolve()
-        }
-        document.head.appendChild(link)
-      })
-    
-      win.activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#18171d')
-        }
-      }
-      win.activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f7f9fe')
-        }
-      }
-      const t = saveToLocal.get('theme')
-    
-          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
-          const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
-          const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
-          const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
-
-          if (t === undefined) {
-            if (isLightMode) activateLightMode()
-            else if (isDarkMode) activateDarkMode()
-            else if (isNotSpecified || hasNoSupport) {
-              const now = new Date()
-              const hour = now.getHours()
-              const isNight = hour <= 6 || hour >= 18
-              isNight ? activateDarkMode() : activateLightMode()
-            }
-            window.matchMedia('(prefers-color-scheme: dark)').addListener(e => {
-              if (saveToLocal.get('theme') === undefined) {
-                e.matches ? activateDarkMode() : activateLightMode()
-              }
-            })
-          } else if (t === 'light') activateLightMode()
-          else activateDarkMode()
-        
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
-    
-      const detectApple = () => {
-        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-          document.documentElement.classList.add('apple')
-        }
-      }
-      detectApple()
-    })(window)</script><link rel="stylesheet" href="/css/custom/schedule.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><meta name="generator" content="Hexo 6.3.0"></head><body data-type="anzhiyu"><div id="web_bg"></div><div id="an_music_bg"></div><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><img class="loading-img nolazyload" alt="加载头像" src="https://avatars.githubusercontent.com/u/110461032?v=4"/><div class="loading-image-dot"></div></div></div><script>const preloader = {
-  endLoading: () => {
-    document.getElementById('loading-box').classList.add("loaded");
+  percent: {
+    toc: true,
+    rightside: true,
   },
-  initLoading: () => {
-    document.getElementById('loading-box').classList.remove("loaded")
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Web - 网络安全概述',
+  isHighlightShrink: true,
+  isToc: true,
+  pageType: 'post'
+}</script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
   }
-}
-window.addEventListener('load',()=> { preloader.endLoading() })
-setTimeout(function(){preloader.endLoading();},10000)
 
-if (true) {
-  document.addEventListener('pjax:send', () => { preloader.initLoading() })
-  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
-}</script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.10/progress_bar/progress_bar.css"/><script async="async" src="https://cdn.cbd.int/pace-js@1.2.4/pace.min.js" data-pace-options="{ &quot;restartOnRequestAfter&quot;:false,&quot;eventLag&quot;:false}"></script><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><div id="nav-group"><span id="blog_name"><div class="back-home-button"><i class="anzhiyufont anzhiyu-icon-grip-vertical"></i><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" href="https://heygap.github.io" title="博客"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/twlL.jpeg" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div></div></div><a id="site-name" href="/" accesskey="h"><div class="title">HeyGap's_Blog</div><i class="anzhiyufont anzhiyu-icon-house-chimney"></i></a><div id="he-plugin-simple"></div><script>var WIDGET = {
-  "CONFIG": {
-    "modules": "0124",
-    "background": "2",
-    "tmpColor": "FFFFFF",
-    "tmpSize": "16",
-    "cityColor": "FFFFFF",
-    "citySize": "16",
-    "aqiColor": "E8D87B",
-    "aqiSize": "16",
-    "weatherIconSize": "24",
-    "alertIconSize": "18",
-    "padding": "10px 10px 10px 10px",
-    "shadow": "0",
-    "language": "auto",
-    "borderRadius": "20",
-    "fixed": "true",
-    "vertical": "top",
-    "horizontal": "left",
-    "left": "20",
-    "top": "7.1",
-    "key": "df245676fb434a0691ead1c63341cd94"
+  preloader.initLoading()
+  window.addEventListener('load', preloader.endLoading)
+
+  if (false) {
+    btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
+    btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
   }
-}
-</script><link rel="stylesheet" href="https://widget.qweather.net/simple/static/css/he-simple.css?v=1.4.0"/><script src="https://widget.qweather.net/simple/static/js/he-simple.js?v=1.4.0"></script></span><div class="mask-name-container"><div id="name-container"><a id="page-name" href="javascript:anzhiyu.scrollToDest(0, 500)">PAGE_NAME</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 隧道</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/air-conditioner/"><i class="anzhiyufont anzhiyu-icon-fan faa-tada" style="font-size: 0.9em;"></i><span> 小空调</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> 随便逛逛</span></a></li></ul></div></div></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机前往一个文章" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-dice"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索🔍" accesskey="s"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span> 搜索</span></a></div><input id="center-console" type="checkbox"/><label class="widget" for="center-console" title="中控台" onclick="anzhiyu.switchConsole();"><i class="left"></i><i class="widget center"></i><i class="widget right"></i></label><div id="console"><div class="console-card-group-reward"><ul class="reward-all console-card"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" alt="微信" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" alt="支付宝" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div><div class="console-card-group"><div class="console-card-group-left"><div class="console-card" id="card-newest-comments"><div class="card-content"><div class="author-content-item-tips">互动</div><span class="author-content-item-title"> 最新评论</span></div><div class="aside-list"><span>正在加载中...</span></div></div></div><div class="console-card-group-right"><div class="console-card tags"><div class="card-content"><div class="author-content-item-tips">兴趣点</div><span class="author-content-item-title">寻找你感兴趣的领域</span><div class="card-tags"><div class="item-headline"></div><div class="card-tag-cloud"><a href="/tags/Blockchain/" style="font-size: 1.05rem;">Blockchain<sup>5</sup></a><a href="/tags/Blog/" style="font-size: 1.05rem;">Blog<sup>1</sup></a><a href="/tags/DNS-poisoning/" style="font-size: 1.05rem;">DNS poisoning<sup>1</sup></a><a href="/tags/Heap/" style="font-size: 1.05rem;">Heap<sup>4</sup></a><a href="/tags/Math/" style="font-size: 1.05rem;">Math<sup>1</sup></a><a href="/tags/Mips/" style="font-size: 1.05rem;">Mips<sup>1</sup></a><a href="/tags/OS/" style="font-size: 1.05rem;">OS<sup>1</sup></a><a href="/tags/Program-Analysis/" style="font-size: 1.05rem;">Program Analysis<sup>1</sup></a><a href="/tags/Pwn/" style="font-size: 1.05rem;">Pwn<sup>6</sup></a><a href="/tags/Reverse/" style="font-size: 1.05rem;">Reverse<sup>1</sup></a><a href="/tags/Shellcode/" style="font-size: 1.05rem;">Shellcode<sup>1</sup></a><a href="/tags/Smart-Contract/" style="font-size: 1.05rem;">Smart Contract<sup>4</sup></a><a href="/tags/Smart-Contract-vulnerabilities/" style="font-size: 1.05rem;">Smart Contract vulnerabilities<sup>1</sup></a><a href="/tags/Stack/" style="font-size: 1.05rem;">Stack<sup>1</sup></a><a href="/tags/SymbolicExecution/" style="font-size: 1.05rem;">SymbolicExecution<sup>2</sup></a><a href="/tags/Wifi/" style="font-size: 1.05rem;">Wifi<sup>1</sup></a><a href="/tags/WriteUp/" style="font-size: 1.05rem;">WriteUp<sup>7</sup></a><a href="/tags/WriteUp-Reverse-Pwn/" style="font-size: 1.05rem;">WriteUp - Reverse - Pwn<sup>1</sup></a><a href="/tags/papers/" style="font-size: 1.05rem;">papers<sup>1</sup></a><a href="/tags/rust/" style="font-size: 1.05rem;">rust<sup>1</sup></a><a href="/tags/symbolic-execution/" style="font-size: 1.05rem;">symbolic execution<sup>1</sup></a><a href="/tags/web/" style="font-size: 1.05rem;">web<sup>1</sup></a><a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" style="font-size: 1.05rem;">年终总结<sup>1</sup></a></div></div><hr/></div></div><div class="console-card history"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-box-archiv"></i><span>文章</span></div><div class="card-archives"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-archive"></i><span>归档</span><a class="card-more-btn" href="/archives/" title="查看更多">
-    <i class="anzhiyufont anzhiyu-icon-angle-right"></i></a></div><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/02/"><span class="card-archive-list-date">二月 2025</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/01/"><span class="card-archive-list-date">一月 2025</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/12/"><span class="card-archive-list-date">十二月 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/10/"><span class="card-archive-list-date">十月 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/08/"><span class="card-archive-list-date">八月 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">2</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/07/"><span class="card-archive-list-date">七月 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/03/"><span class="card-archive-list-date">三月 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span>篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2024/02/"><span class="card-archive-list-date">二月 2024</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">8</span><span>篇</span></div></a></li></ul></div><hr/></div></div></div><div class="button-group"><div class="console-btn-item"><a class="darkmode_switchbutton" title="显示模式切换" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-moon"></i></a></div><div class="console-btn-item" id="consoleHideAside" onclick="anzhiyu.hideAsideBtn()" title="边栏显示控制"><a class="asideSwitch"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></a></div></div><div class="console-mask" onclick="anzhiyu.hideConsole()" href="javascript:void(0);"></div></div><div class="nav-button" id="nav-totop"><a class="totopbtn" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i><span id="percent" onclick="anzhiyu.scrollToDest(0,500)">0</span></a></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" title="切换"><i class="anzhiyufont anzhiyu-icon-bars"></i></a></div></div></div></nav><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original">原创</a><span class="post-meta-categories"><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-inbox post-meta-icon"></i><a class="post-meta-categories" href="/categories/WEB/" itemprop="url">WEB</a></span><span class="article-meta tags"><a class="article-meta__tags" href="/tags/web/" tabindex="-1" itemprop="url"> <span> <i class="anzhiyufont anzhiyu-icon-hashtag"></i>web</span></a></span></div></div><h1 class="post-title" itemprop="name headline">Web - 网络安全概述</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="anzhiyufont anzhiyu-icon-calendar-days post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" itemprop="dateCreated datePublished" datetime="2024-12-20T08:27:00.000Z" title="发表于 2024-12-20 16:12:00">2024-12-20</time><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-history post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" itemprop="dateCreated datePublished" datetime="2025-02-12T10:09:13.110Z" title="更新于 2025-02-12 18:02:11">2025-02-12</time></span></div><div class="meta-secondline"><span class="post-meta-separator"></span><span class="post-meta-wordcount"><i class="anzhiyufont anzhiyu-icon-file-word post-meta-icon" title="文章字数"></i><span class="post-meta-label" title="文章字数">字数总计:</span><span class="word-count" title="文章字数">9.5k</span><span class="post-meta-separator"></span><i class="anzhiyufont anzhiyu-icon-clock post-meta-icon" title="阅读时长"></i><span class="post-meta-label" title="阅读时长">阅读时长:</span><span>30分钟</span></span><span class="post-meta-separator"></span><span class="post-meta-pv-cv" id="" data-flag-title="Web - 网络安全概述"><i class="anzhiyufont anzhiyu-icon-fw-eye post-meta-icon"></i><span class="post-meta-label" title="阅读量">阅读量:</span><span id="busuanzi_value_page_pv"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></span><span class="post-meta-separator">       </span><span class="post-meta-position" title="作者IP属地为火星"><i class="anzhiyufont anzhiyu-icon-location-dot"></i>火星</span><span class="post-meta-separator"></span><span class="post-meta-commentcount"><i class="anzhiyufont anzhiyu-icon-comments post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/posts/27202.html#post-comment" tabindex="-1"><span id="twikoo-count"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-spin"></i></span></a></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section><div id="post-top-cover"><img class="nolazyload" id="post-top-bg" src="https://i.imgs.ovh/2025/02/13/t37x.png?_r_=b04fa066-0667-454b-36ca-2503291713ce"></div></header><main id="blog-container"><div class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container" itemscope itemtype="http://heygap.github.io/posts/27202.html"><header><a class="post-meta-categories" href="/categories/WEB/" itemprop="url">WEB</a><a href="/tags/web/" tabindex="-1" itemprop="url">web</a><h1 id="CrawlerTitle" itemprop="name headline">Web - 网络安全概述</h1><span itemprop="author" itemscope itemtype="http://schema.org/Person">HeyGap</span><time itemprop="dateCreated datePublished" datetime="2024-12-20T08:27:00.000Z" title="发表于 2024-12-20 16:12:00">2024-12-20</time><time itemprop="dateCreated datePublished" datetime="2025-02-12T10:09:13.110Z" title="更新于 2025-02-12 18:02:11">2025-02-12</time></header><blockquote class="blockquote-center">
+})()</script><div id="web_bg" style="background-image: url(/img/background1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 我的文章</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/air-conditioner/"><i class="fa-fw anzhiyu-icon-fan"></i><span> 小空调</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-user"></i><span> 关于本人</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover2.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">HeyGap's_Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">Web - 网络安全概述</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 我的文章</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/air-conditioner/"><i class="fa-fw anzhiyu-icon-fan"></i><span> 小空调</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-user"></i><span> 关于本人</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Web - 网络安全概述</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-12-20T08:27:00.000Z" title="发表于 2024-12-20 16:12:00">2024-12-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-02-12T10:09:13.110Z" title="更新于 2025-02-12 18:02:11">2025-02-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/WEB/">WEB</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">9.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>30分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote class="blockquote-center">
 12.24网络安全期末，用这篇文章来梳理一下对相关知识的理解
 </blockquote>
 <span id="more"></span>
 <figure>
-<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="/pic/5cddd5eea2e4549ee0b1252922577350.png" alt="导图" />
+<img src="/pic/5cddd5eea2e4549ee0b1252922577350.png" alt="导图" />
 <figcaption aria-hidden="true">导图</figcaption>
 </figure>
 <p>这篇文章主要从TCP/IP五层模型的层次来比较宽泛地讲一些常见的网络攻击。众所周知，TCP/IP五层模型将网络架构分为物理层、数据链路层、网络层、运输层和应用层。针对物理层的攻击我不是很懂，因此不在本篇文章的描述范围内，而应用层出现的app漏洞和防御技术比较广泛，会用几章分别叙述。</p>
@@ -664,402 +616,35 @@ class="math inline">\(P^2DR模型\)</span></h3>
 静态签名检测就是直接与数据库中的模式进行匹配，动态检测还关注行为的时间序列和状态变化。</p>
 <h4 id="基于异常的检测">[5-2-3-2] 基于异常的检测</h4>
 <p>根据系统行为或资源使用状态的正常程度来进行判断。</p>
-</article><div class="post-copyright"><div class="copyright-cc-box"><i class="anzhiyufont anzhiyu-icon-copyright"></i></div><div class="post-copyright__author_box"><a class="post-copyright__author_img" target="_blank" rel="noopener" href="https://github.com/HeyGap" title="头像"><img class="post-copyright__author_img_back" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://avatars.githubusercontent.com/u/110461032?v=4" title="头像" alt="头像"><img class="post-copyright__author_img_front" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://avatars.githubusercontent.com/u/110461032?v=4" title="头像" alt="头像"></a><div class="post-copyright__author_name">HeyGap</div><div class="post-copyright__author_desc">Be a positive learner</div></div><div class="post-copyright__post__info"><a class="post-copyright__original" title="该文章为原创文章，注意版权协议" href="http://heygap.github.io/posts/27202.html">原创</a><a class="post-copyright-title"><span onclick="rm.copyPageUrl('http://heygap.github.io/posts/27202.html')">Web - 网络安全概述</span></a></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div class="rewardLeftButton"><div class="post-reward" onclick="anzhiyu.addRewardMask()"><div class="reward-button button--animated" title="赞赏作者"><i class="anzhiyufont anzhiyu-icon-hand-heart-fill"></i>打赏作者</div><div class="reward-main"><div class="reward-all"><span class="reward-title">感谢你赐予我前进的力量</span><ul class="reward-group"><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-weichat.png" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" target="_blank"><img class="post-qr-code-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/qrcode-alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul><a class="reward-main-btn" href="/about/#about-reward" target="_blank"><div class="reward-text">赞赏者名单</div><div class="reward-dec">因为你们的支持让我意识到写文章的价值🙏</div></a></div></div></div><div id="quit-box" onclick="anzhiyu.removeRewardMask()" style="display: none"></div></div><div class="shareRight"><div class="share-link mobile"><div class="share-qrcode"><div class="share-button" title="使用手机访问这篇文章"><i class="anzhiyufont anzhiyu-icon-qrcode"></i></div><div class="share-main"><div class="share-main-all"><div id="qrcode" title="http://heygap.github.io/posts/27202.html"></div><div class="reward-dec">使用手机访问这篇文章</div></div></div></div></div><div class="share-link weibo"><a class="share-button" target="_blank" href="https://service.weibo.com/share/share.php?title=Web - 网络安全概述&amp;url=http://heygap.github.io/posts/27202.html&amp;pic=https://i.imgs.ovh/2025/02/13/t37x.png?_r_=b04fa066-0667-454b-36ca-2503291713ce" rel="external nofollow noreferrer noopener"><i class="anzhiyufont anzhiyu-icon-weibo"></i></a></div><script>function copyCurrentPageUrl() {
-  var currentPageUrl = window.location.href;
-  var input = document.createElement("input");
-  input.setAttribute("value", currentPageUrl);
-  document.body.appendChild(input);
-  input.select();
-  input.setSelectionRange(0, 99999);
-  document.execCommand("copy");
-  document.body.removeChild(input);
-}</script><div class="share-link copyurl"><div class="share-button" id="post-share-url" title="复制链接" onclick="copyCurrentPageUrl()"><i class="anzhiyufont anzhiyu-icon-link"></i></div></div></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://heygap.github.io" target="_blank">HeyGap's_Blog</a>！</span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__box"><div class="post-meta__box__tag-list"><a class="post-meta__box__tags" href="/tags/web/"><span class="tags-punctuation"> <i class="anzhiyufont anzhiyu-icon-tag"></i></span>web<span class="tagsPageCount">1</span></a></div></div></div><div class="post_share"><div class="social-share" data-image="https://i.imgs.ovh/2025/02/13/t954.png?_r_=79aa56d6-b3be-cf31-bc25-c69e691fc511" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"/><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer="defer"></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/27164.html"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/t954.png?_r_=60778fad-f4b6-5199-47f8-2f13a93c72c2" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Web - DNS Poisoning</div></div></a></div><div class="next-post pull-right"><a href="/posts/9333.html"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/tNAM.png?_r_=2bfe466e-4f5c-57db-0380-3b55a00d0a6c" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">2024年终总结</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="anzhiyufont anzhiyu-icon-comments"></i><span> 评论</span></div><div class="comment-randomInfo"><a onclick="anzhiyu.addRandomCommentInfo()" href="javascript:void(0)">匿名评论</a><a href="/privacy" style="margin-left: 4px">隐私政策</a></div><div class="comment-switch"><span class="first-comment">Twikoo</span><span id="switch-btn"></span><span class="second-comment">Waline</span></div><div class="comment-tips" id="comment-tips"><span>✅ 你无需删除空行，直接评论以获取最佳展示效果</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div><div><div id="waline-wrap"></div></div></div></div><div class="comment-barrage"></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="author-info__sayhi" id="author-info__sayhi" onclick="anzhiyu.changeSayHelloText()"></div><div class="author-info-avatar"><img class="avatar-img" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/twlL.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-status"><img class="g-status" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://bu.dusays.com/2021/01/15/fd881908237ee.png" alt="status"/></div></div><div class="author-info__description">An undergraduate student of Cybersecurity at SDU.</div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="https://heygap.github.io/"><h1 class="author-info__name">HeyGap</h1><div class="author-info__desc">Be a positive learner</div></a><div class="card-info-social-icons is-center"><a class="social-icon faa-parent animated-hover" href="https://github.com/HeyGap" target="_blank" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><a class="social-icon faa-parent animated-hover" href="https://space.bilibili.com/74361971" target="_blank" title="BiliBili"><i class="anzhiyufont anzhiyu-icon-bilibili"></i></a></div></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-bars"></i><span>文章目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%AF%94%E8%BE%83%E5%AE%B9%E6%98%93%E9%81%97%E5%BF%98%E7%9A%84%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text">[0] 比较容易遗忘的点：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%E5%B1%80%E5%9F%9F%E7%BD%91"><span class="toc-number">2.</span> <span class="toc-text">[1] 数据链路层(局域网)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.1.</span> <span class="toc-text">[1-1] 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arp"><span class="toc-number">2.1.1.</span> <span class="toc-text">[1-1-1] ARP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dhcp"><span class="toc-number">2.1.2.</span> <span class="toc-text">[1-1-2] DHCP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB"><span class="toc-number">2.2.</span> <span class="toc-text">[1-2] 常见攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arp-1"><span class="toc-number">2.2.1.</span> <span class="toc-text">[1-2-1] ARP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#arp-dosmac%E5%9C%B0%E5%9D%80%E6%B4%AA%E6%B3%9B"><span class="toc-number">2.2.1.1.</span> <span class="toc-text">[1-2-1-1] ARP DoS(MAC地址洪泛)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#arp-%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92"><span class="toc-number">2.2.1.2.</span> <span class="toc-text">[1-2-1-2] ARP 缓存投毒</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dhcp-1"><span class="toc-number">2.2.2.</span> <span class="toc-text">[1-2-2] DHCP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#dhcp-dos"><span class="toc-number">2.2.2.1.</span> <span class="toc-text">[1-2-2-1] DHCP DoS</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="toc-number">3.</span> <span class="toc-text">[2] 网络层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE-1"><span class="toc-number">3.1.</span> <span class="toc-text">[2-1] 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ip"><span class="toc-number">3.1.1.</span> <span class="toc-text">[2-1-1] IP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#icmp"><span class="toc-number">3.1.2.</span> <span class="toc-text">[2-1-2] ICMP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-1"><span class="toc-number">3.2.</span> <span class="toc-text">[2-2] 常见攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ip-1"><span class="toc-number">3.2.1.</span> <span class="toc-text">[2-2-1] IP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ping-of-death"><span class="toc-number">3.2.1.1.</span> <span class="toc-text">[2-2-1-1] Ping of Death</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#icmp-1"><span class="toc-number">3.2.2.</span> <span class="toc-text">[2-2-2] ICMP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#smurf%E6%94%BB%E5%87%BBicmp-dos"><span class="toc-number">3.2.2.1.</span> <span class="toc-text">[2-2-2-1] Smurf攻击(ICMP DoS)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#icmp-redirecticmp-poisoning"><span class="toc-number">3.2.2.2.</span> <span class="toc-text">[2-2-2-2] ICMP Redirect(ICMP
-Poisoning)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-ipsec"><span class="toc-number">3.3.</span> <span class="toc-text">[2-3] 防护措施-IPSec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6"><span class="toc-number">3.3.1.</span> <span class="toc-text">[2-3-1] 组件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="toc-number">3.3.1.1.</span> <span class="toc-text">[2-3-1-1] 密钥管理系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.3.2.</span> <span class="toc-text">[2-3-2] 传输模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#esp-tun-mode-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">3.3.3.</span> <span class="toc-text">[2-3-3] ESP TUN Mode 工作流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%90%E8%BE%93%E5%B1%82"><span class="toc-number">4.</span> <span class="toc-text">[3] 运输层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE-2"><span class="toc-number">4.1.</span> <span class="toc-text">[3-1] 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#udp"><span class="toc-number">4.1.1.</span> <span class="toc-text">[3-1-1] UDP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp"><span class="toc-number">4.1.2.</span> <span class="toc-text">[3-1-2] TCP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F"><span class="toc-number">4.2.</span> <span class="toc-text">[3-2] 主要攻击方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F%E4%B8%8E%E8%B5%84%E4%BA%A7%E6%8E%A2%E6%9F%A5"><span class="toc-number">4.2.1.</span> <span class="toc-text">[3-2-1] 端口扫描与资产探查</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9A%90%E8%94%BD%E6%89%AB%E6%8F%8F"><span class="toc-number">4.2.1.1.</span> <span class="toc-text">[3-2-1-1] 隐蔽扫描</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp-syn-floodtcp-dos"><span class="toc-number">4.2.2.</span> <span class="toc-text">[3-2-2] TCP SYN Flood(TCP DoS)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp-%E4%BC%9A%E8%AF%9D%E5%8A%AB%E6%8C%81%E9%87%8D%E7%BD%AE"><span class="toc-number">4.2.3.</span> <span class="toc-text">[3-2-3] TCP 会话劫持&#x2F;重置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7%E6%94%BB%E5%87%BB"><span class="toc-number">4.2.4.</span> <span class="toc-text">[3-2-4] TCP反射放大攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="toc-number">4.3.</span> <span class="toc-text">[3-3] 防御措施</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%92%88%E5%AF%B9syn-flood"><span class="toc-number">4.3.1.</span> <span class="toc-text">[3-3-1] 针对SYN Flood</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="toc-number">5.</span> <span class="toc-text">[4] 应用层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F"><span class="toc-number">5.1.</span> <span class="toc-text">[4-1] 域名系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="toc-number">5.1.1.</span> <span class="toc-text">[4-1-1] 域名系统概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F-1"><span class="toc-number">5.1.2.</span> <span class="toc-text">[4-1-2] 主要攻击方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#poisoning"><span class="toc-number">5.1.2.1.</span> <span class="toc-text">[4-1-2-1] Poisoning</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5dns-%E9%87%8D%E7%BB%91%E5%AE%9A%E6%94%BB%E5%87%BB"><span class="toc-number">5.1.2.2.</span> <span class="toc-text">[4-1-2-2] 绕过同源策略(DNS
-重绑定攻击)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dns-%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7"><span class="toc-number">5.1.2.3.</span> <span class="toc-text">[4-1-2-3] DNS 反射放大</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dns-%E5%8A%AB%E6%8C%81"><span class="toc-number">5.1.2.4.</span> <span class="toc-text">[4-1-2-4] DNS 劫持</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD"><span class="toc-number">5.1.3.</span> <span class="toc-text">[4-1-3] 防护措施</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E9%9A%8F%E6%9C%BA%E5%8C%96"><span class="toc-number">5.1.3.1.</span> <span class="toc-text">[4-1-3-1] 基于随机化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%8A%A0%E5%AF%86"><span class="toc-number">5.1.3.2.</span> <span class="toc-text">[4-1-3-2] 基于加密</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#web%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8"><span class="toc-number">5.2.</span> <span class="toc-text">[4-2] Web系统安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#web%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="toc-number">5.2.1.</span> <span class="toc-text">[4-2-1] web系统概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB"><span class="toc-number">5.2.2.</span> <span class="toc-text">[4-2-2] 主要攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="toc-number">5.2.2.1.</span> <span class="toc-text">[4-2-2-1] 客户端浏览器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">5.2.2.2.</span> <span class="toc-text">[4-2-2-2] 服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E4%B8%AAweb%E7%B3%BB%E7%BB%9F"><span class="toc-number">5.2.2.3.</span> <span class="toc-text">[4-2-2-3] 整个Web系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-1"><span class="toc-number">5.2.3.</span> <span class="toc-text">[4-2-3] 防护措施</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="toc-number">5.2.3.1.</span> <span class="toc-text">[4-2-3-1] 同源策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E6%8F%92%E4%BB%B6%E5%AE%89%E5%85%A8%E8%A7%84%E5%88%99"><span class="toc-number">5.2.3.2.</span> <span class="toc-text">[4-2-3-2] 浏览器插件安全规则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#http-cookie%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5"><span class="toc-number">5.2.3.3.</span> <span class="toc-text">[4-2-3-3] HTTP Cookie安全策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#https"><span class="toc-number">5.2.3.4.</span> <span class="toc-text">[4-2-3-4] HTTPS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#cdn"><span class="toc-number">5.2.3.5.</span> <span class="toc-text">[4-2-3-5] CDN</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%82%AE%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">5.3.</span> <span class="toc-text">[4-3] 邮件系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">5.3.1.</span> <span class="toc-text">[4-3-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE-3"><span class="toc-number">5.3.2.</span> <span class="toc-text">[4-3-2] 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#smtp"><span class="toc-number">5.3.2.1.</span> <span class="toc-text">[4-3-2-1] SMTP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pop3"><span class="toc-number">5.3.2.2.</span> <span class="toc-text">[4-3-2-2] POP3</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#imap4"><span class="toc-number">5.3.2.3.</span> <span class="toc-text">[4-3-2-3] IMAP4</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-2"><span class="toc-number">5.3.3.</span> <span class="toc-text">[4-3-3] 常见攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%A0%87%E8%AF%86%E7%AC%A6%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="toc-number">5.3.3.1.</span> <span class="toc-text">[4-3-3-1] 身份验证标识符不一致</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%BB%93%E6%9E%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB"><span class="toc-number">5.3.3.2.</span> <span class="toc-text">[4-3-3-2] 身份验证结果注入攻击</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dkim%E7%AD%BE%E5%90%8D%E9%87%8D%E6%94%BE"><span class="toc-number">5.3.3.3.</span> <span class="toc-text">[4-3-3-3] DKIM签名重放</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%BB%95%E8%BF%87%E6%94%BB%E5%87%BB"><span class="toc-number">5.3.3.4.</span> <span class="toc-text">[4-3-3-4] 身份验证绕过攻击</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%98%B2%E6%8A%A4"><span class="toc-number">5.3.4.</span> <span class="toc-text">[4-3-4] 常见防护</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#spf"><span class="toc-number">5.3.4.1.</span> <span class="toc-text">[4-3-4-1] SPF</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dkim"><span class="toc-number">5.3.4.2.</span> <span class="toc-text">[4-3-4-2] DKIM</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dmarc"><span class="toc-number">5.3.4.3.</span> <span class="toc-text">[4-3-4-3] DMARC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E7%9B%B4%E6%8E%A5%E8%BD%AC%E5%8F%91-mta-%E5%9C%BA%E6%99%AF"><span class="toc-number">5.3.4.4.</span> <span class="toc-text">[4-3-4-4] 共享&#x2F;直接&#x2F;转发 MTA 场景</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF"><span class="toc-number">6.</span> <span class="toc-text">[5] 防御技术</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-number">6.1.</span> <span class="toc-text">[5-1] 防火墙</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="toc-number">6.1.1.</span> <span class="toc-text">[5-1-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB"><span class="toc-number">6.1.2.</span> <span class="toc-text">[5-1-2] 分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8C%85%E8%BF%87%E6%BB%A4%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-number">6.1.2.1.</span> <span class="toc-text">[5-1-2-1] 包过滤防火墙</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-number">6.1.2.2.</span> <span class="toc-text">[5-1-2-2] 状态检查防火墙</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-number">6.1.2.3.</span> <span class="toc-text">[5-1-2-3] 应用层防火墙</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B"><span class="toc-number">6.1.2.4.</span> <span class="toc-text">[5-1-2-4] 其他类型</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#idsintrusion-detection-system"><span class="toc-number">6.2.</span> <span class="toc-text">[5-2] IDS(Intrusion Detection
-System)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#p2dr%E6%A8%A1%E5%9E%8B"><span class="toc-number">6.2.1.</span> <span class="toc-text">[5-2-1] \(P^2DR模型\)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB-1"><span class="toc-number">6.2.2.</span> <span class="toc-text">[5-2-2] 分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#hids"><span class="toc-number">6.2.2.1.</span> <span class="toc-text">[5-2-2-1] HIDS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#nids"><span class="toc-number">6.2.2.2.</span> <span class="toc-text">[5-2-2-2] NIDS</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ids%E6%8A%80%E6%9C%AF"><span class="toc-number">6.2.3.</span> <span class="toc-text">[5-2-3] IDS技术</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E8%AF%AF%E7%94%A8%E7%9A%84%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B"><span class="toc-number">6.2.3.1.</span> <span class="toc-text">[5-2-3-1] 基于误用的入侵检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%BC%82%E5%B8%B8%E7%9A%84%E6%A3%80%E6%B5%8B"><span class="toc-number">6.2.3.2.</span> <span class="toc-text">[5-2-3-2] 基于异常的检测</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="anzhiyufont anzhiyu-icon-history"></i><span>最近发布</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/18184.html" title="blockchain - openzeppelin 源码阅读"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/t954.png?_r_=79aa56d6-b3be-cf31-bc25-c69e691fc511" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="blockchain - openzeppelin 源码阅读"/></a><div class="content"><a class="title" href="/posts/18184.html" title="blockchain - openzeppelin 源码阅读">blockchain - openzeppelin 源码阅读</a><time datetime="2025-02-05T10:15:00.000Z" title="发表于 2025-02-05 18:02:00">2025-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/13129.html" title="blockchain - Uniswap V2"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/twlL.jpeg?_r_=ab2e04e0-8849-f47e-3907-e6f62b44d650" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="blockchain - Uniswap V2"/></a><div class="content"><a class="title" href="/posts/13129.html" title="blockchain - Uniswap V2">blockchain - Uniswap V2</a><time datetime="2025-02-04T06:09:00.000Z" title="发表于 2025-02-04 14:02:00">2025-02-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/38292.html" title="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/twlL.jpeg?_r_=55151c5c-edaa-a7d3-67e1-9f91a0ebb41e" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记"/></a><div class="content"><a class="title" href="/posts/38292.html" title="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记">blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记</a><time datetime="2025-01-13T12:01:00.000Z" title="发表于 2025-01-13 20:01:00">2025-01-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/9333.html" title="2024年终总结"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/tNAM.png?_r_=2bfe466e-4f5c-57db-0380-3b55a00d0a6c" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="2024年终总结"/></a><div class="content"><a class="title" href="/posts/9333.html" title="2024年终总结">2024年终总结</a><time datetime="2025-01-12T04:55:00.000Z" title="发表于 2025-01-12 12:01:00">2025-01-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/27202.html" title="Web - 网络安全概述"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/t37x.png?_r_=b04fa066-0667-454b-36ca-2503291713ce" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Web - 网络安全概述"/></a><div class="content"><a class="title" href="/posts/27202.html" title="Web - 网络安全概述">Web - 网络安全概述</a><time datetime="2024-12-20T08:27:00.000Z" title="发表于 2024-12-20 16:12:00">2024-12-20</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div id="footer_deal"><a class="deal_link" target="_blank" rel="noopener" href="https://github.com/HeyGap" title="Github"><i class="anzhiyufont anzhiyu-icon-github"></i></a><img class="footer_mini_logo" title="返回顶部" alt="返回顶部" onclick="anzhiyu.scrollToDest(0, 500)" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/t954.png" size="50px"/><a class="deal_link" target="_blank" rel="noopener" href="https://space.bilibili.com/74361971" title="Bilibili"><i class="anzhiyufont anzhiyu-icon-bilibili"></i></a></div><div id="workboard"><img class="workSituationImg boardsign" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-上班摸鱼中.svg" alt="距离月入25k也就还差一个大佬带我~" title="距离月入25k也就还差一个大佬带我~"/><div id="runtimeTextTip"></div></div><p id="ghbdages"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" data-title="博客框架为Hexo_v5.4.0" title="博客框架为Hexo_v5.4.0"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-blog@2.1.5/img/badge/Frame-Hexo.svg" alt="博客框架为Hexo_v5.4.0"/></a><a class="github-badge" target="_blank" href="https://blog.anheyu.com/" style="margin-inline:5px" data-title="本站使用AnZhiYu主题" title="本站使用AnZhiYu主题"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.9/img/Theme-AnZhiYu-2E67D3.svg" alt="本站使用AnZhiYu主题"/></a></p></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div id="footer-bar-tips"><div class="copyright">&copy;2022 - 2025 By <a class="footer-bar-link" href="/" title="HeyGap" target="_blank">HeyGap</a></div></div><div id="footer-type-tips"></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/anzhiyu-c/hexo-theme-anzhiyu" title="主题">主题</a></div></div></div></footer></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="sidebar-site-data site-data is-center"></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><a class="darkmode_switchbutton menu-child" href="javascript:void(0);" title="显示模式"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span>显示模式</span></a></div><div class="back-menu-list-groups"><div class="back-menu-list-group"><div class="back-menu-list-title">网页</div><div class="back-menu-list"><a class="back-menu-item" href="https://heygap.github.io" title="博客"><img class="back-menu-item-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null,this.src=&quot;/img/404.jpg&quot;" data-lazy-src="https://i.imgs.ovh/2025/02/13/twlL.jpeg" alt="博客"/><span class="back-menu-item-text">博客</span></a></div></div></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 文章</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/archives/"><i class="anzhiyufont anzhiyu-icon-box-archive faa-tada" style="font-size: 0.9em;"></i><span> 隧道</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/categories/"><i class="anzhiyufont anzhiyu-icon-shapes faa-tada" style="font-size: 0.9em;"></i><span> 分类</span></a></li><li><a class="site-page child faa-parent animated-hover" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags faa-tada" style="font-size: 0.9em;"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 我的</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/air-conditioner/"><i class="anzhiyufont anzhiyu-icon-fan faa-tada" style="font-size: 0.9em;"></i><span> 小空调</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span> 关于</span></a><ul class="menus_item_child"><li><a class="site-page child faa-parent animated-hover" href="/about/"><i class="anzhiyufont anzhiyu-icon-paper-plane faa-tada" style="font-size: 0.9em;"></i><span> 关于本人</span></a></li><li><a class="site-page child faa-parent animated-hover" href="javascript:toRandomPost()"><i class="anzhiyufont anzhiyu-icon-shoe-prints1 faa-tada" style="font-size: 0.9em;"></i><span> 随便逛逛</span></a></li></ul></div></div></div></div><div id="rightside"><div id="rightside-config-hide"><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="anzhiyufont anzhiyu-icon-arrows-left-right"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="anzhiyufont anzhiyu-icon-gear"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="anzhiyufont anzhiyu-icon-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="anzhiyufont anzhiyu-icon-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="anzhiyufont anzhiyu-icon-xmark"></i></button></nav><div class="is-center" id="loading-database"><i class="anzhiyufont anzhiyu-icon-spinner anzhiyu-pulse-icon"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="anzhiyufont anzhiyu-icon-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="anzhiyufont anzhiyu-icon-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="anzhiyufont anzhiyu-icon-arrow-rotate-right" style="font-size: 1rem;"></i></div><div class="rightMenu-item" id="menu-top"><i class="anzhiyufont anzhiyu-icon-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="anzhiyufont anzhiyu-icon-paste"></i><span>粘贴文本</span></div><a class="rightMenu-item" id="menu-commenttext"><i class="anzhiyufont anzhiyu-icon-comment-medical"></i><span>引用到评论</span></a><div class="rightMenu-item" id="menu-newwindow"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="anzhiyufont anzhiyu-icon-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="anzhiyufont anzhiyu-icon-images"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="anzhiyufont anzhiyu-icon-download"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-newwindowimg"><i class="anzhiyufont anzhiyu-icon-window-restore"></i><span>新窗口打开图片</span></div><div class="rightMenu-item" id="menu-search"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>站内搜索</span></div><div class="rightMenu-item" id="menu-searchBaidu"><i class="anzhiyufont anzhiyu-icon-magnifying-glass"></i><span>百度搜索</span></div><div class="rightMenu-item" id="menu-music-toggle"><i class="anzhiyufont anzhiyu-icon-play"></i><span>播放音乐</span></div><div class="rightMenu-item" id="menu-music-back"><i class="anzhiyufont anzhiyu-icon-backward"></i><span>切换到上一首</span></div><div class="rightMenu-item" id="menu-music-forward"><i class="anzhiyufont anzhiyu-icon-forward"></i><span>切换到下一首</span></div><div class="rightMenu-item" id="menu-music-playlist" onclick="window.open(&quot;https://y.qq.com/n/ryqq/playlist/8802438608&quot;, &quot;_blank&quot;);" style="display: none;"><i class="anzhiyufont anzhiyu-icon-radio"></i><span>查看所有歌曲</span></div><div class="rightMenu-item" id="menu-music-copyMusicName"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制歌名</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item menu-link" id="menu-randomPost"><i class="anzhiyufont anzhiyu-icon-shuffle"></i><span>随便逛逛</span></a><a class="rightMenu-item menu-link" href="/categories/"><i class="anzhiyufont anzhiyu-icon-cube"></i><span>博客分类</span></a><a class="rightMenu-item menu-link" href="/tags/"><i class="anzhiyufont anzhiyu-icon-tags"></i><span>文章标签</span></a></div><div class="rightMenu-group rightMenu-line rightMenuOther"><a class="rightMenu-item" id="menu-copy" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-copy"></i><span>复制地址</span></a><a class="rightMenu-item" id="menu-commentBarrage" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-message"></i><span class="menu-commentBarrage-text">关闭热评</span></a><a class="rightMenu-item" id="menu-darkmode" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></a><a class="rightMenu-item" id="menu-translate" href="javascript:void(0);"><i class="anzhiyufont anzhiyu-icon-language"></i><span>轉為繁體</span></a></div></div><div id="rightmenu-mask"></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.cbd.int/@fancyapps/ui@5.0.28/dist/fancybox/fancybox.umd.js"></script><script src="https://cdn.cbd.int/instant.page@5.2.0/instantpage.js" type="module"></script><script src="https://cdn.cbd.int/vanilla-lazyload@17.8.5/dist/lazyload.iife.min.js"></script><script src="https://cdn.cbd.int/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
-  if (typeof pangu === 'object') pangu.autoSpacingPage()
-  else {
-    getScript('https://cdn.cbd.int/pangu@4.0.7/dist/browser/pangu.min.js')
-      .then(() => {
-        pangu.autoSpacingPage()
-      })
-  }
-}
-
-function panguInit () {
-  if (false){
-    GLOBAL_CONFIG_SITE.isPost && panguFn()
-  } else {
-    panguFn()
-  }
-}
-
-document.addEventListener('DOMContentLoaded', panguInit)</script><canvas id="universe"></canvas><script async src="https://npm.elemecdn.com/anzhiyu-theme-static@1.0.0/dark/dark.js"></script><script>// 消除控制台打印
-var HoldLog = console.log;
-console.log = function () {};
-let now1 = new Date();
-queueMicrotask(() => {
-  const Log = function () {
-    HoldLog.apply(console, arguments);
-  }; //在恢复前输出日志
-  const grt = new Date("10/30/2022 12:34:56"); //此处修改你的建站时间或者网站上线时间
-  now1.setTime(now1.getTime() + 250);
-  const days = (now1 - grt) / 1000 / 60 / 60 / 24;
-  const dnum = Math.floor(days);
-  const ascll = [
-    `欢迎使用安知鱼!`,
-    `生活明朗, 万物可爱`,
-    `
-        
-       █████╗ ███╗   ██╗███████╗██╗  ██╗██╗██╗   ██╗██╗   ██╗
-      ██╔══██╗████╗  ██║╚══███╔╝██║  ██║██║╚██╗ ██╔╝██║   ██║
-      ███████║██╔██╗ ██║  ███╔╝ ███████║██║ ╚████╔╝ ██║   ██║
-      ██╔══██║██║╚██╗██║ ███╔╝  ██╔══██║██║  ╚██╔╝  ██║   ██║
-      ██║  ██║██║ ╚████║███████╗██║  ██║██║   ██║   ╚██████╔╝
-      ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝
-        
-        `,
-    "已上线",
-    dnum,
-    "天",
-    "©2022 By 安知鱼 V1.6.14",
-  ];
-  const ascll2 = [`NCC2-036`, `调用前置摄像头拍照成功，识别为【小笨蛋】.`, `Photo captured: `, `🤪`];
-
-  setTimeout(
-    Log.bind(
-      console,
-      `\n%c${ascll[0]} %c ${ascll[1]} %c ${ascll[2]} %c${ascll[3]}%c ${ascll[4]}%c ${ascll[5]}\n\n%c ${ascll[6]}\n`,
-      "color:#425AEF",
-      "",
-      "color:#425AEF",
-      "color:#425AEF",
-      "",
-      "color:#425AEF",
-      ""
-    )
-  );
-  setTimeout(
-    Log.bind(
-      console,
-      `%c ${ascll2[0]} %c ${ascll2[1]} %c \n${ascll2[2]} %c\n${ascll2[3]}\n`,
-      "color:white; background-color:#4fd953",
-      "",
-      "",
-      'background:url("https://npm.elemecdn.com/anzhiyu-blog@1.1.6/img/post/common/tinggge.gif") no-repeat;font-size:450%'
-    )
-  );
-
-  setTimeout(Log.bind(console, "%c WELCOME %c 你好，小笨蛋.", "color:white; background-color:#4f90d9", ""));
-
-  setTimeout(
-    console.warn.bind(
-      console,
-      "%c ⚡ Powered by 安知鱼 %c 你正在访问 HeyGap 的博客.",
-      "color:white; background-color:#f0ad4e",
-      ""
-    )
-  );
-
-  setTimeout(Log.bind(console, "%c W23-12 %c 你已打开控制台.", "color:white; background-color:#4f90d9", ""));
-
-  setTimeout(
-    console.warn.bind(console, "%c S013-782 %c 你现在正处于监控中.", "color:white; background-color:#d9534f", "")
-  );
-});</script><script async src="/anzhiyu/random.js"></script><script async="async">(function () {
-  var grt = new Date("10/30/2022 12:34:56"); //设置网站上线时间
-  var now = new Date();
-  var dnum;
-  var hnum;
-  var mnum;
-  var snum;
-  var nowHour;
-
-  // 计算并更新天数、小时数、分钟数和秒数
-  function updateTime() {
-    now = new Date(); // 更新 now 的值
-    nowHour = now.getHours(); // 更新 nowHour 的值
-    var days = (now - grt) / 1000 / 60 / 60 / 24;
-    dnum = Math.floor(days);
-    var hours = (now - grt) / 1000 / 60 / 60 - 24 * dnum;
-    hnum = Math.floor(hours);
-    if (String(hnum).length == 1) {
-      hnum = "0" + hnum;
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://heygap.github.io">HeyGap</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://heygap.github.io/posts/27202.html">http://heygap.github.io/posts/27202.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://heygap.github.io" target="_blank">HeyGap's_Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/web/">web</a></div><div class="post-share"><div class="social-share" data-image="/img/cover2.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/27164.html" title="Web - DNS Poisoning"><img class="cover" src="/img/cover5.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Web - DNS Poisoning</div></div><div class="info-2"><div class="info-item-1"> 记录一下这学期最难的一次网络安全实验，恰逢期末，之后回来填坑   [1] 虚拟机 virtualbox 配置 如何便捷地 copy 虚拟机(直到写这篇 wp 才想起来可以 STFW，我最开始用的 vdi...还需要用 VBoxManage internalcommands sethduuid /path/to/your.vdi 重新解绑uuid) 由于此次打开的虚拟机较多，所以每个虚拟机内存只分配2GB即可 之后，把双向粘贴板和双向拖放打开，再把“显示 -&gt; 屏幕”中扩展特性的“启用3D加速”打开（要不然会花屏） 之后再在“网络 -&gt; 网卡1”栏目中，将连接方式改为“内部网络”，然后名称改为intnet0/1/2（这里根据自己需求来写，比如我配的权威DNS就是intnet1） 最后进入虚拟机中，在上方栏目的“设备”中点击安装增强功能，它会自动打开一个文件夹，在终端里运行autorun.sh即可自动安装，之后重启虚拟机就可以启用双向粘贴板和拖放了 [2] 虚拟机网络配置 IP...</div></div></div></a><a class="pagination-related" href="/posts/9333.html" title="2024年终总结"><img class="cover" src="/img/cover9.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">2024年终总结</div></div><div class="info-2"><div class="info-item-1">...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">HeyGap</div><div class="author-info-description">An undergraduate student of Cybersecurity at SDU.</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">31</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeyGap"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/HeyGap" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:2310769056@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客，主要用来记录一些学习笔记和生活感悟。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%AF%94%E8%BE%83%E5%AE%B9%E6%98%93%E9%81%97%E5%BF%98%E7%9A%84%E7%82%B9"><span class="toc-text">[0] 比较容易遗忘的点：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82%E5%B1%80%E5%9F%9F%E7%BD%91"><span class="toc-text">[1] 数据链路层(局域网)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE"><span class="toc-text">[1-1] 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arp"><span class="toc-text">[1-1-1] ARP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dhcp"><span class="toc-text">[1-1-2] DHCP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB"><span class="toc-text">[1-2] 常见攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arp-1"><span class="toc-text">[1-2-1] ARP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#arp-dosmac%E5%9C%B0%E5%9D%80%E6%B4%AA%E6%B3%9B"><span class="toc-text">[1-2-1-1] ARP DoS(MAC地址洪泛)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#arp-%E7%BC%93%E5%AD%98%E6%8A%95%E6%AF%92"><span class="toc-text">[1-2-1-2] ARP 缓存投毒</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dhcp-1"><span class="toc-text">[1-2-2] DHCP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#dhcp-dos"><span class="toc-text">[1-2-2-1] DHCP DoS</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82"><span class="toc-text">[2] 网络层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE-1"><span class="toc-text">[2-1] 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ip"><span class="toc-text">[2-1-1] IP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#icmp"><span class="toc-text">[2-1-2] ICMP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-1"><span class="toc-text">[2-2] 常见攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ip-1"><span class="toc-text">[2-2-1] IP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ping-of-death"><span class="toc-text">[2-2-1-1] Ping of Death</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#icmp-1"><span class="toc-text">[2-2-2] ICMP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#smurf%E6%94%BB%E5%87%BBicmp-dos"><span class="toc-text">[2-2-2-1] Smurf攻击(ICMP DoS)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#icmp-redirecticmp-poisoning"><span class="toc-text">[2-2-2-2] ICMP Redirect(ICMP
+Poisoning)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-ipsec"><span class="toc-text">[2-3] 防护措施-IPSec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E4%BB%B6"><span class="toc-text">[2-3-1] 组件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%86%E9%92%A5%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="toc-text">[2-3-1-1] 密钥管理系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E8%BE%93%E6%A8%A1%E5%BC%8F"><span class="toc-text">[2-3-2] 传输模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#esp-tun-mode-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">[2-3-3] ESP TUN Mode 工作流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%90%E8%BE%93%E5%B1%82"><span class="toc-text">[3] 运输层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE-2"><span class="toc-text">[3-1] 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#udp"><span class="toc-text">[3-1-1] UDP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp"><span class="toc-text">[3-1-2] TCP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F"><span class="toc-text">[3-2] 主要攻击方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F%E4%B8%8E%E8%B5%84%E4%BA%A7%E6%8E%A2%E6%9F%A5"><span class="toc-text">[3-2-1] 端口扫描与资产探查</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9A%90%E8%94%BD%E6%89%AB%E6%8F%8F"><span class="toc-text">[3-2-1-1] 隐蔽扫描</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp-syn-floodtcp-dos"><span class="toc-text">[3-2-2] TCP SYN Flood(TCP DoS)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp-%E4%BC%9A%E8%AF%9D%E5%8A%AB%E6%8C%81%E9%87%8D%E7%BD%AE"><span class="toc-text">[3-2-3] TCP 会话劫持&#x2F;重置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tcp%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7%E6%94%BB%E5%87%BB"><span class="toc-text">[3-2-4] TCP反射放大攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1%E6%8E%AA%E6%96%BD"><span class="toc-text">[3-3] 防御措施</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%92%88%E5%AF%B9syn-flood"><span class="toc-text">[3-3-1] 针对SYN Flood</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82"><span class="toc-text">[4] 应用层</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F"><span class="toc-text">[4-1] 域名系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="toc-text">[4-1-1] 域名系统概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB%E6%96%B9%E5%BC%8F-1"><span class="toc-text">[4-1-2] 主要攻击方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#poisoning"><span class="toc-text">[4-1-2-1] Poisoning</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5dns-%E9%87%8D%E7%BB%91%E5%AE%9A%E6%94%BB%E5%87%BB"><span class="toc-text">[4-1-2-2] 绕过同源策略(DNS
+重绑定攻击)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dns-%E5%8F%8D%E5%B0%84%E6%94%BE%E5%A4%A7"><span class="toc-text">[4-1-2-3] DNS 反射放大</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dns-%E5%8A%AB%E6%8C%81"><span class="toc-text">[4-1-2-4] DNS 劫持</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD"><span class="toc-text">[4-1-3] 防护措施</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E9%9A%8F%E6%9C%BA%E5%8C%96"><span class="toc-text">[4-1-3-1] 基于随机化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%8A%A0%E5%AF%86"><span class="toc-text">[4-1-3-2] 基于加密</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#web%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8"><span class="toc-text">[4-2] Web系统安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#web%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="toc-text">[4-2-1] web系统概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%94%BB%E5%87%BB"><span class="toc-text">[4-2-2] 主要攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%8F%E8%A7%88%E5%99%A8"><span class="toc-text">[4-2-2-1] 客户端浏览器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-text">[4-2-2-2] 服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E4%B8%AAweb%E7%B3%BB%E7%BB%9F"><span class="toc-text">[4-2-2-3] 整个Web系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%B2%E6%8A%A4%E6%8E%AA%E6%96%BD-1"><span class="toc-text">[4-2-3] 防护措施</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="toc-text">[4-2-3-1] 同源策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E6%8F%92%E4%BB%B6%E5%AE%89%E5%85%A8%E8%A7%84%E5%88%99"><span class="toc-text">[4-2-3-2] 浏览器插件安全规则</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#http-cookie%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5"><span class="toc-text">[4-2-3-3] HTTP Cookie安全策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#https"><span class="toc-text">[4-2-3-4] HTTPS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#cdn"><span class="toc-text">[4-2-3-5] CDN</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%82%AE%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="toc-text">[4-3] 邮件系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">[4-3-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%8F%E8%AE%AE-3"><span class="toc-text">[4-3-2] 协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#smtp"><span class="toc-text">[4-3-2-1] SMTP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pop3"><span class="toc-text">[4-3-2-2] POP3</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#imap4"><span class="toc-text">[4-3-2-3] IMAP4</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%94%BB%E5%87%BB-2"><span class="toc-text">[4-3-3] 常见攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%A0%87%E8%AF%86%E7%AC%A6%E4%B8%8D%E4%B8%80%E8%87%B4"><span class="toc-text">[4-3-3-1] 身份验证标识符不一致</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%BB%93%E6%9E%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB"><span class="toc-text">[4-3-3-2] 身份验证结果注入攻击</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dkim%E7%AD%BE%E5%90%8D%E9%87%8D%E6%94%BE"><span class="toc-text">[4-3-3-3] DKIM签名重放</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E7%BB%95%E8%BF%87%E6%94%BB%E5%87%BB"><span class="toc-text">[4-3-3-4] 身份验证绕过攻击</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%98%B2%E6%8A%A4"><span class="toc-text">[4-3-4] 常见防护</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#spf"><span class="toc-text">[4-3-4-1] SPF</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dkim"><span class="toc-text">[4-3-4-2] DKIM</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dmarc"><span class="toc-text">[4-3-4-3] DMARC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E7%9B%B4%E6%8E%A5%E8%BD%AC%E5%8F%91-mta-%E5%9C%BA%E6%99%AF"><span class="toc-text">[4-3-4-4] 共享&#x2F;直接&#x2F;转发 MTA 场景</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF"><span class="toc-text">[5] 防御技术</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-text">[5-1] 防火墙</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="toc-text">[5-1-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB"><span class="toc-text">[5-1-2] 分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8C%85%E8%BF%87%E6%BB%A4%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-text">[5-1-2-1] 包过滤防火墙</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%8A%B6%E6%80%81%E6%A3%80%E6%9F%A5%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-text">[5-1-2-2] 状态检查防火墙</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82%E9%98%B2%E7%81%AB%E5%A2%99"><span class="toc-text">[5-1-2-3] 应用层防火墙</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B"><span class="toc-text">[5-1-2-4] 其他类型</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#idsintrusion-detection-system"><span class="toc-text">[5-2] IDS(Intrusion Detection
+System)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#p2dr%E6%A8%A1%E5%9E%8B"><span class="toc-text">[5-2-1] \(P^2DR模型\)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%B1%BB-1"><span class="toc-text">[5-2-2] 分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#hids"><span class="toc-text">[5-2-2-1] HIDS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#nids"><span class="toc-text">[5-2-2-2] NIDS</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ids%E6%8A%80%E6%9C%AF"><span class="toc-text">[5-2-3] IDS技术</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E8%AF%AF%E7%94%A8%E7%9A%84%E5%85%A5%E4%BE%B5%E6%A3%80%E6%B5%8B"><span class="toc-text">[5-2-3-1] 基于误用的入侵检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%BC%82%E5%B8%B8%E7%9A%84%E6%A3%80%E6%B5%8B"><span class="toc-text">[5-2-3-2] 基于异常的检测</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/18184.html" title="blockchain - openzeppelin 源码阅读"><img src="/img/cover10.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="blockchain - openzeppelin 源码阅读"/></a><div class="content"><a class="title" href="/posts/18184.html" title="blockchain - openzeppelin 源码阅读">blockchain - openzeppelin 源码阅读</a><time datetime="2025-02-05T10:15:00.000Z" title="发表于 2025-02-05 18:02:00">2025-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/13129.html" title="blockchain - Uniswap V2"><img src="/img/cover1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="blockchain - Uniswap V2"/></a><div class="content"><a class="title" href="/posts/13129.html" title="blockchain - Uniswap V2">blockchain - Uniswap V2</a><time datetime="2025-02-04T06:09:00.000Z" title="发表于 2025-02-04 14:02:00">2025-02-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/38292.html" title="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记"><img src="/img/cover7.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记"/></a><div class="content"><a class="title" href="/posts/38292.html" title="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记">blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记</a><time datetime="2025-01-13T12:01:00.000Z" title="发表于 2025-01-13 20:01:00">2025-01-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/9333.html" title="2024年终总结"><img src="/img/cover9.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="2024年终总结"/></a><div class="content"><a class="title" href="/posts/9333.html" title="2024年终总结">2024年终总结</a><time datetime="2025-01-12T04:55:00.000Z" title="发表于 2025-01-12 12:01:00">2025-01-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/27202.html" title="Web - 网络安全概述"><img src="/img/cover2.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Web - 网络安全概述"/></a><div class="content"><a class="title" href="/posts/27202.html" title="Web - 网络安全概述">Web - 网络安全概述</a><time datetime="2024-12-20T08:27:00.000Z" title="发表于 2024-12-20 16:12:00">2024-12-20</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/cover2.jpg);"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By HeyGap</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_swiper_injector_config(){
+    var parent_div_git = document.getElementById('recent-posts');
+    var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载butterfly_swiper')
+    parent_div_git.insertAdjacentHTML("afterbegin",item_html)
     }
-    var minutes = (now - grt) / 1000 / 60 - 24 * 60 * dnum - 60 * hnum;
-    mnum = Math.floor(minutes);
-    if (String(mnum).length == 1) {
-      mnum = "0" + mnum;
-    }
-    var seconds = (now - grt) / 1000 - 24 * 60 * 60 * dnum - 60 * 60 * hnum - 60 * mnum;
-    snum = Math.round(seconds);
-    if (String(snum).length == 1) {
-      snum = "0" + snum;
+  var elist = 'undefined'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
     }
   }
 
-  // 更新网页中显示的网站运行时间
-  function updateHtml() {
-    const footer = document.getElementById("footer");
-    if (!footer) return
-    let currentTimeHtml = "";
-    if (nowHour < 18 && nowHour >= 9) {
-      // 如果是上班时间，默认就是"安知鱼-上班摸鱼中.svg"图片，不需要更改
-      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
-    } else {
-      // 如果是下班时间，插入"安知鱼-下班啦.svg"图片
-      let img = document.querySelector("#workboard .workSituationImg");
-      if (img != null) {
-        img.src = "https://npm.elemecdn.com/anzhiyu-blog@2.0.4/img/badge/安知鱼-下班啦.svg";
-        img.title = "下班了就该开开心心的玩耍，嘿嘿~";
-        img.alt = "下班了就该开开心心的玩耍，嘿嘿~";
-      }
-
-      currentTimeHtml = `本站居然运行了 ${dnum} 天<span id='runtime'> ${hnum} 小时 ${mnum} 分 ${snum} 秒 </span><i class='anzhiyufont anzhiyu-icon-heartbeat' style='color:red'></i>`;
-    }
-
-    if (document.getElementById("runtimeTextTip")) {
-      document.getElementById("runtimeTextTip").innerHTML = currentTimeHtml;
-    }
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_swiper_injector_config();
   }
-
-  setInterval(() => {
-    updateTime();
-    updateHtml();
-  }, 1000);
-})();</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
-  const init = () => {
-    twikoo.init(Object.assign({
-      el: '#twikoo-wrap',
-      envId: '',
-      region: '',
-      onCommentLoaded: () => {
-        anzhiyu.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
-      }
-    }, null))
+  else if (epage === cpage){
+    butterfly_swiper_injector_config();
   }
-
-  const loadTwikoo = () => {
-    if (typeof twikoo === 'object') setTimeout(runFn,0)
-    else getScript('https://cdn.cbd.int/twikoo@1.6.39/dist/twikoo.all.min.js').then(runFn)
-  }
-
-  const getCount = () => {
-    const countELement = document.getElementById('twikoo-count')
-    if(!countELement) return
-    twikoo.getCommentsCount({
-      envId: '',
-      region: '',
-      urls: [window.location.pathname],
-      includeReply: false
-    }).then(res => {
-      countELement.textContent = res[0].count
-    }).catch(err => {
-      console.error(err)
-    })
-  }
-
-  const runFn = () => {
-    init();
-    GLOBAL_CONFIG_SITE.isPost && getCount()
-  }
-
-  if ('Twikoo' === 'Twikoo' || !false) {
-    if (false) anzhiyu.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
-    else {
-      loadTwikoo()
-    }
-  } else {
-    window.loadOtherComment = loadTwikoo
-  }
-})()</script><script>(() => {
-  let initFn = window.walineFn || null
-
-  const initWaline = (Fn) => {
-    const waline = Fn(Object.assign({
-      el: '#waline-wrap',
-      serverURL: '',
-      pageview: false,
-      dark: 'html[data-theme="dark"]',
-      path: window.location.pathname,
-      comment: true,
-      imageUploader: true,
-    }, null))
-
-    const destroyWaline = () => {
-      waline.destroy()
-    }
-
-    anzhiyu.addGlobalFn('pjax', destroyWaline, 'destroyWaline')
-  }
-
-  const loadWaline = async () => {
-    if (initFn) initWaline(initFn)
-    else {
-      await getCSS('https://cdn.cbd.int/@waline/client@3.1.3/dist/waline.css')
-      if (false) await getCSS('https://cdn.cbd.int/@waline/client@3.1.3/dist/waline-meta.css')
-      const { init } = await import('https://cdn.cbd.int/@waline/client@3.1.3/dist/waline.js')
-      initFn = init || Waline.init
-      initWaline(initFn)
-      window.walineFn = initFn
-    }
-  }
-
-  if ('Twikoo' === 'Waline' || !false) {
-    if (false) anzhiyu.loadComment(document.getElementById('waline-wrap'),loadWaline)
-    else setTimeout(loadWaline, 0)
-  } else {
-    window.loadOtherComment = loadWaline
-  }
-})()</script><input type="hidden" name="page-type" id="page-type" value="post"></div><script>window.addEventListener('load', () => {
-  const changeContent = (content) => {
-    if (content === '') return content
-
-    content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[图片]') // replace image link
-    content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[链接]') // replace url
-    content = content.replace(/<pre><code>.*?<\/pre>/gi, '[代码]') // replace code
-    content = content.replace(/<[^>]+>/g,"") // remove html tag
-
-    if (content.length > 150) {
-      content = content.substring(0,150) + '...'
-    }
-    return content
-  }
-
-  const getComment = () => {
-    const runTwikoo = () => {
-      twikoo.getRecentComments({
-        envId: '',
-        region: '',
-        pageSize: 6,
-        includeReply: true
-      }).then(function (res) {
-        const twikooArray = res.map(e => {
-          return {
-            'content': changeContent(e.comment),
-            'avatar': e.avatar,
-            'nick': e.nick,
-            'url': e.url + '#' + e.id,
-            'date': new Date(e.created).toISOString()
-          }
-        })
-
-        saveToLocal.set('twikoo-newest-comments', JSON.stringify(twikooArray), 10/(60*24))
-        generateHtml(twikooArray)
-      }).catch(function (err) {
-        const $dom = document.querySelector('#card-newest-comments .aside-list')
-        $dom.textContent= "无法获取评论，请确认相关配置是否正确"
-      })
-    }
-
-    if (typeof twikoo === 'object') {
-      runTwikoo()
-    } else {
-      getScript('https://cdn.cbd.int/twikoo@1.6.39/dist/twikoo.all.min.js').then(runTwikoo)
-    }
-  }
-
-  const generateHtml = array => {
-    let result = ''
-
-    if (array.length) {
-      for (let i = 0; i < array.length; i++) {
-        result += '<div class=\'aside-list-item\'>'
-
-        if (true) {
-          const name = 'data-lazy-src'
-          result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'><div class='name'><span>${array[i].nick} </span></div></a>`
-        }
-        
-        result += `<div class='content'>
-        <a class='comment' href='${array[i].url}' title='${array[i].content}'>${array[i].content}</a>
-        <time datetime="${array[i].date}">${anzhiyu.diffDate(array[i].date, true)}</time></div>
-        </div>`
-      }
-    } else {
-      result += '没有评论'
-    }
-
-    let $dom = document.querySelector('#card-newest-comments .aside-list')
-    $dom && ($dom.innerHTML= result)
-    window.lazyLoadInstance && window.lazyLoadInstance.update()
-    window.pjax && window.pjax.refresh($dom)
-  }
-
-  const newestCommentInit = () => {
-    if (document.querySelector('#card-newest-comments .aside-list')) {
-      const data = saveToLocal.get('twikoo-newest-comments')
-      if (data) {
-        generateHtml(JSON.parse(data))
-      } else {
-        getComment()
-      }
-    }
-  }
-
-  newestCommentInit()
-  document.addEventListener('pjax:complete', newestCommentInit)
-})</script><script>var visitorMail = "2310769056@qq.com";
-</script><script async data-pjax src="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/waterfall/waterfall.js"></script><script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/qrcodejs/1.0.0/qrcode.min.js"></script><script src="/js/anzhiyu/right_click_menu.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.1.9/icon/ali_iconfont_css.css"><script src="/js/custom/schedule.js"></script><script src="https://open.lightxi.com/unpkg/chinese-lunar@0.1.4/lib/chinese-lunar.js"></script><script defer src="/js/light.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.cbd.int/butterfly-extsrc@1.1.3/dist/fireworks.min.js"></script><link rel="stylesheet" href="https://cdn.cbd.int/anzhiyu-theme-static@1.0.0/aplayer/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.cbd.int/anzhiyu-blog-static@1.0.1/js/APlayer.min.js"></script><script src="https://cdn.cbd.int/hexo-anzhiyu-music@1.0.1/assets/js/Meting2.min.js"></script><script src="https://cdn.cbd.int/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["meta[property=\"og:image\"]","meta[property=\"og:title\"]","meta[property=\"og:url\"]","meta[property=\"og:type\"]","meta[property=\"og:site_name\"]","meta[property=\"og:description\"]","head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
-var pjax = new Pjax({
-  elements: 'a:not([target="_blank"])',
-  selectors: pjaxSelectors,
-  cacheBust: false,
-  analytics: false,
-  scrollRestoration: false
-})
-
-document.addEventListener('pjax:send', function () {
-  // removeEventListener scroll 
-  anzhiyu.removeGlobalFnEvent('pjax')
-  anzhiyu.removeGlobalFnEvent('themeChange')
-
-  document.getElementById('rightside').classList.remove('rightside-show')
-  
-  if (window.aplayers) {
-    for (let i = 0; i < window.aplayers.length; i++) {
-      if (!window.aplayers[i].options.fixed) {
-        window.aplayers[i].destroy()
-      }
-    }
-  }
-
-  typeof typed === 'object' && typed.destroy()
-
-  //reset readmode
-  const $bodyClassList = document.body.classList
-  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
-})
-
-document.addEventListener('pjax:complete', function () {
-  window.refreshFn()
-
-  document.querySelectorAll('script[data-pjax]').forEach(item => {
-    const newScript = document.createElement('script')
-    const content = item.text || item.textContent || item.innerHTML || ""
-    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
-    newScript.appendChild(document.createTextNode(content))
-    item.parentNode.replaceChild(newScript, item)
-  })
-
-  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
-
-  typeof panguInit === 'function' && panguInit()
-
-  // google analytics
-  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
-
-  // baidu analytics
-  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
-
-  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
-
-  // prismjs
-  typeof Prism === 'object' && Prism.highlightAll()
-})
-
-document.addEventListener('pjax:error', e => {
-  if (e.request.status === 404) {
-    pjax.loadUrl('/404.html')
-  }
-})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script charset="UTF-8" src="https://cdn.cbd.int/anzhiyu-theme-static@1.1.5/accesskey/accesskey.js"></script></div><div id="popup-window"><div class="popup-window-title">通知</div><div class="popup-window-divider"></div><div class="popup-window-content"><div class="popup-tip">你好呀</div><div class="popup-link"><i class="anzhiyufont anzhiyu-icon-arrow-circle-right"></i></div></div></div></body></html>
+  </script><script defer src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper_init.js"></script><!-- hexo injector body_end end --></body></html>

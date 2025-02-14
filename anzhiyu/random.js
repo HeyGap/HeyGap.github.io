@@ -1,3 +1,0 @@
-var posts=["posts/19300.html","posts/15983.html","posts/9333.html","posts/64267.html","posts/20963.html","posts/61276.html","posts/5670.html","posts/42047.html","posts/61241.html","posts/31252.html","posts/46771.html","posts/47197.html","posts/56319.html","posts/18908.html","posts/24986.html","posts/27164.html","posts/27202.html","posts/38292.html","posts/36493.html","posts/26167.html","posts/13129.html","posts/56099.html","posts/18184.html","posts/62959.html","posts/27539.html","posts/53464.html","posts/11137.html","posts/7380.html","posts/40260.html","posts/34999.html"];function toRandomPost(){
-    pjax.loadUrl('/'+posts[Math.floor(Math.random() * posts.length)]);
-  };
